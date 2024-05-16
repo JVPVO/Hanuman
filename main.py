@@ -1,10 +1,7 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
-import sys
-from PIL import Image
-import io
-import time
+
 class Animation:
     def __init__(self, image_file, total_frames, frame_width, frame_height, animation_speed=0.2):
         self.sprite_sheet = pygame.image.load(image_file).convert_alpha()
@@ -17,7 +14,8 @@ class Animation:
         self.last_update = pygame.time.get_ticks()
         self.image = self.frames[self.current_frame]
         self.x, self.y = 0, 0
-
+        self.scale_factor = 1
+        self.last_rotation = pygame.time.get_ticks()
     def load_frames(self):
         frames = []
         for i in range(self.total_frames):
@@ -36,12 +34,18 @@ class Animation:
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
 
-    def scale_frames(self, scale_factor):
-        """Redimensiona os frames do sprite com base no fator de escala."""
+    def rescale_frames(self, scale_factor):
+        """Redimensiona os frames do sprite com base no fator de escala absoluto."""
+        self.scale_factor = scale_factor
         self.frames = [pygame.transform.scale(frame, 
                       (int(self.frame_width * scale_factor), 
-                       int(self.frame_height * scale_factor))) for frame in self.frames]
-        self.image = self.frames[self.current_frame]
+                       int(self.frame_height * scale_factor))) for frame in self.load_frames()]
+        self.image = self.frames[self.current_frame]  # Atualize a imagem atual
+    def rotate(self, cooldown = 80):
+        now = pygame.time.get_ticks()
+        if now - self.last_rotation > cooldown:
+            self.last_rotation = pygame.time.get_ticks()
+            self.image = pygame.transform.flip(self.image, True, False)
 
 class Camera:
     def __init__(self, width, height):
@@ -73,6 +77,9 @@ class Player:
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
         self.speed = 2  # Velocidade de movimento do jogador
+        self.scale_factor = 1
+        self.last_scale_time = pygame.time.get_ticks()
+        self.scale_cooldown = 500  # Cooldown de 500 milissegundos
 
     def handle_keys(self, key_pressed):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
@@ -81,18 +88,26 @@ class Player:
         if key_pressed[pygame.K_s]:
             self.rect.y += self.speed
         if key_pressed[pygame.K_a]:
+            self.sprite.rotate()
             self.rect.x -= self.speed
         if key_pressed[pygame.K_d]:
             self.rect.x += self.speed
         if key_pressed[pygame.K_p]:
-            self.scale(2)  # Aumenta a escala em um fator de 2
+            self.scale(2)  # Aumenta a escala em 10%
+        if key_pressed[pygame.K_o]:
+            self.scale(0.5)  # Diminui a escala em 10%
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
         """Redimensiona o sprite do jogador."""
-        self.sprite.scale_frames(scale_factor)
-        self.rect.width = int(self.rect.width * scale_factor)
-        self.rect.height = int(self.rect.height * scale_factor)
+        now = pygame.time.get_ticks()
+        if now - self.last_scale_time > self.scale_cooldown:
+            self.last_scale_time = now
+            self.scale_factor *= scale_factor
+            if 0.1 < self.scale_factor < 10:  # Limita a escala a um intervalo razoável
+                self.sprite.rescale_frames(self.scale_factor)
+                self.rect.width = int(32 * self.scale_factor)
+                self.rect.height = int(32 * self.scale_factor)
 
     def draw(self, surface, camera):
         """Desenha o jogador na superfície, ajustando pela posição da câmera."""
