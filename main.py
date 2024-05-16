@@ -1,6 +1,47 @@
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
+import sys
+from PIL import Image
+import io
+import time
+class Animation:
+    def __init__(self, image_file, total_frames, frame_width, frame_height, animation_speed=0.2):
+        self.sprite_sheet = pygame.image.load(image_file).convert_alpha()
+        self.total_frames = total_frames
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+        self.animation_speed = animation_speed
+        self.current_frame = 0
+        self.frames = self.load_frames()
+        self.last_update = pygame.time.get_ticks()
+        self.image = self.frames[self.current_frame]
+        self.x, self.y = 0, 0
+
+    def load_frames(self):
+        frames = []
+        for i in range(self.total_frames):
+            frame = self.sprite_sheet.subsurface(pygame.Rect(
+                i * self.frame_width, 0, self.frame_width, self.frame_height))
+            frames.append(frame)
+        return frames
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 1000 * self.animation_speed:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % self.total_frames
+            self.image = self.frames[self.current_frame]
+
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+
+    def scale_frames(self, scale_factor):
+        """Redimensiona os frames do sprite com base no fator de escala."""
+        self.frames = [pygame.transform.scale(frame, 
+                      (int(self.frame_width * scale_factor), 
+                       int(self.frame_height * scale_factor))) for frame in self.frames]
+        self.image = self.frames[self.current_frame]
 
 class Camera:
     def __init__(self, width, height):
@@ -28,9 +69,11 @@ class Camera:
 
 class Player:
     def __init__(self, x, y):
+        self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
+        self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
         self.speed = 2  # Velocidade de movimento do jogador
-    
+
     def handle_keys(self, key_pressed):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
         if key_pressed[pygame.K_w]:
@@ -41,12 +84,20 @@ class Player:
             self.rect.x -= self.speed
         if key_pressed[pygame.K_d]:
             self.rect.x += self.speed
+        if key_pressed[pygame.K_p]:
+            self.scale(2)  # Aumenta a escala em um fator de 2
+        self.sprite.x, self.sprite.y = self.rect.topleft
+
+    def scale(self, scale_factor):
+        """Redimensiona o sprite do jogador."""
+        self.sprite.scale_frames(scale_factor)
+        self.rect.width = int(self.rect.width * scale_factor)
+        self.rect.height = int(self.rect.height * scale_factor)
 
     def draw(self, surface, camera):
         """Desenha o jogador na superfície, ajustando pela posição da câmera."""
-        # Ajusta o retângulo do jogador pela câmera antes de desenhar
-        pygame.draw.rect(surface, (255, 0, 0), camera.apply(self.rect))
-
+        adjusted_rect = camera.apply(self.rect)
+        surface.blit(self.sprite.image, adjusted_rect.topleft)
 def load_map(filename):
     """ Carrega o mapa TMX usando pytmx. """
     tmx_data = load_pygame(filename)
@@ -98,6 +149,7 @@ def main():
                 running = False
 
         player.handle_keys(key_pressed)
+        player.sprite.update()
         camera.update(player)
 
         screen.fill((0, 0, 0))
