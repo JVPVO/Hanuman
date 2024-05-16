@@ -93,7 +93,7 @@ class Player:
         if key_pressed[pygame.K_d]:
             self.rect.x += self.speed
         if key_pressed[pygame.K_p]:
-            self.scale(2)  # Aumenta a escala em 10%
+            self.scale(1.5)  # Aumenta a escala em 10%
         if key_pressed[pygame.K_o]:
             self.scale(0.5)  # Diminui a escala em 10%
         self.sprite.x, self.sprite.y = self.rect.topleft
