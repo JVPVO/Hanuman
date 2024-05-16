@@ -52,6 +52,7 @@ def gerar_matriz(n):
 
     matriz = []
     selecionaveis = [0,1,2,3]
+    pesos = [50, 40, 5, 5]
 
 
     for l in range(n):
@@ -60,19 +61,25 @@ def gerar_matriz(n):
             coluna.append(0)
         matriz.append(coluna)
 
-    
+    matriz[1][1]=1 ##melhorar isso dps?
     
     for l in range(n):
         for c in range(n):
-            sel = random.choice(selecionaveis)
+            sel = random.choices(selecionaveis, weights=pesos)[0]
             
             em_volta, qntd_em_volta = get_arround_list(matriz, [l,c])
 
-            if sel == 3 or sel == 2 and qntd_em_volta !=0:
-                selecionaveis.remove(sel)
+            if (sel == 3 or sel == 2) and qntd_em_volta !=0:
+                selecionaveis[sel] = 0
                 matriz[l][c] = sel
             
             else:
+                
+                #consertar isso aq q tá bme ruim
+                if selecionaveis[2] == 2 or selecionaveis[3] == 3:
+                    pesos[3] += 1
+                    pesos[2] += 1
+                
                 if qntd_em_volta != 0:
                     if qntd_em_volta == 1:
                         matriz[l][c] = 1
