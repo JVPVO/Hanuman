@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="Floresta das fadas - arvores" tilewidth="16" tileheight="16" tilecount="8112" columns="78">
- <image source="./base/basepngs/Pixel_Crawler_-_Fairy_Environment/Pixel Crawler - Fairy Forest 1.7/Assets/Tree.png" width="1248" height="1664"/>
+ <image source="./basepngs/Pixel_Crawler_-_Fairy_Environment/Pixel Crawler - Fairy Forest 1.7/Assets/Tree.png" width="1248" height="1664"/>
 </tileset>

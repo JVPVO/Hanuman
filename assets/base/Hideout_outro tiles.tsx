@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="Hideout_outro tiles" tilewidth="16" tileheight="16" tilecount="650" columns="26">
- <image source="./base/basepngs/Pixel_Crawler_-_Hideout/Pixel Crawler - Hideout/Assets/Tiles.png" width="416" height="400"/>
+ <image source="./basepngs/Pixel_Crawler_-_Hideout/Pixel Crawler - Hideout/Assets/Tiles.png" width="416" height="400"/>
 </tileset>
