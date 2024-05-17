@@ -144,7 +144,7 @@ def main():
     screen = pygame.display.set_mode((1920, 1080))
 
     # Carregue seu mapa TMX aqui
-    tmx_data = load_map('assets/testes.tmx')
+    tmx_data = load_map('assets/base.tmx')
     global map_width, map_height
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
