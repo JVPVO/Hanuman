@@ -66,15 +66,13 @@ class Camera:
         """Atualiza a posição da câmera para seguir o alvo (jogador)."""
         x =  int(self.width / 2) -target.rect.x
         y =  int(self.height / 2) -target.rect.y
-        print(1,x,y)
         
         # Limitar a câmera para não mostrar áreas fora do mapa
         x = min(0, x)  # esquerda
         y = min(0, y)  # topo
-        print(2,x,y)
+        
         x = max((map_width - self.width), x)  # direita
         y = max((map_height - self.height), y)  # fundo
-        print(3,x,y)
 
         
         self.camera = pygame.Rect(x, y, self.width, self.height)
@@ -156,7 +154,7 @@ def main():
     screen = pygame.display.set_mode((1920, 1080))
 
     # Carregue seu mapa TMX aqui
-    tmx_data = load_map('assets/testes.tmx')
+    tmx_data = load_map('assets/base.tmx')
     global map_width, map_height
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
