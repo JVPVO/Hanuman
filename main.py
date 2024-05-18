@@ -64,16 +64,21 @@ class Camera:
     
     def update(self, target):
         """Atualiza a posição da câmera para seguir o alvo (jogador)."""
-        x = -target.rect.x + int(self.width / 2)
-        y = -target.rect.y + int(self.height / 2)
+        x =  int(self.width / 2) -target.rect.x
+        y =  int(self.height / 2) -target.rect.y
+        print(1,x,y)
         
         # Limitar a câmera para não mostrar áreas fora do mapa
         x = min(0, x)  # esquerda
         y = min(0, y)  # topo
-        x = max(-(self.width - map_width), x)  # direita
-        y = max(-(self.height - map_height), y)  # fundo
+        print(2,x,y)
+        x = max((map_width - self.width), x)  # direita
+        y = max((map_height - self.height), y)  # fundo
+        print(3,x,y)
+
         
         self.camera = pygame.Rect(x, y, self.width, self.height)
+        pass
 
 
 class Player:
@@ -81,7 +86,7 @@ class Player:
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
-        self.speed = 2  # Velocidade de movimento do jogador
+        self.speed = 8  # Velocidade de movimento do jogador
         self.scale_factor = 1
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
@@ -94,12 +99,13 @@ class Player:
             self.rect.y += self.speed
         if key_pressed[pygame.K_a]:
             self.sprite.rotate('l')
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed 
         if key_pressed[pygame.K_d]:
             self.sprite.rotate('r')
             self.rect.x += self.speed
         if key_pressed[pygame.K_p]:
-            self.scale(1.5)  # Aumenta a escala em 50%
+            #NOTE Recomendado usar valores inteiros (não distorce o sprite do personagem)
+            self.scale(1.5)  # Aumenta a escala em 50% 
         if key_pressed[pygame.K_o]:
             self.scale(0.5)  # Diminui a escala em 50%
         self.sprite.x, self.sprite.y = self.rect.topleft
@@ -146,18 +152,11 @@ def draw_map(surface, tmx_data, scale, camera):
                     surface.blit(tile, camera.apply(pygame.Rect(pos_x, pos_y, scaled_tile_width, scaled_tile_height)))
 
 def main():
-    def debug():
-        player.sprite.update()
-        screen.fill((0, 0, 0))
-        player.draw(screen, camera)
-        pygame.display.flip()
-
-    
     pygame.init()
     screen = pygame.display.set_mode((1920, 1080))
 
     # Carregue seu mapa TMX aqui
-    tmx_data = load_map('assets/base.tmx')
+    tmx_data = load_map('assets/testes.tmx')
     global map_width, map_height
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
@@ -165,7 +164,7 @@ def main():
     # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
     scale = 4
     player = Player(100, 100)
-    camera = Camera(1280,720)
+    camera = Camera(1920,1080) #tem que botar a msm resolucao da tela
 
     # Main game loop
     running = True
