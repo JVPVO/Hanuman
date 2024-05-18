@@ -10,7 +10,7 @@ class Animation:
         self.frame_height = frame_height
         self.animation_speed = animation_speed
         self.current_frame = 0
-        self.frames = self.load_frames()
+        self.frames = self.__load_frames__()
         self.last_update = pygame.time.get_ticks()
         self.image = self.frames[self.current_frame]
         self.x, self.y = 0, 0
@@ -18,7 +18,7 @@ class Animation:
         self.last_rotation = pygame.time.get_ticks()
         self.orientation = 0 #começa virado pra direita (0 é direita e 1 é esquerda)
     
-    def load_frames(self):
+    def __load_frames__(self):
         '''Separa os frames do sprite em uma lista'''
         frames = []
         for i in range(self.total_frames):
@@ -33,14 +33,13 @@ class Animation:
             self.current_frame = (self.current_frame + 1) % self.total_frames #para sempre ser uma valor dentro de [0, totalframes-1]
             self.image = self.frames[self.current_frame] #finalmente rroca a imagem pra frame atual
 
-    def draw(self, surface): #essa funcao nunca é usada no nosso codigo (a que é usada é o Draw do player)
+    def draw(self, surface): #NOTE essa funcao nunca é usada no nosso codigo (a que é usada é o Draw do player)
         surface.blit(self.image, (self.x, self.y)) #desenha na posicao especificada
 
     def rescale_frames(self, scale_factor):
         """Redimensiona os frames do sprite com base no fator de escala absoluto."""
         self.scale_factor = scale_factor
-        self.frames = [pygame.transform.scale(frame, (int(self.frame_width * scale_factor), int(self.frame_height * scale_factor))) for frame in self.load_frames()]
-        self.image = self.frames[self.current_frame]  # Atualiza a imagem atual
+        self.frames = [pygame.transform.scale(frame, (int(self.frame_width * scale_factor), int(self.frame_height * scale_factor))) for frame in self.frames]
     
     def rotate(self,orientation_dest, cooldown = 80):
         orientation_dest = 0 if orientation_dest == 'r' else 1 #converte pra numero
@@ -50,7 +49,7 @@ class Animation:
             if now - self.last_rotation > cooldown:
                 self.orientation = (self.orientation+1) % 2 #troca orientação
                 self.last_rotation = pygame.time.get_ticks()
-                self.frames = [pygame.transform.flip(frame, self.orientation, False) for frame in self.load_frames()]#rotaciona no eixo x
+                self.frames = [pygame.transform.flip(frame, True, False) for frame in self.frames]#rotaciona no eixo x
                 self.image = self.frames[self.current_frame]
 
 class Camera:
@@ -113,8 +112,8 @@ class Player:
             self.scale_factor *= scale_factor
             if 0.1 < self.scale_factor < 10:  # Limita a escala a um intervalo razoável
                 self.sprite.rescale_frames(self.scale_factor)
-                self.rect.width = int(32 * self.scale_factor)
-                self.rect.height = int(32 * self.scale_factor)
+                self.rect.width = int(32 * self.scale_factor) #ajusta o rect
+                self.rect.height = int(32 * self.scale_factor) #ajusta o rect
 
     def draw(self, surface, camera):
         """Desenha o jogador na superfície, ajustando pela posição da câmera."""
@@ -147,6 +146,13 @@ def draw_map(surface, tmx_data, scale, camera):
                     surface.blit(tile, camera.apply(pygame.Rect(pos_x, pos_y, scaled_tile_width, scaled_tile_height)))
 
 def main():
+    def debug():
+        player.sprite.update()
+        screen.fill((0, 0, 0))
+        player.draw(screen, camera)
+        pygame.display.flip()
+
+    
     pygame.init()
     screen = pygame.display.set_mode((1920, 1080))
 
