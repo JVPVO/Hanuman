@@ -66,15 +66,21 @@ class Camera:
         """Atualiza a posição da câmera para seguir o alvo (jogador)."""
         x =  int(self.width / 2) -target.rect.x
         y =  int(self.height / 2) -target.rect.y
+        # NOTE DEBUG print(y, x, self.height, target.rect.y, map_height, self.height-(map_height)*scale) #map height padrao é 480
         
-        # Limitar a câmera para não mostrar áreas fora do mapa
-        x = min(0, x)  # esquerda
-        y = min(0, y)  # topo
-        
-        x = max((map_width - self.width), x)  # direita
-        y = max((map_height - self.height), y)  # fundo
 
+        # Limitar a câmera para não mostrar áreas fora do mapa SE O MAPA FOR MAIOR QUE A CAMERA SOMENTE
+        if map_width*scale > self.width: #maior que a res da tela
+            print(1)
+            x = min(0, x)  # esquerda
+            x = max(self.width-map_width*scale, x)  # direita
         
+        if map_height*scale > self.height: #maior que a res da tela
+            print(2)
+            y = min(0, y)  # topo
+            y = max(self.height-map_height*scale, y)  # baixo
+            
+
         self.camera = pygame.Rect(x, y, self.width, self.height)
         pass
 
@@ -155,14 +161,14 @@ def main():
 
     # Carregue seu mapa TMX aqui
     tmx_data = load_map('assets/base.tmx')
-    global map_width, map_height
+    global map_width, map_height, scale
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
 
     # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
     scale = 4
     player = Player(100, 100)
-    camera = Camera(1920,1080) #tem que botar a msm resolucao da tela
+    camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
 
     # Main game loop
     running = True
