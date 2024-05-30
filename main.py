@@ -1,3 +1,7 @@
+#TODO Colisão
+#TODO implementar deltatime
+#TODO implementar deltatime
+
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
@@ -17,6 +21,7 @@ class Animation:
         self.scale_factor = 1
         self.last_rotation = pygame.time.get_ticks()
         self.orientation = 0 #começa virado pra direita (0 é direita e 1 é esquerda)
+
     
     def __load_frames__(self):
         '''Separa os frames do sprite em uma lista'''
@@ -82,16 +87,21 @@ class Camera:
         self.camera = pygame.Rect(x, y, self.width, self.height)
         pass
 
-
 class Player:
-    def __init__(self, x, y):
+    def __init__(self, x, y, initial_scale = 1):
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
         self.speed = 8  # Velocidade de movimento do jogador
-        self.scale_factor = 1
+        self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
+
+        self.sprite.rescale_frames(initial_scale)
+        self.rect.width = int(32 * initial_scale) #ajusta o rect
+        self.rect.height = int(32 * initial_scale) #ajusta o rect
+
+
 
     def handle_keys(self, key_pressed):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
@@ -123,10 +133,42 @@ class Player:
                 self.rect.width = int(32 * self.scale_factor) #ajusta o rect
                 self.rect.height = int(32 * self.scale_factor) #ajusta o rect
 
-    def draw(self, surface, camera):
+    def draw(self, surface:pygame.Surface, camera):
         """Desenha o jogador na superfície, ajustando pela posição da câmera."""
         adjusted_rect = camera.apply(self.rect)
         surface.blit(self.sprite.image, adjusted_rect.topleft)
+
+class Weapon:
+    def __init__(self, x, y, initial_scale = 1):
+        sprite = pygame.image.load('assets/Weapon.png').convert_alpha()
+        self.sprite_width = sprite.get_width()
+        self.sprite_height = sprite.get_height()
+
+        self.x, self.y = x, y
+        self.rect = pygame.Rect(x, y, self.sprite_width, self.sprite_height)
+        
+
+        self.sprite = pygame.transform.scale(sprite, (int(self.sprite_width*initial_scale), int(self.sprite_height*initial_scale)))
+
+        self.rect.width = int(self.sprite_width  * initial_scale) #ajusta o rect
+        self.rect.height = int(self.sprite_height  * initial_scale) #ajusta o rect
+        
+        self.angle = 0
+        self.rotated_img = self.sprite
+
+
+    
+    def draw(self, surface:pygame.Surface, camera):
+        surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.x, self.y, self.rect.width, self.rect.height)))
+    
+    def update(self):
+        self.rotated_img = pygame.transform.rotate(self.sprite, self.angle)
+        self.rect = self.sprite.get_rect(center=self.rect.center)
+        self.angle = (self.angle + 1) % 360
+
+
+
+
 def load_map(filename):
     """ Carrega o mapa TMX usando pytmx. """
     tmx_data = load_pygame(filename)
@@ -164,9 +206,11 @@ def main():
     map_height = tmx_data.height * tmx_data.tileheight
 
     # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
-    scale = 4
-    player = Player(100, 100)
+    scale = 3
+    player = Player(100, 100, scale)
     camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
+
+    espada = Weapon(20, 30, scale)
 
     # Main game loop
     running = True
@@ -184,6 +228,9 @@ def main():
         screen.fill((0, 0, 0))
         draw_map(screen, tmx_data, scale, camera)
         player.draw(screen, camera)
+
+        espada.update()
+        espada.draw(screen, camera)
         pygame.display.flip()
 
     pygame.quit()
