@@ -2,6 +2,7 @@
 #TODO implementar deltatime
 #TODO implementar deltatime
 
+from inimigos import *
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
@@ -181,10 +182,12 @@ class Player:
             self.scale(1.5)  # Aumenta a escala em 50% 
         if key_pressed[pygame.K_o]:
             self.scale(0.5)  # Diminui a escala em 50%
-
+        if key_pressed[pygame.K_ESCAPE]:
+            pygame.quit()
         if key_pressed[pygame.K_SPACE]:
             self.weapon[self.selected_weapon].update()
-        
+        if key_pressed[pygame.K_l]:
+            inimigos.append(Skeleton(100,100,3))
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -261,9 +264,10 @@ def main():
     scale = 3
     player = Player(100, 100, scale)
     camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
-
+    #Lista de inimigos para serem renderizados e removidos da tela quando necessário, TODO trocar por um sprite group
+    global inimigos #Fazer acessável de qualquer função
+    inimigos = []
     #espada = Weapon(70, 30, scale)
-
     # Main game loop
     running = True
     while running:
@@ -280,7 +284,8 @@ def main():
         screen.fill((0, 0, 0))
         draw_map(screen, tmx_data, scale, camera)
         player.draw(screen, camera)
-
+        for inimigo in inimigos:
+            inimigo.draw(screen)
         #espada.update()
         #espada.draw(screen, camera)
         pygame.display.flip()
