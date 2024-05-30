@@ -116,9 +116,8 @@ class Weapon:
 
         self.last_rotation = pygame.time.get_ticks()
 
-
     def draw(self, surface:pygame.Surface, camera):
-        surface.blit(pygame.Surface((self.rot_image_rect.width,self.rot_image_rect.height)), camera.apply(pygame.Rect(self.x, self.y, self.rot_image_rect.width, self.rot_image_rect.height))) 
+        #surface.blit(pygame.Surface((self.rot_image_rect.width,self.rot_image_rect.height)), camera.apply(pygame.Rect(self.x, self.y, self.rot_image_rect.width, self.rot_image_rect.height))) 
         #debug ^
         surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.x, self.y, self.rot_image_rect.width, self.rot_image_rect.height)))
         #surface.blit(self.rotated_img, self.rot_image_rect)
@@ -129,9 +128,26 @@ class Weapon:
         mx, my = pygame.mouse.get_pos()
         px, py = pPos_pComp[0:2]
         pw, ph = map(lambda x: 0.8*x, pPos_pComp[2:])
-        
-        self.update_rot(mx, my, camera)
+        #print(mx-camera.x,px)
+        #print(my-camera.y,py)
 
+        if mx - camera.x <= px:
+            x = px - pw 
+        elif px < mx - camera.x <= px+pw:
+            x = mx - camera.x
+        else:
+            x = px+pw
+
+        if my - camera.y <= py:
+            y = py - ph
+        elif py < my - camera.y <= py+ph:
+            y = my - camera.y
+        else:
+            y = py+ph
+        
+
+        self.set_pos(x, y)
+        self.update_rot(mx, my, camera)
 
     def update_rot(self, mx, my, camera:Camera):
     
@@ -143,7 +159,6 @@ class Weapon:
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
         self.rot_image_rect = self.rotated_img.get_rect(center = self.rect.center)
 
-    
     def set_pos(self, x, y):
         self.rect = self.sprite.get_rect(center = (x,y))
         self.x = x
