@@ -64,8 +64,9 @@ class Camera:
         self.camera = pygame.Rect(0, 0, width, height)
         self.width = width
         self.height = height
-        self.cont = 0
-    
+        self.x = 0
+        self.y = 0
+
     def apply(self, rect):
         """Aplica o deslocamento da câmera a um retângulo pygame.Rect para renderizar na posição correta."""
         return rect.move(self.camera.topleft)
@@ -86,11 +87,6 @@ class Camera:
         if map_height*scale > self.height: #maior que a res da tela
             y = min(0, y)  # topo
             y = max(self.height-map_height*scale, y)  # baixo
-
-        if self.cont > 100:    
-            print('Camera', x,y)
-            self.cont=0
-        self.cont +=1
 
         self.x = x
         self.y = y
@@ -115,8 +111,6 @@ class Weapon:
         self.rect.width = self.sprite_width #ajusta o rect
         self.rect.height = self.sprite_height #ajusta o rect
             
-        self.sinal = -1
-        self.angle = 20 * self.sinal
         self.rotated_img = self.sprite
         self.rot_image_rect = pygame.Rect(0,0,0,0)
 
@@ -124,18 +118,26 @@ class Weapon:
 
 
     def draw(self, surface:pygame.Surface, camera):
-        surface.blit(pygame.Surface((self.rect.width,self.rect.height)), camera.apply(pygame.Rect(self.x, self.y, self.rect.width, self.rect.height))) 
+        surface.blit(pygame.Surface((self.rot_image_rect.width,self.rot_image_rect.height)), camera.apply(pygame.Rect(self.x, self.y, self.rot_image_rect.width, self.rot_image_rect.height))) 
         #debug ^
         surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.x, self.y, self.rot_image_rect.width, self.rot_image_rect.height)))
         #surface.blit(self.rotated_img, self.rot_image_rect)
 
-    
-    def update_rot(self):
-
+    def update(self, pPos_pComp:tuple, camera):
+        '''pPos_pComp = (player_x, player_y, player_width, player_height)'''
+        #em progresso
         mx, my = pygame.mouse.get_pos()
+        px, py = pPos_pComp[0:2]
+        pw, ph = map(lambda x: 0.8*x, pPos_pComp[2:])
+        
+        self.update_rot(mx, my, camera)
+
+
+    def update_rot(self, mx, my, camera:Camera):
+    
         dx = mx - self.rect.centerx - camera.x
         dy = my - self.rect.centery - camera.y
-        print('mouse', mx, my)
+        #print('mouse', mx, my) debug
         angle = math.degrees(math.atan2(-dy, dx)) - 90
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
@@ -170,13 +172,17 @@ class Player:
         self.weapon_update_pos('r', self.weapon[self.selected_weapon]) #poe na posicao certa já
 
 
-    def handle_keys(self, key_pressed):
+    def handle_keys(self, key_pressed, camera:Camera):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
         weapon = self.weapon[self.selected_weapon]
         if key_pressed[pygame.K_w]:
             self.rect.y -= self.speed
+            self.weapon_update_pos('n', weapon)
+
         if key_pressed[pygame.K_s]:
             self.rect.y += self.speed
+            self.weapon_update_pos('n', weapon)
+
         if key_pressed[pygame.K_a]:
             self.sprite.rotate('l')
             self.weapon_update_pos('l', weapon)
@@ -194,11 +200,10 @@ class Player:
             self.scale(0.5)  # Diminui a escala em 50%
         if key_pressed[pygame.K_ESCAPE]:
             pygame.quit()
-        if key_pressed[pygame.K_SPACE]:
-            print('player',self.sprite.x, self.sprite.y)
-            weapon.update_rot()
         if key_pressed[pygame.K_l]:
             inimigos.append(Skeleton(100,100,3))
+
+        weapon.update((self.sprite.x, self.sprite.y, self.rect.width, self.rect.height), camera)
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -227,12 +232,12 @@ class Player:
     def weapon_update_pos(self, lado:str, weapon:Weapon): #remover wapon parametro dps
         if lado == 'r':
             weapon.set_pos(self.sprite.x + self.rect.width+2, self.sprite.y)
-            weapon.angle = abs(weapon.sinal)*-1
-            print(weapon.angle)
-        else:
+
+        elif lado == 'l':
             weapon.set_pos(self.sprite.x - weapon.rect.width-2 , self.sprite.y)
-            weapon.angle = abs(weapon.sinal)
-            print(weapon.angle)
+
+        else:
+            weapon.set_pos(weapon.x, self.sprite.y)
 
 
 
@@ -289,7 +294,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        player.handle_keys(key_pressed)
+        player.handle_keys(key_pressed, camera)
         player.sprite.update()
         camera.update(player)
 
