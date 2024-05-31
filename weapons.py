@@ -59,18 +59,15 @@ class Weapon(RotatableObjects):
         
         self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, camera)
         
-
         
-
-    def update_rot(self, mx, my, camera):
-    
-        dx = mx - self.rect.centerx - camera.x
-        dy = my - self.rect.centery - camera.y
+    #pequena modificacao em relacao a versão original (rotação com refrencial espada-mouse -> rotação com refrencial player-espada)
+    def update_rot(self, mx, my):
+        dx = mx - self.rect.centerx 
+        dy = my - self.rect.centery
         #print('mouse', mx, my) debug
-        angle = math.degrees(math.atan2(-dy, dx)) - 90
+        angle = math.degrees(math.atan2(dy, -dx)) - 90
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
-        self.rot_image_rect = self.rotated_img.get_rect(center = self.rect.center)
 
     def set_pos(self, x, y, mx, my, player_height,camera):
         #em progresso
@@ -80,21 +77,25 @@ class Weapon(RotatableObjects):
         camera_v = pygame.Vector2(camera.x, camera.y)
 
         result = mouse -camera_v - player #deslocamento da origem + correcao da camera
-        if result.magnitude() > player_height:
-            result = result.normalize() * player_height
+        mag = result.magnitude()
+        if mag > 2: #um valor pequeno para o "centro"
+            result = result.normalize() * player_height *0.9
             final = result + player # voltando pra origem original
             
             self.rect.centerx = final.x
             self.rect.centery = final.y
             
+            
             self.last_direction = result.normalize()
-            self.update_rot(mx, my, camera)
+            self.update_rot(x, y)
+
         
         else: #se nao tiver saido do limite = a que tava antes (#NOTE tem um bug aqui)
             #talvez deixar atras do personagem?
             self.rect.centerx = x + self.last_direction.x * player_height 
             self.rect.centery = y + self.last_direction.y * player_height
-            self.rot_image_rect = self.rotated_img.get_rect(center = self.rect.center)
+        
+        self.rot_image_rect = self.rotated_img.get_rect(center = self.rect.center)
             
 
 
