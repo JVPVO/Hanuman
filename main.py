@@ -7,7 +7,7 @@ from weapons import Weapon
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
-import math
+
 
 class Animation:
     def __init__(self, image_file, total_frames, frame_width, frame_height, animation_speed=0.2):
@@ -135,11 +135,11 @@ class Player:
         if key_pressed[pygame.K_ESCAPE]:
             pygame.quit()
         if key_pressed[pygame.K_l]:
-
-        if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-            inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3))
-            self.last_scale_time = pygame.time.get_ticks()
-              
+            if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
+                inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3))
+                self.last_scale_time = pygame.time.get_ticks()
+        
+        weapon.update(self.rect, camera, self.rect.height,key_pressed)
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
