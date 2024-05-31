@@ -235,6 +235,10 @@ def main():
         for inimigo in inimigos:
             inimigo.draw(screen, camera)
             inimigo.sprite.update()
+            inimigo.movement(player.sprite.x, player.sprite.y)
+            for i in range(len(player.weapon[player.selected_weapon].shoot)):
+                if inimigo.colisao(player.weapon[player.selected_weapon].shoot[i]):
+                    inimigos.remove(inimigo)
 
         pygame.display.flip()
 
