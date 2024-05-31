@@ -3,9 +3,11 @@
 #TODO implementar deltatime
 
 from inimigos import *
+from weapons import Weapon
 import pygame
 import pytmx
 from pytmx.util_pygame import load_pygame
+import math
 
 class Animation:
     def __init__(self, image_file, total_frames, frame_width, frame_height, animation_speed=0.2):
@@ -63,7 +65,9 @@ class Camera:
         self.camera = pygame.Rect(0, 0, width, height)
         self.width = width
         self.height = height
-    
+        self.x = 0
+        self.y = 0
+
     def apply(self, rect):
         """Aplica o deslocamento da câmera a um retângulo pygame.Rect para renderizar na posição correta."""
         return rect.move(self.camera.topleft)
@@ -79,65 +83,16 @@ class Camera:
         if map_width*scale > self.width: #maior que a res da tela
             x = min(0, x)  # esquerda
             x = max(self.width-map_width*scale, x)  # direita
+            
         
         if map_height*scale > self.height: #maior que a res da tela
             y = min(0, y)  # topo
             y = max(self.height-map_height*scale, y)  # baixo
-            
 
-        self.camera = pygame.Rect(x, y, self.width, self.height)
-        pass
-
-class Weapon:
-    def __init__(self, x, y, initial_scale = 1):
-        sprite = pygame.image.load('assets/Weapon.png').convert_alpha()
-        sprite_width = sprite.get_width()
-        sprite_height = sprite.get_height()
-
-        self.x, self.y = x, y
-        self.rect = pygame.Rect(x, y, sprite_width, sprite_height)
-        
-        self.sprite_width =  int(sprite_width * initial_scale)
-        self.sprite_height = int(sprite_height  * initial_scale)
-        
-        self.sprite = pygame.transform.scale(sprite, (self.sprite_width, self.sprite_height))
-
-        self.rect.width = self.sprite_width #ajusta o rect
-        self.rect.height = self.sprite_height #ajusta o rect
-            
-        self.sinal = -1
-        self.angle = 20 * self.sinal
-        self.rotated_img = self.sprite
-
-        self.last_rotation = pygame.time.get_ticks()
-
-
-    def draw(self, surface:pygame.Surface, camera):
-        surface.blit(pygame.Surface((self.rect.width,self.rect.height)), camera.apply(pygame.Rect(self.x, self.y, self.rect.width, self.rect.height))) 
-        #debug ^
-        surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.x, self.y, self.rect.width, self.rect.height)))
-
-    
-    def update(self):
-        self.rotated_img = pygame.transform.rotate(self.sprite, self.angle)
-        self.sprite_width = self.rotated_img.get_width()
-        self.sprite_height = self.rotated_img.get_height()
-        self.rect = pygame.Rect(self.x, self.y, self.sprite_width, self.sprite_height)
-        self.angle = ((self.angle + (self.sinal*2)) % (self.sinal*180)) #falta o delta time aqui
-    
-    def set_pos(self, x, y):
         self.x = x
         self.y = y
-    
-    def rotate(self, sinal, cooldown = 80):
-    
-        if self.sinal != sinal: #só muda a orientação se ta diferente
-            now = pygame.time.get_ticks()
-            if now - self.last_rotation > cooldown:
-                self.sinal *= -1 #troca orientação
-                self.last_rotation = pygame.time.get_ticks()
-                self.rotated_img = pygame.transform.flip(self.rotated_img, True, False)#rotaciona no eixo x
 
+        self.camera = pygame.Rect(x, y, self.width, self.height)
 
 class Player:
     def __init__(self, x, y, initial_scale = 1):
@@ -153,27 +108,24 @@ class Player:
         self.rect.width = int(19 * initial_scale) #ajusta o rect
         self.rect.height = int(30 * initial_scale) #ajusta o rect
         
-        self.weapon = [Weapon(70, 30, scale)]
+        self.weapon = [Weapon('assets/Weapon.png',70, 30, scale)]
         self.selected_weapon = 0
-        self.weapon_update_pos('r', self.weapon[self.selected_weapon]) #poe na posicao certa já
 
 
-    def handle_keys(self, key_pressed):
+    def handle_keys(self, key_pressed, camera:Camera):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
         weapon = self.weapon[self.selected_weapon]
         if key_pressed[pygame.K_w]:
             self.rect.y -= self.speed
+
         if key_pressed[pygame.K_s]:
             self.rect.y += self.speed
         if key_pressed[pygame.K_a]:
             self.sprite.rotate('l')
-            self.weapon_update_pos('l', weapon)
-            weapon.rotate(1)
             self.rect.x -= self.speed 
         if key_pressed[pygame.K_d]:
             self.sprite.rotate('r')
-            self.weapon_update_pos('r', weapon)
-            weapon.rotate(-1)
+
             self.rect.x += self.speed
         if key_pressed[pygame.K_p]:
             #NOTE Recomendado usar valores inteiros (não distorce o sprite do personagem)
@@ -182,12 +134,12 @@ class Player:
             self.scale(0.5)  # Diminui a escala em 50%
         if key_pressed[pygame.K_ESCAPE]:
             pygame.quit()
-        if key_pressed[pygame.K_SPACE]:
-            self.weapon[self.selected_weapon].update()
         if key_pressed[pygame.K_l]:
-            if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-                inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3))
-                self.last_scale_time = pygame.time.get_ticks()
+
+        if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
+            inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3))
+            self.last_scale_time = pygame.time.get_ticks()
+              
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -209,18 +161,11 @@ class Player:
         #debug ^
 
         surface.blit(self.sprite.image, adjusted_rect.topleft)
+        
 
         self.weapon[self.selected_weapon].draw(surface, camera)
     
-    def weapon_update_pos(self, lado:str, weapon:Weapon): #remover wapon parametro dps
-        if lado == 'r':
-            weapon.set_pos(self.sprite.x + self.rect.width+2, self.sprite.y)
-            weapon.angle = abs(weapon.sinal)*-1
-            print(weapon.angle)
-        else:
-            weapon.set_pos(self.sprite.x - weapon.rect.width-2 , self.sprite.y)
-            weapon.angle = abs(weapon.sinal)
-            print(weapon.angle)
+
 
 
 
@@ -260,7 +205,7 @@ def main():
 
     # Carregue seu mapa TMX aqui
     tmx_data = load_map('assets/base.tmx')
-    global map_width, map_height, scale
+    global map_width, map_height, scale, camera
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
     # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
@@ -280,7 +225,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        player.handle_keys(key_pressed)
+        player.handle_keys(key_pressed, camera)
         player.sprite.update()
         camera.update(player)
 
@@ -290,8 +235,7 @@ def main():
         for inimigo in inimigos:
             inimigo.draw(screen, camera)
             inimigo.sprite.update()
-        #espada.update()
-        #espada.draw(screen, camera)
+
         pygame.display.flip()
 
     pygame.quit()
