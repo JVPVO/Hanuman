@@ -13,6 +13,9 @@ class Skeleton():
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
         self.health = 3
+        self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
+        self.ataquesRecebidos = {}
+
 
         self.sprite.rescale_frames(initial_scale)
         self.rect.width = int(32 * initial_scale) #ajusta o rect
@@ -36,10 +39,27 @@ class Skeleton():
         elif self.sprite.x < playerX-5: self.sprite.x += self.speed
         if self.sprite.y > playerY+5: self.sprite.y -= self.speed
         elif self.sprite.y < playerY-5: self.sprite.y += self.speed
+        self.rect.x = self.sprite.x
+        self.rect.y = self.sprite.y
     def colisao(self, alvo):
-        if self.rect.colliderect(alvo.rect):
-            if self.health > 0:
-                self.health -= 1
-                return False
-            else:
-                return True
+        print(f"Analisando {id(alvo)}")
+        print(self.ataquesRecebidos)
+        print(f"Tempo atual: {pygame.time.get_ticks()}")
+        print(f"Vida atual {self.health}")
+        if id(alvo) not in self.ataquesRecebidos:
+            if self.rect.colliderect(alvo.rot_image_rect):
+                self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
+                if self.health > 1:
+                    self.health -= 1
+                    return False
+                else:
+                    return True
+        elif pygame.time.get_ticks() - self.ataquesRecebidos[id(alvo)] > self.invencibilidade:   
+            if self.rect.colliderect(alvo.rot_image_rect):
+                self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
+                if self.health > 1:
+                    self.health -= 1
+                    return False
+                else:
+                    return True
+        return False
