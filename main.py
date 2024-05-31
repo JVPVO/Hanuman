@@ -94,8 +94,6 @@ class Camera:
 
         self.camera = pygame.Rect(x, y, self.width, self.height)
 
-
-
 class Player:
     def __init__(self, x, y, initial_scale = 1):
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=19, frame_height=30)
@@ -137,9 +135,11 @@ class Player:
         if key_pressed[pygame.K_ESCAPE]:
             pygame.quit()
         if key_pressed[pygame.K_l]:
-            inimigos.append(Skeleton(100,100,3))
 
-        weapon.update(self.rect, camera, self.rect.height,key_pressed)
+        if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
+            inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3))
+            self.last_scale_time = pygame.time.get_ticks()
+              
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -195,6 +195,10 @@ def draw_map(surface, tmx_data, scale, camera):
                     # Aplica o deslocamento da câmera
                     surface.blit(tile, camera.apply(pygame.Rect(pos_x, pos_y, scaled_tile_width, scaled_tile_height)))
 
+
+#FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
+def draw(self, surface:pygame.Surface, camera):
+        surface.blit(self.sprite.image, camera.apply(pygame.Rect(self.sprite.x, self.sprite.y, self.rect.width, self.rect.height)))
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1920, 1080))
@@ -204,7 +208,6 @@ def main():
     global map_width, map_height, scale, camera
     map_width = tmx_data.width * tmx_data.tilewidth
     map_height = tmx_data.height * tmx_data.tileheight
-
     # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
     scale = 3
     player = Player(100, 100, scale)
@@ -230,11 +233,13 @@ def main():
         draw_map(screen, tmx_data, scale, camera)
         player.draw(screen, camera)
         for inimigo in inimigos:
-            inimigo.draw(screen)
-        
+            inimigo.draw(screen, camera)
+            inimigo.sprite.update()
+
         pygame.display.flip()
 
     pygame.quit()
 
 if __name__ == '__main__':
     main()
+    
