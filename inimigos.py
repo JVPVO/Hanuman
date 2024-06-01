@@ -12,47 +12,59 @@ class Skeleton():
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
+
         self.health = 3
         self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
         self.ataquesRecebidos = {}
 
+        self.mode = 'idle'
+        self.scaled = False
 
-        self.sprite.rescale_frames(initial_scale)
-        self.rect.width = int(32 * initial_scale) #ajusta o rect
-        self.rect.height = int(32 * initial_scale) #ajusta o rect
-
-        self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton-Run.png'}
-
-        
+        if not self.scaled:
+            self.sprite.rescale_frames(initial_scale)
+            self.rect.width = int(32 * initial_scale) #ajusta o rect
+            self.rect.height = int(32 * initial_scale) #ajusta o rect
+            self.scaled = True
+        self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
+        self.processed = {'idle': True, 'run': False}
+        self.spritesheets = {'idle': self.sprite}
     def draw(self, surface:pygame.Surface, camera):
         main.draw(self, surface, camera)
-    def scale(self, scale_factor):
-        """Redimensiona o sprite do jogador."""
-        now = pygame.time.get_ticks()
-        if now - self.last_scale_time > self.scale_cooldown:
-            self.last_scale_time = now
-            self.scale_factor *= scale_factor
-            if 0.1 < self.scale_factor < 10:  # Limita a escala a um intervalo razoável
-                self.sprite.rescale_frames(self.scale_factor)
-                self.rect.width = int(32 * self.scale_factor) #ajusta o rect
-                self.rect.height = int(32 * self.scale_factor) #ajusta o rect
-    #implementar na hierarquia, não sei como ainda mas vou fazer assim que descobrir, mas enfim...
+    def loader(self, file, x, y, frames):
+        if not self.processed[self.mode]:
+            objeto = main.Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
+            objeto.x, objeto.y = x, y
+            objeto.rescale_frames(3)
+            self.spritesheets[self.mode] = objeto
+            self.processed[self.mode] = True
+        print(id(self.sprite))
+        self.sprite = self.spritesheets[self.mode]
+        self.sprite.x, self.sprite.y = x,y
     def movement(self, playerX, playerY):
         firstPos = (self.sprite.x, self.sprite.y)
-        if self.sprite.x > playerX+5: self.sprite.x -= self.speed
-        elif self.sprite.x < playerX-5: self.sprite.x += self.speed
+        if self.sprite.x > playerX+5: 
+            self.sprite.x -= self.speed
+            self.sprite.rotate('l')
+        elif self.sprite.x < playerX-5: 
+            self.sprite.x += self.speed
+            self.sprite.rotate('r')
         if self.sprite.y > playerY+5: self.sprite.y -= self.speed
         elif self.sprite.y < playerY-5: self.sprite.y += self.speed
         self.rect.x = self.sprite.x
         self.rect.y = self.sprite.y
-        if firstPos[0] - self.sprite.x != 0 or firstPos[1] - self.sprite.y != 0:
-            pass
-            #self.sprite.changeMode(self.animations['run'])
+        #Ele basicamente testa se houve algum movimento com a invocação da função, se houve, ele realiza a mudança da animação pra uma de corrida
+        #Se não houve nenhum movimento ele volta pra animação idle
+        if firstPos[0] != self.sprite.x or firstPos[1] != self.sprite.y:
+            if self.mode != 'run':
+                self.mode = 'run'
+                file = self.animations['run']
+                self.loader(file, self.sprite.x, self.sprite.y, frames=5)
+        else:
+            if self.mode != 'idle':
+                self.mode = 'idle'
+                file = self.animations['idle']
+                self.loader(file, self.sprite.x, self.sprite.y, frames=4)
     def colisao(self, alvo):
-        print(f"Analisando {id(alvo)}")
-        print(self.ataquesRecebidos)
-        print(f"Tempo atual: {pygame.time.get_ticks()}")
-        print(f"Vida atual {self.health}")
         if id(alvo) not in self.ataquesRecebidos:
             if self.rect.colliderect(alvo.rot_image_rect):
                 self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
