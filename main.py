@@ -59,7 +59,20 @@ class Animation:
                 self.last_rotation = pygame.time.get_ticks()
                 self.frames = [pygame.transform.flip(frame, True, False) for frame in self.frames]#rotaciona no eixo x
                 self.image = self.frames[self.current_frame]
-
+    def changeMode(self, image_file):
+        image_file = "assets/"+image_file
+        total_frames = 5
+        frame_width, frame_height = 32, 32
+        animation_speed = 0.2
+        self.sprite_sheet = pygame.image.load(image_file).convert_alpha() #faz um png com bordas mais suaves (colisao mais realista (nao colide com parte transparente))
+        self.total_frames = total_frames
+        self.frame_width = frame_width
+        self.frame_height = frame_height
+        self.animation_speed = animation_speed
+        self.current_frame = 0
+        self.frames = self.__load_frames__()
+        self.last_update = pygame.time.get_ticks()
+        self.image = self.frames[self.current_frame]
 class Camera:
     def __init__(self, width, height):
         self.camera = pygame.Rect(0, 0, width, height)

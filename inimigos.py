@@ -21,6 +21,9 @@ class Skeleton():
         self.rect.width = int(32 * initial_scale) #ajusta o rect
         self.rect.height = int(32 * initial_scale) #ajusta o rect
 
+        self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton-Run.png'}
+
+        
     def draw(self, surface:pygame.Surface, camera):
         main.draw(self, surface, camera)
     def scale(self, scale_factor):
@@ -35,12 +38,16 @@ class Skeleton():
                 self.rect.height = int(32 * self.scale_factor) #ajusta o rect
     #implementar na hierarquia, não sei como ainda mas vou fazer assim que descobrir, mas enfim...
     def movement(self, playerX, playerY):
+        firstPos = (self.sprite.x, self.sprite.y)
         if self.sprite.x > playerX+5: self.sprite.x -= self.speed
         elif self.sprite.x < playerX-5: self.sprite.x += self.speed
         if self.sprite.y > playerY+5: self.sprite.y -= self.speed
         elif self.sprite.y < playerY-5: self.sprite.y += self.speed
         self.rect.x = self.sprite.x
         self.rect.y = self.sprite.y
+        if firstPos[0] - self.sprite.x != 0 or firstPos[1] - self.sprite.y != 0:
+            pass
+            #self.sprite.changeMode(self.animations['run'])
     def colisao(self, alvo):
         print(f"Analisando {id(alvo)}")
         print(self.ataquesRecebidos)
