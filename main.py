@@ -2,11 +2,11 @@
 #TODO implementar deltatime
 #TODO implementar deltatime
 
+from inimigos import *
+from mapa_WIP import *
 import pygame
 from camera import Camera
 from player import Player
-from inimigos import *
-from mapa_WIP import *
 
 
 #FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
