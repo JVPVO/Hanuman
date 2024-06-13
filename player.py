@@ -21,7 +21,7 @@ class Player:
         
         self.weapon = [Weapon('assets/Weapon.png',70, 30, initial_scale)]
         self.selected_weapon = 0
-
+        self.health = 3
 
     def handle_keys(self, key_pressed, camera:Camera, inimigos):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
@@ -75,3 +75,5 @@ class Player:
         
 
         self.weapon[self.selected_weapon].draw(surface, camera)
+    def colisao(self, alvo):
+        return self.rect.colliderect(alvo.rect)

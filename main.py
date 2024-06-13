@@ -7,7 +7,7 @@ from mapa_WIP import *
 import pygame
 from camera import Camera
 from player import Player
-
+from menus import *
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
     scale = 3
     player = Player(100, 100, scale)
     camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
-
+    ui = HealthBar()
     #Lista de inimigos para serem renderizados e removidos da tela quando necessário, TODO trocar por um sprite group
     inimigos = []
     #espada = Weapon(70, 30, scale)
@@ -39,10 +39,12 @@ def main():
         player.handle_keys(key_pressed, camera, inimigos)
         player.sprite.update()
         camera.update(player, map_height, map_width, scale)
-
         screen.fill((0, 0, 0))
         draw_map(screen, tmx_data, scale, camera)
         player.draw(screen, camera)
+        ui.draw(screen)
+        if key_pressed[pygame.K_t]:
+            ui.health = 3  # Diminui a escala em 50%
         for inimigo in inimigos:
             inimigo.draw(screen, camera)
             inimigo.sprite.update()
@@ -50,7 +52,9 @@ def main():
             for i in range(len(player.weapon[player.selected_weapon].shoot)):
                 if inimigo.colisao(player.weapon[player.selected_weapon].shoot[i]):
                     inimigos.remove(inimigo)
-
+            if player.colisao(inimigo):
+                if ui.health > 0:
+                    ui.health -= 1
         pygame.display.flip()
 
     pygame.quit()

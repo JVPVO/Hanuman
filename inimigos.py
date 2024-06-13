@@ -40,7 +40,6 @@ class Skeleton():
             objeto.rescale_frames(3)
             self.spritesheets[self.mode] = objeto
             self.processed[self.mode] = True
-        print(id(self.sprite))
         self.sprite = self.spritesheets[self.mode]
         self.sprite.x, self.sprite.y = x,y
     def movement(self, playerX, playerY):
