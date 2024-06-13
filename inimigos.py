@@ -1,11 +1,11 @@
-import main
 import pygame
 from pygame.sprite import *
+from animation_Wip import Animation
 
 class Skeleton():
     def __init__(self, x, y, initial_scale):
         #TODO Fazer um json que tem o nome dos inimigos e cada uma das sprites sheets deles, por enquanto vou deixar vazio e hard-coded no código
-        self.sprite = main.Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
+        self.sprite = Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
         self.speed = 2  # Velocidade de movimento do jogador
@@ -28,11 +28,14 @@ class Skeleton():
         self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
         self.processed = {'idle': True, 'run': False}
         self.spritesheets = {'idle': self.sprite}
+   
+    #FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
     def draw(self, surface:pygame.Surface, camera):
-        main.draw(self, surface, camera)
+        surface.blit(self.sprite.image, camera.apply(pygame.Rect(self.sprite.x, self.sprite.y, self.rect.width, self.rect.height)))
+    
     def loader(self, file, x, y, frames):
         if not self.processed[self.mode]:
-            objeto = main.Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
+            objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
             objeto.x, objeto.y = x, y
             objeto.rescale_frames(3)
             self.spritesheets[self.mode] = objeto

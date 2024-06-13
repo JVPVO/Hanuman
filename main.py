@@ -9,9 +9,7 @@ from camera import Camera
 from player import Player
 
 
-#FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
-def draw(self, surface:pygame.Surface, camera):
-        surface.blit(self.sprite.image, camera.apply(pygame.Rect(self.sprite.x, self.sprite.y, self.rect.width, self.rect.height)))
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1920, 1080))
