@@ -1,11 +1,18 @@
 import pygame
+from player import *
 
-class Menu():
-    window_width, window_height = pygame.display.get_window_size()
-    rect_width = window_width * 0.7
-    rect_height = window_height * 0.1
-    rect_x = (window_width - rect_width) / 2
-    rect_y = window_height - rect_height
-    #Outline
-    outline = pygame.Rect()
-    #Interior
+class HealthBar():
+    def __init__():
+        #resolution = pygame.display.get_window_size()
+        path = "assets/ui/health-bar/"
+        healthbars = []
+        nullbars = []
+        for i in range(1,4):
+            healthbars.append(Animation(image_file=f"{path}{i}.png", total_frames=1, frame_height=16, frame_width=16))
+            nullbars.append(Animation(image_file=f"{path}{i+6}.png", total_frames=1, frame_height=16, frame_width=16))
+        for tile in healthbars:
+            tile.x = 0 + 50
+            tile.y = 200
+        for tile in nullbars:
+            tile.x = 0 + 50
+            tile.y = 200
