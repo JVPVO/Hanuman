@@ -7,7 +7,7 @@ def load_map(filename):
     tmx_data = load_pygame(filename)
     return tmx_data
 
-def draw_map(surface, tmx_data, scale, camera):
+def draw_map_tiles(surface, tmx_data, scale, camera):
     """ Desenha o mapa no Pygame surface com um fator de escala, ajustando pela câmera. """
     tile_width = tmx_data.tilewidth
     tile_height = tmx_data.tileheight
@@ -16,7 +16,7 @@ def draw_map(surface, tmx_data, scale, camera):
     scaled_tile_height = int(tile_height * scale)
 
     for layer in tmx_data.visible_layers:
-        if isinstance(layer, pytmx.TiledTileLayer):
+        if not isinstance(layer, pytmx.pytmx.TiledObjectGroup):
             for x, y, gid in layer:
                 tile = tmx_data.get_tile_image_by_gid(gid)
                 if tile:

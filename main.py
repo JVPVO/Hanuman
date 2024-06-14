@@ -2,59 +2,82 @@
 #TODO implementar deltatime
 #TODO implementar deltatime
 
+#falta voltar o que ela antes + draw player no grupo + colisao efetiva
+
 from inimigos import *
 from mapa_WIP import *
 import pygame
 from camera import Camera
 from player import Player
+from objects_mannager import AllSprites, Objects
 
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((1920, 1080))
 
+         # Carregue seu mapa TMX aqui
+        self.tmx_data = load_map('assets/base.tmx')
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((1920, 1080))
+        self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
+        self.map_height = self.tmx_data.height * self.tmx_data.tileheight
+        # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
+        self.scale = 3
+        self.player = Player(100, 100, self.scale)
+        self.camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
 
-    # Carregue seu mapa TMX aqui
-    tmx_data = load_map('assets/base.tmx')
-
-    map_width = tmx_data.width * tmx_data.tilewidth
-    map_height = tmx_data.height * tmx_data.tileheight
-    # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
-    scale = 3
-    player = Player(100, 100, scale)
-    camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
-
-    #Lista de inimigos para serem renderizados e removidos da tela quando necessário, TODO trocar por um sprite group
-    inimigos = []
-    #espada = Weapon(70, 30, scale)
-    # Main game loop
-    running = True
-    while running:
-        key_pressed = pygame.key.get_pressed()
+        #Lista de inimigos para serem renderizados e removidos da tela quando necessário, TODO trocar por um sprite group
+        self.inimigos = []
+        # Main game loop
+        self.running = True
         
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
 
-        player.handle_keys(key_pressed, camera, inimigos)
-        player.sprite.update()
-        camera.update(player, map_height, map_width, scale)
+        self.all_sprites = AllSprites(self.screen.get_width(), self.screen.get_height())
+        self.collision_sprites = pygame.sprite.Group()
 
-        screen.fill((0, 0, 0))
-        draw_map(screen, tmx_data, scale, camera)
-        player.draw(screen, camera)
-        for inimigo in inimigos:
-            inimigo.draw(screen, camera)
-            inimigo.sprite.update()
-            inimigo.movement(player.sprite.x, player.sprite.y)
-            for i in range(len(player.weapon[player.selected_weapon].shoot)):
-                if inimigo.colisao(player.weapon[player.selected_weapon].shoot[i]):
-                    inimigos.remove(inimigo)
+    def setup(self):
+        for group in (self.all_sprites, self.collision_sprites):
+            group.empty()
 
-        pygame.display.flip()
+        for obj in self.tmx_data.get_layer_by_name('objetos'):
+            Objects((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites))
 
-    pygame.quit()
+        for obj in self.tmx_data.get_layer_by_name('colisao'):
+            Objects((obj.x, obj.y), pygame.Surface((obj.width, obj.height)), self.collision_sprites)
+        
+
+
+    def main(self):
+        while self.running:
+            key_pressed = pygame.key.get_pressed()
+            
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            self.player.handle_keys(key_pressed, self.camera, self.inimigos)
+            self.player.sprite.update()
+            self.camera.update(self.player, self.map_height, self.map_width, self.scale)
+            self.all_sprites.draw(self.player, self.camera)
+            self.screen.fill((0, 0, 0))
+            draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
+            self.player.draw(self.screen, self.camera)
+            self.all_sprites.draw(self.player, self.camera)
+            for inimigo in self.inimigos:
+                inimigo.draw(self.screen, self.camera)
+                inimigo.sprite.update()
+                inimigo.movement(self.player.sprite.x, self.player.sprite.y)
+                for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
+                    if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
+                        self.inimigos.remove(inimigo)
+
+            pygame.display.flip()
+
+        pygame.quit()
 
 if __name__ == '__main__':
-    main()
+    jogo = Game()
+    jogo.setup()
+    jogo.main()
     
