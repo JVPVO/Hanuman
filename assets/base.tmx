@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="52" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="31" nextobjectid="22">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="52" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="31" nextobjectid="75">
  <tileset firstgid="1" source="base/dungeon prisao - tiles.tsx"/>
  <tileset firstgid="626" source="base/Equipamentos Amaldicoado.tsx"/>
  <tileset firstgid="671" source="base/equipamentos ferro reforçado.tsx"/>
@@ -135,12 +135,15 @@
 </data>
  </layer>
  <objectgroup id="28" name="colisao">
-  <object id="11" x="656" y="0">
-   <polygon points="0,0 0,128 -96,128 -96,160 -208,160 -352,160 -352,128 -448,128 -448,0"/>
-  </object>
-  <object id="12" x="192" y="208">
-   <polygon points="0,0 48,0 48,16 80,16 80,96 64,96 64,112 32,112 32,80 16,80 16,64 0,64"/>
-  </object>
+  <object id="60" x="192" y="224" width="80" height="48"/>
+  <object id="62" x="256" y="272" width="16" height="32"/>
+  <object id="63" x="224" y="304" width="32" height="16"/>
+  <object id="64" x="208" y="272" width="16" height="16"/>
+  <object id="65" x="224" y="288" width="16" height="16"/>
+  <object id="66" x="192" y="208" width="48" height="16"/>
+  <object id="67" x="208" y="0" width="96" height="128"/>
+  <object id="69" x="560" y="0" width="96" height="128"/>
+  <object id="71" x="304" y="128" width="256" height="32"/>
  </objectgroup>
  <objectgroup id="27" name="objetos">
   <object id="4" gid="19408" x="642" y="238" width="28" height="28"/>
@@ -149,9 +152,7 @@
   <object id="8" gid="19407" x="210.75" y="144" width="74" height="32"/>
   <object id="13" gid="19413" x="311.333" y="191.667" width="50" height="90"/>
   <object id="14" gid="19414" x="563" y="160" width="40" height="59"/>
- </objectgroup>
- <objectgroup id="30" name="objetos4">
-  <object id="20" gid="19413" x="311.333" y="191.667" width="50" height="90"/>
+  <object id="74" gid="19413" x="392.5" y="298.5" width="50" height="90"/>
  </objectgroup>
  <layer id="12" name="paredes4" width="52" height="30">
   <data encoding="csv">

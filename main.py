@@ -1,7 +1,7 @@
 #TODO Colisão
 #TODO implementar deltatime
 #TODO implementar deltatime
-
+#TODO resolver importsss
 #falta voltar o que ela antes + draw player no grupo + colisao efetiva
 
 from inimigos import *
@@ -9,7 +9,7 @@ from mapa_WIP import *
 import pygame
 from camera import Camera
 from player import Player
-from objects_mannager import AllSprites, Objects
+from objects_mannager import AllSprites, Objects, Barrier
 
 class Game:
     def __init__(self):
@@ -23,7 +23,7 @@ class Game:
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
         # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
         self.scale = 3
-        self.player = Player(100, 100, self.scale)
+        
         self.camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
 
         
@@ -49,8 +49,10 @@ class Game:
 
 
         for obj in self.tmx_data.get_layer_by_name('colisao'):
-            Objects((obj.x, obj.y), pygame.Surface((obj.width, obj.height)), self.collision_sprites)
+            Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.all_sprites,self.collision_sprites)) #, self.all_sprites pra debug
+            #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
+        self.player = Player(100, 100, self.collision_sprites, self.scale)
 
 
     def main(self):

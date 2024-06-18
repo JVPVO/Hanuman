@@ -71,7 +71,7 @@ class Skeleton(pygame.sprite.Sprite):
                 self.mode = 'idle'
                 file = self.animations['idle']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
-        self.y_sort = self.rect.y
+        self.y_sort = self.rect.y + self.rect.height
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
             if self.rect.colliderect(alvo.rot_image_rect):

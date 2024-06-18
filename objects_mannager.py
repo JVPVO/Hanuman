@@ -14,7 +14,7 @@ class AllSprites(pygame.sprite.Group):
 
 
 		
-    def draw(self, player, camera, scale=3):
+    def draw(self, player, camera):
 
         bg_sprites = [sprite for sprite in self if sprite.camada < camadas_obj_mundo['main']]
         main_sprites = sorted([sprite for sprite in self if sprite.camada == camadas_obj_mundo['main']]+[player], key = lambda sprite: sprite.y_sort)
@@ -35,3 +35,11 @@ class Objects(pygame.sprite.Sprite):
         self.camada = camada
         self.rect = self.image.get_rect(topleft = pos)
         self.y_sort = self.rect.y + 0.8*self.rect.height
+        #self.hitbox = self.rect.inflate(0, -self.rect.height * 0.6)
+        self.hitbox = pygame.Rect(self.rect.x+(self.rect.width*0.6/2), self.rect.y+self.rect.height*0.6, self.rect.width*0.6, self.rect.height*0.4)
+        
+
+class Barrier(Objects):
+    def __init__(self, pos, image, groups, camada=camadas_obj_mundo['main']):
+        super().__init__(pos, image, groups, camada)
+        self.hitbox = self.rect.copy()
