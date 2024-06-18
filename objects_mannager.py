@@ -34,4 +34,4 @@ class Objects(pygame.sprite.Sprite):
         self.image = image # pygame.image.load(image).convert_alpha()
         self.camada = camada
         self.rect = self.image.get_rect(topleft = pos)
-        self.y_sort = self.rect.centery
+        self.y_sort = self.rect.y + 0.8*self.rect.height

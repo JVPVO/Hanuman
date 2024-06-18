@@ -26,14 +26,15 @@ class Game:
         self.player = Player(100, 100, self.scale)
         self.camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
 
-        #Lista de inimigos para serem renderizados e removidos da tela quando necessário, TODO trocar por um sprite group
-        self.inimigos = []
+        
+
         # Main game loop
         self.running = True
         
 
         self.all_sprites = AllSprites(self.screen.get_width(), self.screen.get_height())
         self.collision_sprites = pygame.sprite.Group()
+        #Grupo de inimigos para serem renderizados e removidos da tela quando necessário
         self.inimigos_grupo = pygame.sprite.Group()
 
     def setup(self):
@@ -61,7 +62,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            self.player.handle_keys(key_pressed, self.camera, self.inimigos, (self.inimigos_grupo, self.all_sprites))
+            self.player.handle_keys(key_pressed, self.camera, (self.inimigos_grupo, self.all_sprites))
             self.player.sprite.update()
             self.camera.update(self.player, self.map_height, self.map_width, self.scale)
             self.screen.fill((0, 0, 0))
@@ -70,13 +71,13 @@ class Game:
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
             
             self.all_sprites.draw(self.player, self.camera)
-            for inimigo in self.inimigos:
+            for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
                 inimigo.movement(self.player.sprite.x, self.player.sprite.y)
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
-                        self.inimigos.remove(inimigo)
+                        inimigo.kill()
 
             pygame.display.flip()
 

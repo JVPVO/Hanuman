@@ -18,14 +18,14 @@ class Player:
         self.sprite.rescale_frames(initial_scale)
         self.rect.width = int(19 * initial_scale) #ajusta o rect
         self.rect.height = int(30 * initial_scale) #ajusta o rect
-        self.y_sort = self.rect.y
+        self.y_sort = self.rect.y+self.rect.height
         
         self.weapon = [Weapon('assets/Weapon.png',70, 30, initial_scale)]
         self.selected_weapon = 0
         
 
 
-    def handle_keys(self, key_pressed, camera:Camera, inimigos, grupos:tuple):
+    def handle_keys(self, key_pressed, camera:Camera, grupos:tuple): #inimigos = 0, allsprites = 1
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
         weapon = self.weapon[self.selected_weapon]
         if key_pressed[pygame.K_w]:
@@ -49,10 +49,10 @@ class Player:
             pygame.quit()
         if key_pressed[pygame.K_l]:
             if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-                inimigos.append(Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3, groups=(grupos[0], grupos[1])))
+                Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3, groups=(grupos[0], grupos[1])) #assim adiciona no gurpo já
                 self.last_scale_time = pygame.time.get_ticks()
         
-        self.y_sort = self.rect.y
+        self.y_sort = self.rect.y+self.rect.height
         weapon.update(self.rect, camera, self.rect.height,key_pressed)
         self.sprite.x, self.sprite.y = self.rect.topleft
 
