@@ -25,6 +25,7 @@ class Skeleton():
             self.rect.width = int(32 * initial_scale) #ajusta o rect
             self.rect.height = int(32 * initial_scale) #ajusta o rect
             self.scaled = True
+    
         self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
         self.processed = {'idle': True, 'run': False}
         self.spritesheets = {'idle': self.sprite}
@@ -60,7 +61,7 @@ class Skeleton():
             if self.mode != 'run':
                 self.mode = 'run'
                 file = self.animations['run']
-                self.loader(file, self.sprite.x, self.sprite.y, frames=5)
+                self.loader(file, self.sprite.x, self.sprite.y, frames=6)
         else:
             if self.mode != 'idle':
                 self.mode = 'idle'
