@@ -17,7 +17,7 @@ class AllSprites(pygame.sprite.Group):
     def draw(self, player, camera, scale=3):
 
         bg_sprites = [sprite for sprite in self if sprite.camada < camadas_obj_mundo['main']]
-        main_sprites = sorted([sprite for sprite in self if sprite.camada == camadas_obj_mundo['main']], key = lambda sprite: sprite.y_sort)
+        main_sprites = sorted([sprite for sprite in self if sprite.camada == camadas_obj_mundo['main']]+[player], key = lambda sprite: sprite.y_sort)
         fg_sprites = [sprite for sprite in self if sprite.camada > camadas_obj_mundo['main']]
 
         for layer in (bg_sprites, main_sprites, fg_sprites):
@@ -25,8 +25,7 @@ class AllSprites(pygame.sprite.Group):
                 if isinstance(sprite, Player) or isinstance(sprite, Skeleton):
                     sprite.draw(self.display_surface, camera)
                 else:
-                    image = pygame.transform.scale(sprite.image, (sprite.rect.width*scale, sprite.rect.height*scale))
-                    self.display_surface.blit(image, camera.apply(pygame.Rect(sprite.rect.x*scale, sprite.rect.y*scale, sprite.rect.width*scale, sprite.rect.height*scale)))
+                    self.display_surface.blit(sprite.image, camera.apply(pygame.Rect(sprite.rect.x, sprite.rect.y, sprite.rect.width, sprite.rect.height)))
         
 		
 class Objects(pygame.sprite.Sprite):

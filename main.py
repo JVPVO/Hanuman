@@ -34,13 +34,18 @@ class Game:
 
         self.all_sprites = AllSprites(self.screen.get_width(), self.screen.get_height())
         self.collision_sprites = pygame.sprite.Group()
+        self.inimigos_grupo = pygame.sprite.Group()
 
     def setup(self):
         for group in (self.all_sprites, self.collision_sprites):
             group.empty()
 
-        for obj in self.tmx_data.get_layer_by_name('objetos'):
-            Objects((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites))
+        for obj in self.tmx_data.get_layer_by_name('objetos'): #adcio0na os objetos (já com a escala) no grupo
+            imagem = pygame.transform.scale(obj.image, (obj.width*self.scale, obj.height*self.scale))
+            atual = Objects((obj.x*self.scale, obj.y*self.scale), imagem, (self.all_sprites, self.collision_sprites))
+            
+
+
 
         for obj in self.tmx_data.get_layer_by_name('colisao'):
             Objects((obj.x, obj.y), pygame.Surface((obj.width, obj.height)), self.collision_sprites)
@@ -56,16 +61,17 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            self.player.handle_keys(key_pressed, self.camera, self.inimigos)
+            self.player.handle_keys(key_pressed, self.camera, self.inimigos, (self.inimigos_grupo, self.all_sprites))
             self.player.sprite.update()
             self.camera.update(self.player, self.map_height, self.map_width, self.scale)
-            self.all_sprites.draw(self.player, self.camera)
             self.screen.fill((0, 0, 0))
             draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
-            self.player.draw(self.screen, self.camera)
+            
+            self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
+            
             self.all_sprites.draw(self.player, self.camera)
             for inimigo in self.inimigos:
-                inimigo.draw(self.screen, self.camera)
+                #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
                 inimigo.movement(self.player.sprite.x, self.player.sprite.y)
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):

@@ -2,8 +2,9 @@ import pygame
 from pygame.sprite import *
 from animation_Wip import Animation
 
-class Skeleton():
-    def __init__(self, x, y, initial_scale):
+class Skeleton(pygame.sprite.Sprite):
+    def __init__(self, x, y, initial_scale, groups):
+        super().__init__(groups)
         #TODO Fazer um json que tem o nome dos inimigos e cada uma das sprites sheets deles, por enquanto vou deixar vazio e hard-coded no código
         self.sprite = Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
@@ -12,6 +13,9 @@ class Skeleton():
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
+        
+        self.camada = 1
+        self.y_sort = self.rect.y
 
         self.health = 3
         self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
@@ -67,6 +71,7 @@ class Skeleton():
                 self.mode = 'idle'
                 file = self.animations['idle']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
+        self.y_sort = self.rect.y
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
             if self.rect.colliderect(alvo.rot_image_rect):
