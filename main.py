@@ -81,7 +81,7 @@ class Game:
             draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
             
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
-            self.ui.draw(screen)
+            self.ui.draw(self.screen)
 
             
             if key_pressed[pygame.K_t]:
@@ -94,7 +94,7 @@ class Game:
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
                         inimigo.kill()
                 
-                if player.colisao(inimigo):
+                if self.player.colisao(inimigo):
                   if self.ui.health > 0:
                       self.ui.health -= 1
 

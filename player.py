@@ -71,7 +71,7 @@ class Player:
             dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
     
-    def handle_keys(self, key_pressed, camera: Camera, inimigos):
+    def handle_keys(self, key_pressed, camera: Camera, grupos):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
         self.pos_anterior = (self.rect.x, self.rect.y)
         
