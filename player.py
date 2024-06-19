@@ -56,11 +56,11 @@ class Player:
                 Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3, groups=(grupos[0], grupos[1])) #assim adiciona no gurpo já
                 self.last_scale_time = pygame.time.get_ticks()
         
+        self.check_colision()
         self.y_sort = self.rect.y+self.rect.height
         weapon.update(self.rect, camera, self.rect.height,key_pressed)
         self.sprite.x, self.sprite.y = self.rect.topleft
         
-        self.check_colision()
 
     def scale(self, scale_factor):
         """Redimensiona o sprite do jogador."""
@@ -76,6 +76,8 @@ class Player:
 
     def check_colision(self):
         for objeto in self.colision_sprite:
+            
+            #TODO usar o rect.colided
             eixox = self.rect.x + self.rect.width > objeto.hitbox.x and self.rect.x < objeto.hitbox.x + objeto.hitbox.width
             eixoy = self.rect.y + self.rect.height > objeto.hitbox.y and  self.rect.y+self.rect.height < objeto.hitbox.y + objeto.hitbox.height
             if eixox and eixoy:

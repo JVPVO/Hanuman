@@ -41,17 +41,22 @@ class Game:
         for group in (self.all_sprites, self.collision_sprites):
             group.empty()
 
-        for obj in self.tmx_data.get_layer_by_name('objetos'): #adcio0na os objetos (já com a escala) no grupo
+        for obj in self.tmx_data.get_layer_by_name('objetos_nc'): #adcio0na os objetos (já com a escala) no grupo
             imagem = pygame.transform.scale(obj.image, (obj.width*self.scale, obj.height*self.scale))
-            atual = Objects((obj.x*self.scale, obj.y*self.scale), imagem, (self.all_sprites, self.collision_sprites))
+            atual = Objects((obj.x*self.scale, obj.y*self.scale), imagem, (self.all_sprites))
+            #por enquanto vai ser sem colisao direto no obj
             
 
 
 
-        for obj in self.tmx_data.get_layer_by_name('colisao'):
-            Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.all_sprites,self.collision_sprites)) #, self.all_sprites pra debug
+        for obj in self.tmx_data.get_layer_by_name('colisao_b'):
+            Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
+        for obj in self.tmx_data.get_layer_by_name('colisao_objs'):
+            Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
+            #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+
         self.player = Player(100, 100, self.collision_sprites, self.scale)
 
 

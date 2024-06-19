@@ -34,10 +34,9 @@ class Objects(pygame.sprite.Sprite):
         self.image = image # pygame.image.load(image).convert_alpha()
         self.camada = camada
         self.rect = self.image.get_rect(topleft = pos)
-        self.y_sort = self.rect.y + 0.8*self.rect.height
-        #self.hitbox = self.rect.inflate(0, -self.rect.height * 0.6)
+        self.y_sort = self.rect.y + 0.85*self.rect.height
         self.hitbox = pygame.Rect(self.rect.x+(self.rect.width*0.6/2), self.rect.y+self.rect.height*0.6, self.rect.width*0.6, self.rect.height*0.4)
-        
+        #nao vou usar esse hitbox por enquanto, só quando precisar de colisão dinamica (e isso em cima talvez um inflate fica melhor)
 
 class Barrier(Objects):
     def __init__(self, pos, image, groups, camada=camadas_obj_mundo['main']):
