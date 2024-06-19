@@ -5,9 +5,10 @@ from camera import Camera
 from weapons import Weapon
 import math
 
-
 class Player:
-    def __init__(self, x, y, initial_scale=1):
+
+    def __init__(self, x, y, colision_sprite, initial_scale = 1):
+
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=19, frame_height=30)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 19, 30)  # Tamanho do jogador, ajuste conforme necessário
@@ -15,11 +16,21 @@ class Player:
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
+
+        self.sprite.rescale_frames(initial_scale)
+        self.rect.width = int(19 * initial_scale) #ajusta o rect
+        self.rect.height = int(30 * initial_scale) #ajusta o rect
+        self.y_sort = self.rect.y+self.rect.height
+
         
         self.weapon = [Weapon('assets/Weapon.png', 70, 30, initial_scale)]
         self.selected_weapon = 0
+
         self.health = 3
         
+        self.colision_sprite = colision_sprite
+        self.pos_anterior = (self.rect.x, self.rect.y)
+    
         self.mode = 'idle'
         self.scaled = False
         self.dashing = False
@@ -62,6 +73,8 @@ class Player:
     
     def handle_keys(self, key_pressed, camera: Camera, inimigos):
         """Atualiza a posição do jogador com base nas teclas pressionadas."""
+        self.pos_anterior = (self.rect.x, self.rect.y)
+        
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
         
@@ -108,8 +121,10 @@ class Player:
             pygame.quit()
         if key_pressed[pygame.K_l]:
             if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-                inimigos.append(Skeleton(self.sprite.x + 30, self.sprite.y + 30, initial_scale=3))
+
+                Skeleton(self.sprite.x+30,self.sprite.y+30, initial_scale=3, groups=(grupos[0], grupos[1])) #assim adiciona no gurpo já
                 self.last_scale_time = pygame.time.get_ticks()
+        
         
         if firstPos[0] != self.rect.x or firstPos[1] != self.rect.y:
             if self.mode != 'run':
@@ -121,7 +136,10 @@ class Player:
                 self.mode = 'idle'
                 file = self.animations['idle']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
-        weapon.update(self.rect, camera, self.rect.height, key_pressed)
+        
+        self.check_colision()
+        self.y_sort = self.rect.y+self.rect.height
+        weapon.update(self.rect, camera, self.rect.height,key_pressed)
         self.sprite.x, self.sprite.y = self.rect.topleft
     
     def scale(self, scale_factor):
@@ -132,10 +150,26 @@ class Player:
             self.scale_factor *= scale_factor
             if 0.1 < self.scale_factor < 10:  # Limita a escala a um intervalo razoável
                 self.sprite.rescale_frames(self.scale_factor)
-                self.rect.width = int(19 * self.scale_factor)  # Ajusta o rect
-                self.rect.height = int(30 * self.scale_factor)  # Ajusta o rect
-    
-    def draw(self, surface: pygame.Surface, camera):
+
+                self.rect.width = int(19 * self.scale_factor) #Ajusta o rect
+                self.rect.height = int(30 * self.scale_factor) #Ajusta o rect
+
+
+    def check_colision(self):
+        for objeto in self.colision_sprite:
+            
+            #TODO usar o rect.colided
+            eixox = self.rect.x + self.rect.width > objeto.hitbox.x and self.rect.x < objeto.hitbox.x + objeto.hitbox.width
+            eixoy = self.rect.y + self.rect.height > objeto.hitbox.y and  self.rect.y+self.rect.height < objeto.hitbox.y + objeto.hitbox.height
+            if eixox and eixoy:
+                if eixox:
+                    self.rect.x = self.pos_anterior[0]
+                if eixoy:
+                    self.rect.y = self.pos_anterior[1]
+                
+
+    def draw(self, surface:pygame.Surface, camera):
+
         """Desenha o jogador na superfície, ajustando pela posição da câmera."""
         adjusted_rect = camera.apply(self.rect)
         

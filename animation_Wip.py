@@ -1,5 +1,6 @@
 import pygame
 
+
 class Animation:
     def __init__(self, image_file, total_frames, frame_width, frame_height, animation_speed=0.2):
         self.sprite_sheet = pygame.image.load(image_file).convert_alpha() #faz um png com bordas mais suaves (colisao mais realista (nao colide com parte transparente))
