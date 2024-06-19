@@ -9,12 +9,15 @@ from mapa_WIP import *
 import pygame
 from camera import Camera
 from player import Player
+
 from objects_mannager import AllSprites, Objects, Barrier
+from menus import *
 
 class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((1920, 1080))
+
 
          # Carregue seu mapa TMX aqui
         self.tmx_data = load_map('assets/base.tmx')
@@ -26,7 +29,7 @@ class Game:
         
         self.camera = Camera(1920,1080) #tem que botar a msm resolucao da tela pro jogador ficar no meio da tela
 
-        
+        self.ui = HealthBar()
 
         # Main game loop
         self.running = True
@@ -36,6 +39,7 @@ class Game:
         self.collision_sprites = pygame.sprite.Group()
         #Grupo de inimigos para serem renderizados e removidos da tela quando necessário
         self.inimigos_grupo = pygame.sprite.Group()
+
 
     def setup(self):
         for group in (self.all_sprites, self.collision_sprites):
@@ -52,6 +56,7 @@ class Game:
         for obj in self.tmx_data.get_layer_by_name('colisao_b'):
             Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+
         
         for obj in self.tmx_data.get_layer_by_name('colisao_objs'):
             Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
@@ -76,8 +81,11 @@ class Game:
             draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
             
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
+            self.ui.draw(screen)
+
             
-            self.all_sprites.draw(self.player, self.camera)
+            if key_pressed[pygame.K_t]:
+                self.ui.health = 3  # Diminui a escala em 50%
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
@@ -85,8 +93,15 @@ class Game:
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
                         inimigo.kill()
+                
+                if player.colisao(inimigo):
+                  if self.ui.health > 0:
+                      self.ui.health -= 1
 
+            
+            
             pygame.display.flip()
+
 
         pygame.quit()
 

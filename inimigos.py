@@ -29,6 +29,7 @@ class Skeleton(pygame.sprite.Sprite):
             self.rect.width = int(32 * initial_scale) #ajusta o rect
             self.rect.height = int(32 * initial_scale) #ajusta o rect
             self.scaled = True
+    
         self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
         self.processed = {'idle': True, 'run': False}
         self.spritesheets = {'idle': self.sprite}
@@ -44,7 +45,6 @@ class Skeleton(pygame.sprite.Sprite):
             objeto.rescale_frames(3)
             self.spritesheets[self.mode] = objeto
             self.processed[self.mode] = True
-        print(id(self.sprite))
         self.sprite = self.spritesheets[self.mode]
         self.sprite.x, self.sprite.y = x,y
     def movement(self, playerX, playerY):
@@ -65,7 +65,7 @@ class Skeleton(pygame.sprite.Sprite):
             if self.mode != 'run':
                 self.mode = 'run'
                 file = self.animations['run']
-                self.loader(file, self.sprite.x, self.sprite.y, frames=5)
+                self.loader(file, self.sprite.x, self.sprite.y, frames=6)
         else:
             if self.mode != 'idle':
                 self.mode = 'idle'
