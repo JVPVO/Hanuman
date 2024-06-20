@@ -79,6 +79,8 @@ class Game:
         self.sala:Sala = self.todas_salas.new_setup()
         self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo)
         self.tmx_data = self.sala.tmx_data
+        self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
+        self.map_height = self.tmx_data.height * self.tmx_data.tileheight
         
         
 
@@ -99,6 +101,8 @@ class Game:
                 if qual_porta != None:
                     self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites)
                     self.tmx_data = self.sala.tmx_data
+                    self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
+                    self.map_height = self.tmx_data.height * self.tmx_data.tileheight
 
             self.player.sprite.update()
             self.camera.update(self.player, self.map_height, self.map_width, self.scale)

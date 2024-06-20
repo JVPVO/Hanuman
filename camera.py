@@ -21,7 +21,7 @@ class Camera:
 
         # Limitar a câmera para não mostrar áreas fora do mapa SE O MAPA FOR MAIOR QUE A CAMERA SOMENTE
         if map_width*scale > self.width: #maior que a res da tela
-            x = min(0, x)  # esquerda
+            x = min(0, x)  # esquerda #-1252
             x = max(self.width-map_width*scale, x)  # direita
             
         
