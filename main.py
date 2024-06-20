@@ -12,6 +12,8 @@ from player import Player
 
 from objects_mannager import AllSprites, Objects, Barrier
 from menus import *
+from salas import ConjuntoDeSalas, Sala
+
 
 class Game:
     def __init__(self):
@@ -43,7 +45,7 @@ class Game:
         #Grupo de números indicadores de dano, só usados quando o inimigo vai ser removido do grupo de iteração
         self.damage_numbers = []
 
-    def setup(self):
+    def setup_base(self):
         for group in (self.all_sprites, self.collision_sprites):
             group.empty()
 
@@ -66,6 +68,13 @@ class Game:
 
         self.player = Player(100, 100, self.collision_sprites, self.scale)
 
+    def setup_salas(self):
+        todas_salas = ConjuntoDeSalas((self.all_sprites), self.scale)
+        self.sala = todas_salas.new_setup()
+        self.sala.setup(self.scale)
+        self.tmx_data = self.sala.tmx_data
+        self.player = Player(100, 100, self.collision_sprites, self.scale)
+        
 
     def main(self):
         while self.running:
@@ -80,6 +89,8 @@ class Game:
             self.player.sprite.update()
             self.camera.update(self.player, self.map_height, self.map_width, self.scale)
             self.screen.fill((0, 0, 0))
+            
+            
             draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
             
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
@@ -124,6 +135,7 @@ class Game:
 
 if __name__ == '__main__':
     jogo = Game()
-    jogo.setup()
+    #jogo.setup_base()
+    jogo.setup_salas()
     jogo.main()
     

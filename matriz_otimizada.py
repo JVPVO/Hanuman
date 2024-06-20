@@ -1,8 +1,5 @@
-#Voltei pra essa versão, essa tá limitada a só matriz quadrada (e é mais restrita) (restricao do quadrado menor)
-# (resolvi essa restricao mas deixei pq gostei dela)
-#desisti da forma recusiva
-#testei pra 1000 casos e n teve NENHUM erro (pode ser que eu tenha feito o teste errado tb né kkkk, mas acho q n)
-
+# TODO da pra otimizar mtt isso aq
+#from salas import Sala #NOTE debug
 import random
 
 def printar_matriz(matriz):
@@ -74,7 +71,7 @@ def get_arround_list(matriz:list, index:tuple):
 
 def __cont_emvolta__(matriz_original, lista_Problemas:list = [],):
         '''No final resulta uma matriz que tem quantas salas tem em volta dquele indice
-        Essa funcao só ta aqui pra DEBUG'''
+        Essa funcao só ta aqui pra DEBUG!!!!!'''
         #transfomrar no consertador logo?
         matriz_cont =[]
         linhas = len(matriz_original)
@@ -89,11 +86,15 @@ def __cont_emvolta__(matriz_original, lista_Problemas:list = [],):
             matriz_cont.append(temp)
         return matriz_cont
 
+
+
 def colocar_outras_salas(matriz:list, salas:list, posiveisPosicoes:list):
     #lembrando que da forma que construimos o codigo, as possiveis posicoes já vem randomizadas
     for i, elem in enumerate(salas):
         posciao = posiveisPosicoes[i]
         matriz[posciao[0]][posciao[1]] = elem
+    
+    return random.choice(posiveisPosicoes[len(salas):]) #escolher entre todas não lojas e nao boss (posso usar o len pq a de cima funciona em ordem)
 
 
 def posciao_valida(matriz, l, c, n):
@@ -146,7 +147,7 @@ def gerar_matriz(tamanho:int, qntd:int):
     #posciao já começa com 1
     matriz[posicao_inicial_l][posicao_inicial_c] = 1
     
-    #essa lista vai ser de todas as posicoes dos que foram colocados (todos que tem 1) (tb vai ser util pra colocar as outras salas dps, loja boss e etc)
+    #essa lista vai ser de todas as posicoes dos que foram colocados (todos que tem 1) (tb vai ser util pra colocar as outras salas dps, loja boss e etc(alem de escolher a posicao inicial do player))
     posicao_de_todos = [[posicao_inicial_l, posicao_inicial_c]] #como se fosse um identifiador de cada elemento 
     
     
@@ -185,13 +186,74 @@ def gerar_matriz(tamanho:int, qntd:int):
             if adicionado:
                 break
         
+    #so botei essa funcao abaixo pra dar a posicao do player por didatica msm, poderia se aqui nessa de gerar matriz
+    pos_start_player = colocar_outras_salas(matriz, [2,3], posicao_de_todos) #coloca as salas novas e retorna a posciao de start do player
+    return matriz, pos_start_player
 
-    colocar_outras_salas(matriz, [2,3], posicao_de_todos)  
-    return matriz
+
+def coletar_em_volta(matriz:list, index:tuple, linhas, colunas):
+    '''Retorna o que tem em volta como lista tipo cima baixo direita esquerda'''
+
+    final = []
+
+    linha = index[0]
+    coluna = index[1]
+
+    max_l = linhas - 1
+    max_c = colunas -1 
+
+    if 0 < linha <= max_l and 0 <= coluna <= max_c:
+        final.append(matriz[linha-1][coluna])
+        ##superior
+    else:
+        final.append(None) #podemos dar append no none mesmo que n tenha nada em volta pq vamos ignorar o none na hora de linkar
+
+        
+    if 0 <= linha < max_l and 0 <= coluna <= max_c:
+        final.append(matriz[linha+1][coluna])
+        ##inferior
+    else:
+        final.append(None)
 
 
-n = 6 
-max = 29 
-matriz = gerar_matriz(n, max)
-printar_matriz(matriz)
+    if 0 <= linha <= max_l and 0 <= coluna < max_c:
+        final.append(matriz[linha][coluna+1])
+        ##direita
+    else:
+        final.append(None)
+        
+
+    if 0 <= linha <= max_l and 0 < coluna <= max_c:
+        final.append(matriz[linha][coluna-1])
+        ##esquerda
+    else:
+        final.append(None)    
+    
+
+    return final
+
+def super_linkening(matriz_pronta, linha, coluna):
+    switch = 0
+    for l in range(linha):
+        for c in range(switch, coluna+switch, 2): 
+            if matriz_pronta[l][c] != None: #verficar se funciona msm
+                em_volta = coletar_em_volta(matriz_pronta, (l,c), linha, coluna)
+                
+                for (pos, elem, pos_relativa) in zip(['cima', 'baixo', 'direita', 'esquerda'], em_volta, ['baixo', 'cima', 'esquerda', 'direita']):
+                    #elem:Sala = elem #NOTE debug, tirar dps
+                    if elem != None:
+                        matriz_pronta[l][c].ponteiro[pos] = elem #a sala atual aponta para os que tao em volta
+                        elem.ponteiro[pos_relativa] = matriz_pronta[l][c] #os que tao em volta apontam pra sala atual
+                        #precisa da posicao relativa pq o referencial muda
+        
+
+        switch = (switch+1)%2 #switch sempre 0 ou  1 #essa ideia do switch divide o trabalho pela metade
+
+
+if __name__ == '__main__':
+    n = 6 
+    max = 29 
+    matriz, _ = gerar_matriz(n, max)
+    printar_matriz(matriz)
+
 
