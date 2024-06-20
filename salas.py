@@ -42,6 +42,7 @@ class ConjuntoDeSalas:
         grupo_de_colisao.empty()
         nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas)
         player.rect.x, player.rect.y = 100,100 #por enquanto n sai na porta certinho
+        self.sala_atual = nova_sala.posicao_na_matriz
         return nova_sala
 
 
