@@ -2,10 +2,11 @@ import pygame
 from mapa_WIP import load_map, draw_map_tiles
 from animation_Wip import Animation
 from matriz_otimizada import gerar_matriz, super_linkening
+from objects_mannager import Barrier
 
 class ConjuntoDeSalas:
-    def __init__(self, sprite_draw_group, scale):
-        self.sprite_portas = [Porta('assets\porta_cima.png',2, 80, 73,scale, sprite_draw_group), Porta('assets\porta_baixo.png',2, 85, 32,scale, sprite_draw_group),Porta('assets\porta_direita.png',2, 32,87,scale, sprite_draw_group),Porta('assets\porta_esquerda.png',2, 32, 87,scale, sprite_draw_group)]
+    def __init__(self, scale):
+        self.sprite_portas = [Porta('assets\porta_cima.png',2, 90, 73,scale), Porta('assets\porta_baixo.png',2, 85, 32,scale),Porta('assets\porta_direita.png',2, 32,87,scale),Porta('assets\porta_esquerda.png',2, 32, 87,scale)]
         self.sala_atual = (0,0)
 
 
@@ -51,10 +52,10 @@ class Sala:
 
     def draw(self, surface, tmx_data, scale, camera):
         draw_map_tiles(surface, tmx_data, scale, camera)
-        #self.draw_portas(camera) #já é dado draw pelo ALLSprites
+        self.draw_portas(camera) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale):
+    def setup(self, scale, colision_gourp):
         for obj in self.tmx_data.get_layer_by_name('portas'):
             if obj.name == 'cima':
                 self.portas_object[0].rect.x, self.portas_object[0].rect.y = obj.x*scale, obj.y*scale
@@ -68,17 +69,24 @@ class Sala:
             elif obj.name == 'esquerda':
                 self.portas_object[3].rect.x, self.portas_object[3].rect.y = obj.x*scale, obj.y*scale
                 self.portas_object[3].y_sort = obj.y*scale
+        
+        for obj in self.tmx_data.get_layer_by_name('portas_entrada'):
+            pass
+        
+        for obj in self.tmx_data.get_layer_by_name('colisao_b'):
+            Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
+            #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+        
         self.all_loaded = True
     
     def draw_portas(self, camera):
         for elem in self.portas_object:
-            self.display_surface.blit(elem.frames[self.portas], camera.apply(pygame.Rect(elem.x, elem.y, elem.width, elem.height)))
+            self.display_surface.blit(elem.sprite.frames[self.portas], camera.apply(pygame.Rect(elem.rect.x, elem.rect.y, elem.rect.width, elem.rect.height)))
 
 
 class Porta(pygame.sprite.Sprite):
     #Parecida com a Animation #TODO mudar dps
-    def __init__(self, image_file, total_frames, frame_width, frame_height, scale, group):
-        super().__init__(group)
+    def __init__(self, image_file, total_frames, frame_width, frame_height, scale):
         self.scale_factor = scale
         self.sprite = Animation(image_file,total_frames, frame_width, frame_height)
         self.rect = pygame.Rect(0, 0, frame_width* self.scale_factor, frame_height* self.scale_factor)  # Tamanho do jogador, ajuste conforme necessário
@@ -87,8 +95,7 @@ class Porta(pygame.sprite.Sprite):
         self.frame_width = frame_width
         self.frame_height = frame_height
         self.current_frame = 0
-        self.frames = self.sprite.__load_frames__()
-        self.image = self.frames[self.current_frame]
+        self.image = self.sprite.frames[self.current_frame]
         self.camada = 0
         self.y_sort = 0
         self.sprite.rescale_frames(self.scale_factor)

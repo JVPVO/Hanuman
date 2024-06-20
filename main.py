@@ -69,9 +69,9 @@ class Game:
         self.player = Player(100, 100, self.collision_sprites, self.scale)
 
     def setup_salas(self):
-        todas_salas = ConjuntoDeSalas((self.all_sprites), self.scale)
-        self.sala = todas_salas.new_setup()
-        self.sala.setup(self.scale)
+        todas_salas = ConjuntoDeSalas(self.scale)
+        self.sala:Sala = todas_salas.new_setup()
+        self.sala.setup(self.scale, self.collision_sprites)
         self.tmx_data = self.sala.tmx_data
         self.player = Player(100, 100, self.collision_sprites, self.scale)
         
@@ -91,7 +91,8 @@ class Game:
             self.screen.fill((0, 0, 0))
             
             
-            draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
+            #draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
+            self.sala.draw(self.screen, self.tmx_data, self.scale, self.camera)
             
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
             self.ui.draw(self.screen)
@@ -106,6 +107,10 @@ class Game:
             if key_pressed[pygame.K_t]:
                 self.ui.health = 100
                 self.player.health = 100
+            
+            if key_pressed[pygame.K_h]:
+                self.sala.portas = (self.sala.portas+1)%2
+
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="29" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="12">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="29" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="15">
  <tileset firstgid="1" source="base/dungeon prisao - tiles.tsx"/>
  <tileset firstgid="626" source="base/dungeon_reaction_objects.tsx"/>
  <layer id="1" name="Chao" width="40" height="29">
@@ -76,6 +76,9 @@
  </objectgroup>
  <objectgroup id="4" name="colisao_b">
   <object id="6" x="0" y="0" width="640" height="44"/>
+  <object id="12" x="0" y="0" width="1" height="462"/>
+  <object id="13" x="-1" y="463" width="641" height="1"/>
+  <object id="14" x="638" y="0" width="2" height="464"/>
  </objectgroup>
  <objectgroup id="5" name="portas_entrada">
   <object id="8" name="cima" x="140.667" y="43.6667" width="31.6667" height="5"/>
