@@ -83,9 +83,12 @@ class Game:
             self.all_sprites.draw(self.player, self.camera) #player e inimigos estao aqui
             self.ui.draw(self.screen)
 
-            
+            self.player.update_damage_numbers()
+            self.player.draw_damage_numbers(self.screen, self.camera)
+
             if key_pressed[pygame.K_t]:
-                self.ui.health = 3  # Diminui a escala em 50%
+                self.ui.health = 100
+                self.player.health = 100
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
@@ -96,7 +99,8 @@ class Game:
                 
                 if self.player.colisao(inimigo):
                   if self.ui.health > 0:
-                      self.ui.health -= 1
+                      self.player.take_damage(5)
+                      self.ui.health = self.player.health
 
             
             

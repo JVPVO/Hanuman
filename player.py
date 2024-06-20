@@ -1,11 +1,11 @@
 # player.py
-
 import pygame
 from animation_Wip import Animation
 from inimigos import Skeleton
 from camera import Camera
 from weapons import Weapon
 import math
+import time
 
 class Player:
     def __init__(self, x, y, collision_sprites, initial_scale=1):
@@ -23,7 +23,7 @@ class Player:
 
         self.weapon = [Weapon('assets/Weapon.png', 70, 30, initial_scale)]
         self.selected_weapon = 0
-        self.health = 3
+        self.health = 100
         self.collision_sprites = collision_sprites
         self.pos_anterior = (self.rect.x, self.rect.y)
 
@@ -44,6 +44,8 @@ class Player:
         self.loader('idle', self.animations['idle'], frames=4)
         self.loader('run', self.animations['run'], frames=6)
 
+        self.damage_numbers = []
+        self.last_hit = 0
     def loader(self, mode, file, frames):
         if not self.processed[mode]:
             if mode == 'idle':
@@ -153,3 +155,42 @@ class Player:
 
     def colisao(self, alvo):
         return self.rect.colliderect(alvo.rect)
+    
+    def take_damage(self, amount):
+        if pygame.time.get_ticks() - self.last_hit > 100:
+            self.health -= amount
+            damage_number = DamageNumber(self.rect.centerx, self.rect.y, amount)
+            self.damage_numbers.append(damage_number)
+            self.last_hit = pygame.time.get_ticks()
+
+    def update_damage_numbers(self):
+        self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
+
+    def draw_damage_numbers(self, surface, camera):
+        for damage_number in self.damage_numbers:
+            damage_number.draw(surface, camera)
+class DamageNumber:
+    def __init__(self, x, y, damage, duration=1.5, speed=1, color=(255, 0, 0), font_size=24):
+        self.x = x
+        self.y = y
+        self.damage = damage
+        self.duration = duration
+        self.speed = speed
+        self.color = color
+        self.start_time = time.time()
+        self.font = pygame.font.Font(None, font_size)
+        self.image = self.font.render(str(damage), True, self.color)
+        self.rect = self.image.get_rect(center=(self.x, self.y))
+
+    def update(self):
+        elapsed_time = time.time() - self.start_time
+        if elapsed_time < self.duration:
+            self.y -= self.speed
+            self.rect.y = self.y
+        else:
+            return False  # Signal that the damage number should be removed
+        return True
+
+    def draw(self, surface, camera):
+        adjusted_rect = camera.apply(self.rect)
+        surface.blit(self.image, adjusted_rect.topleft)
