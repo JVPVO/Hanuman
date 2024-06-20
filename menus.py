@@ -1,6 +1,7 @@
 import pygame
 from animation_Wip import *
 from typing import List
+
 class HealthBar():
     def __init__(self):
         #resolution = pygame.display.get_window_size()
