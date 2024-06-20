@@ -6,6 +6,7 @@ class HealthBar:
     def __init__(self):
         path = "assets/ui/health-bar/"
         initial_scale = 6
+        self.scale = 3
         y_position = 1080 - 200
         
         # Load and scale the empty health bar
@@ -43,6 +44,10 @@ class HealthBar:
         # Draw the full health bar scaled to the current health
         surface.blit(current_health_image, (self.full_bar.x, self.full_bar.y))
 
+        # Faz um número na health bar
+        font = pygame.font.Font(None, 48)
+        image = font.render(f"{self.health}/{self.max_health}", True, (255,255,255))
+        surface.blit(image, dest=(int(48*self.scale/2), int(887+(16*self.scale/2))))
 class DamageNumber:
     def __init__(self, x, y, damage, duration=1.5, speed=1, color=(255, 0, 0), font_size=32):
         self.x = x
