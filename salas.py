@@ -8,6 +8,7 @@ class ConjuntoDeSalas:
     def __init__(self, scale):
         self.sprite_portas = [Porta('assets\porta_cima.png',2, 90, 73,scale), Porta('assets\porta_baixo.png',2, 85, 32,scale),Porta('assets\porta_direita.png',2, 32,87,scale),Porta('assets\porta_esquerda.png',2, 32, 87,scale)]
         self.sala_atual = (0,0)
+        self.scale = scale
 
 
     def new_setup(self):
@@ -29,11 +30,19 @@ class ConjuntoDeSalas:
                     temp.append(Sala('assets\dungeon_model.tmx', 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
             self.matriz_salas.append(temp)
         
-        #printar_matriz(self.matriz_salas) #NOTE debug
+        printar_matriz(self.matriz_salas) #NOTE debug
+        print(f'posicao do player: {(self.sala_atual[0],self.sala_atual[1])} ')
         super_linkening(self.matriz_salas, linhas, colunas) #liga todas as salas como se fosse magica!!!!
         
         return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
     
+    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group):
+        nova_sala = sala_de_agora.ponteiro[dest]
+        grupo_de_portas.empty()
+        grupo_de_colisao.empty()
+        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas)
+        player.rect.x, player.rect.y = 100,100 #por enquanto n sai na porta certinho
+        return nova_sala
 
 
 class Sala:
@@ -55,7 +64,7 @@ class Sala:
         self.draw_portas(camera) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp):
+    def setup(self, scale, colision_gourp, portas_group):
         for obj in self.tmx_data.get_layer_by_name('portas'):
             if obj.name == 'cima':
                 self.portas_object[0].rect.x, self.portas_object[0].rect.y = obj.x*scale, obj.y*scale
@@ -71,7 +80,9 @@ class Sala:
                 self.portas_object[3].y_sort = obj.y*scale
         
         for obj in self.tmx_data.get_layer_by_name('portas_entrada'):
-            pass
+            if self.ponteiro[obj.name] != None:
+                Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (portas_group), obj.name) #, self.all_sprites pra debug
+
         
         for obj in self.tmx_data.get_layer_by_name('colisao_b'):
             Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
@@ -80,8 +91,9 @@ class Sala:
         self.all_loaded = True
     
     def draw_portas(self, camera):
-        for elem in self.portas_object:
-            self.display_surface.blit(elem.sprite.frames[self.portas], camera.apply(pygame.Rect(elem.rect.x, elem.rect.y, elem.rect.width, elem.rect.height)))
+        for elem, pos in zip(self.portas_object, self.ponteiro.keys()):
+            if self.ponteiro[pos] != None:
+                self.display_surface.blit(elem.sprite.frames[self.portas], camera.apply(pygame.Rect(elem.rect.x, elem.rect.y, elem.rect.width, elem.rect.height)))
 
 
 class Porta(pygame.sprite.Sprite):

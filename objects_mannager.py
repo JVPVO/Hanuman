@@ -39,6 +39,7 @@ class Objects(pygame.sprite.Sprite):
         #nao vou usar esse hitbox por enquanto, só quando precisar de colisão dinamica (e isso em cima talvez um inflate fica melhor)
 
 class Barrier(Objects):
-    def __init__(self, pos, image, groups, camada=camadas_obj_mundo['main']):
+    def __init__(self, pos, image, groups,tag=None, camada=camadas_obj_mundo['main']):
         super().__init__(pos, image, groups, camada)
         self.hitbox = self.rect.copy()
+        self.tag = tag

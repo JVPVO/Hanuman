@@ -42,6 +42,12 @@ class Game:
         #Grupo de inimigos para serem renderizados e removidos da tela quando necessário
         self.inimigos_grupo = pygame.sprite.Group()
 
+        #grupo de portas
+        self.portas_grupo = pygame.sprite.Group()
+
+        self.player = Player(100, 100, self.collision_sprites, self.scale)
+
+
         #Grupo de números indicadores de dano, só usados quando o inimigo vai ser removido do grupo de iteração
         self.damage_numbers = []
 
@@ -66,14 +72,14 @@ class Game:
             Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
 
-        self.player = Player(100, 100, self.collision_sprites, self.scale)
 
+    
     def setup_salas(self):
-        todas_salas = ConjuntoDeSalas(self.scale)
-        self.sala:Sala = todas_salas.new_setup()
-        self.sala.setup(self.scale, self.collision_sprites)
+        self.todas_salas = ConjuntoDeSalas(self.scale)
+        self.sala:Sala = self.todas_salas.new_setup()
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo)
         self.tmx_data = self.sala.tmx_data
-        self.player = Player(100, 100, self.collision_sprites, self.scale)
+        
         
 
     def main(self):
@@ -86,6 +92,14 @@ class Game:
                     self.running = False
 
             self.player.handle_keys(key_pressed, self.camera, (self.inimigos_grupo, self.all_sprites))
+            
+            #mover isso pra outro lugar dps
+            if self.sala.portas == 1:
+                qual_porta = self.player.check_door_collision(self.portas_grupo)
+                if qual_porta != None:
+                    self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites)
+                    self.tmx_data = self.sala.tmx_data
+
             self.player.sprite.update()
             self.camera.update(self.player, self.map_height, self.map_width, self.scale)
             self.screen.fill((0, 0, 0))
@@ -110,6 +124,7 @@ class Game:
             
             if key_pressed[pygame.K_h]:
                 self.sala.portas = (self.sala.portas+1)%2
+            
 
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)

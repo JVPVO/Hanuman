@@ -146,6 +146,16 @@ class Player:
                     self.rect.x = self.pos_anterior[0]
                 if eixoy:
                     self.rect.y = self.pos_anterior[1]
+    
+    def check_door_collision(self, portasgrupo):
+        #quase que função duplicada, melhorar isso depois
+        for objeto in portasgrupo:
+            eixox = self.rect.x + self.rect.width > objeto.hitbox.x and self.rect.x < objeto.hitbox.x + objeto.hitbox.width
+            eixoy = self.rect.y + self.rect.height > objeto.hitbox.y and self.rect.y + self.rect.height < objeto.hitbox.y + objeto.hitbox.height
+            if eixox and eixoy:
+                return objeto.tag
+        return None
+
 
     def draw(self, surface: pygame.Surface, camera):
         adjusted_rect = camera.apply(self.rect)
