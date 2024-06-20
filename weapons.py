@@ -27,7 +27,7 @@ class RotatableObjects():
 class Weapon(RotatableObjects):
     def __init__(self, img_file, x, y, initial_scale = 1):
         super().__init__(img_file, x, y, initial_scale)
-
+        
         self.shots = 2
         self.shoot = []
         self.projectile_cooldown = 0.3 *1000
@@ -134,7 +134,7 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
         self.rot_image_rect.centerx = final.x
         self.rot_image_rect.centery = final.y
         
-        
+        self.dano = 10
     def move(self, vel):
         agora = pygame.time.get_ticks()
         delta_time = agora - self.time_control

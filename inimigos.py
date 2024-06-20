@@ -1,6 +1,7 @@
 import pygame
 from pygame.sprite import *
 from animation_Wip import Animation
+from menus import DamageNumber
 
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, initial_scale, groups):
@@ -17,7 +18,8 @@ class Skeleton(pygame.sprite.Sprite):
         self.camada = 1
         self.y_sort = self.rect.y
 
-        self.health = 3
+        self.ataque = 5
+        self.health = 30
         self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
         self.ataquesRecebidos = {}
 
@@ -33,7 +35,9 @@ class Skeleton(pygame.sprite.Sprite):
         self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
         self.processed = {'idle': True, 'run': False}
         self.spritesheets = {'idle': self.sprite}
-   
+    
+
+        self.damage_numbers = []
     #FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
     def draw(self, surface:pygame.Surface, camera):
         surface.blit(self.sprite.image, camera.apply(pygame.Rect(self.sprite.x, self.sprite.y, self.rect.width, self.rect.height)))
@@ -76,17 +80,31 @@ class Skeleton(pygame.sprite.Sprite):
         if id(alvo) not in self.ataquesRecebidos:
             if self.rect.colliderect(alvo.rot_image_rect):
                 self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
-                if self.health > 1:
-                    self.health -= 1
+                if self.health-alvo.dano > 0:
+                    self.take_damage(alvo.dano)
                     return False
                 else:
+                    self.take_damage(alvo.dano)
                     return True
+        #Isso existe pq em algum momento pode ter ataque AoE
         elif pygame.time.get_ticks() - self.ataquesRecebidos[id(alvo)] > self.invencibilidade:   
             if self.rect.colliderect(alvo.rot_image_rect):
                 self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
-                if self.health > 1:
-                    self.health -= 1
+                if self.health-alvo.dano > 0:
+                    self.take_damage(alvo.dano)
                     return False
                 else:
+                    self.take_damage(alvo.dano)
                     return True
         return False
+    def take_damage(self, dano):
+        damage_number = DamageNumber(self.rect.centerx, self.rect.y, dano, color=(255,255,255))
+        self.damage_numbers.append(damage_number)
+        self.health -= dano
+
+    def update_damage_numbers(self):
+        self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
+
+    def draw_damage_numbers(self, surface, camera):
+        for damage_number in self.damage_numbers:
+            damage_number.draw(surface, camera)

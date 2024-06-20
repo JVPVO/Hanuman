@@ -40,6 +40,8 @@ class Game:
         #Grupo de inimigos para serem renderizados e removidos da tela quando necessário
         self.inimigos_grupo = pygame.sprite.Group()
 
+        #Grupo de números indicadores de dano, só usados quando o inimigo vai ser removido do grupo de iteração
+        self.damage_numbers = []
 
     def setup(self):
         for group in (self.all_sprites, self.collision_sprites):
@@ -86,6 +88,10 @@ class Game:
             self.player.update_damage_numbers()
             self.player.draw_damage_numbers(self.screen, self.camera)
 
+            self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
+            for damage_number in self.damage_numbers:
+                damage_number.draw(self.screen, self.camera) 
+
             if key_pressed[pygame.K_t]:
                 self.ui.health = 100
                 self.player.health = 100
@@ -93,13 +99,20 @@ class Game:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
                 inimigo.movement(self.player.sprite.x, self.player.sprite.y)
+                inimigo.update_damage_numbers()
+                inimigo.draw_damage_numbers(self.screen, self.camera)
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
+                        #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo
+                        #Solução tlvz seja fzr o indicador de dano ser desenhado por fora? mas é tanto import que mds do céu
+                        #Vou jogar pra um lista e iterar as funções da lista, solução meio boba e simplista mas a vida tem dessas
+                        for dn in inimigo.damage_numbers:
+                            self.damage_numbers.append(dn)
                         inimigo.kill()
                 
                 if self.player.colisao(inimigo):
                   if self.ui.health > 0:
-                      self.player.take_damage(5)
+                      self.player.take_damage(inimigo.ataque)
                       self.ui.health = self.player.health
 
             

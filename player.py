@@ -4,8 +4,7 @@ from animation_Wip import Animation
 from inimigos import Skeleton
 from camera import Camera
 from weapons import Weapon
-import math
-import time
+from menus import DamageNumber
 
 class Player:
     def __init__(self, x, y, collision_sprites, initial_scale=1):
@@ -157,7 +156,7 @@ class Player:
         return self.rect.colliderect(alvo.rect)
     
     def take_damage(self, amount):
-        if pygame.time.get_ticks() - self.last_hit > 100:
+        if pygame.time.get_ticks() - self.last_hit > 200:
             self.health -= amount
             damage_number = DamageNumber(self.rect.centerx, self.rect.y, amount)
             self.damage_numbers.append(damage_number)
@@ -169,28 +168,4 @@ class Player:
     def draw_damage_numbers(self, surface, camera):
         for damage_number in self.damage_numbers:
             damage_number.draw(surface, camera)
-class DamageNumber:
-    def __init__(self, x, y, damage, duration=1.5, speed=1, color=(255, 0, 0), font_size=24):
-        self.x = x
-        self.y = y
-        self.damage = damage
-        self.duration = duration
-        self.speed = speed
-        self.color = color
-        self.start_time = time.time()
-        self.font = pygame.font.Font(None, font_size)
-        self.image = self.font.render(str(damage), True, self.color)
-        self.rect = self.image.get_rect(center=(self.x, self.y))
 
-    def update(self):
-        elapsed_time = time.time() - self.start_time
-        if elapsed_time < self.duration:
-            self.y -= self.speed
-            self.rect.y = self.y
-        else:
-            return False  # Signal that the damage number should be removed
-        return True
-
-    def draw(self, surface, camera):
-        adjusted_rect = camera.apply(self.rect)
-        surface.blit(self.image, adjusted_rect.topleft)
