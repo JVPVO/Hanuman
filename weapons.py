@@ -28,6 +28,7 @@ class Weapon(RotatableObjects):
     def __init__(self, img_file, x, y, initial_scale = 1):
         super().__init__(img_file, x, y, initial_scale)
 
+        self.shots = 2
         self.shoot = []
         self.projectile_cooldown = 0.3 *1000
         self.last_shoot = pygame.time.get_ticks()
@@ -50,12 +51,14 @@ class Weapon(RotatableObjects):
         #em progresso
         mx, my = pygame.mouse.get_pos()
         if pygame.time.get_ticks() - self.last_shoot  >= self.projectile_cooldown and keypressed[pygame.K_SPACE]:
-            
+            self.shots -= 1
             p = Projectile('assets\slash_demo.png', playerrect.centerx, playerrect.centery, mx, my, 0.1, self.rect, camera, self.scale)
             self.shoot.append(p)
-            
             self.last_shoot = pygame.time.get_ticks()
-
+        elif pygame.time.get_ticks() - self.last_shoot >= 50 and self.shots > 0:
+            self.shots -= 1
+            p = Projectile('assets\slash_demo.png', playerrect.centerx+20, playerrect.centery+20, mx, my, 0.1, self.rect, camera, self.scale)
+            self.shoot.append(p)
         
         self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, camera)
         
