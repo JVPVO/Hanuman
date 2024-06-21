@@ -65,7 +65,7 @@
  <objectgroup id="4" name="colisao_b">
   <object id="6" x="1" y="1" width="637.5" height="44"/>
   <object id="12" x="-0.5" y="0.5" width="1" height="367.333"/>
-  <object id="13" x="-0.727273" y="366.909" width="641" height="1"/>
+  <object id="13" x="-0.727273" y="366.545" width="641" height="1.36364"/>
   <object id="14" x="638.167" y="0.5" width="2" height="368"/>
  </objectgroup>
  <objectgroup id="5" name="portas_entrada">
