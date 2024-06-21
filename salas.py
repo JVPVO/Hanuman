@@ -72,6 +72,8 @@ class Sala:
 
     
     def setup(self, scale, colision_gourp, portas_group, all_sprite_group, inimigos_group):
+        colision_gourp.empty()
+       
         #depois ajeitar essa bagunca embaixo #TODO
         for obj in self.tmx_data.get_layer_by_name('portas'):
             if obj.name == 'cima':
@@ -100,6 +102,7 @@ class Sala:
         
         for obj in self.tmx_data.get_layer_by_name('colisao_b'):
             Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
+            print('a')
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
         if not self.all_loaded: #evita de esqueletos nascerem de novo em salas zeradas

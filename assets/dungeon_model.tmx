@@ -64,14 +64,14 @@
  </objectgroup>
  <objectgroup id="4" name="colisao_b">
   <object id="6" x="1" y="1" width="637.5" height="44"/>
-  <object id="12" x="-0.5" y="0.5" width="1" height="367.333"/>
-  <object id="13" x="-0.727273" y="366.545" width="641" height="1.36364"/>
-  <object id="14" x="638.167" y="0.5" width="2" height="368"/>
+  <object id="12" x="0.0652174" y="0.5" width="1" height="367.333"/>
+  <object id="13" x="0.181818" y="363.879" width="639.545" height="4.0303"/>
+  <object id="14" x="637.803" y="0.409091" width="2" height="366.545"/>
  </objectgroup>
  <objectgroup id="5" name="portas_entrada">
   <object id="8" name="cima" x="283" y="43.6667" width="31.6667" height="5"/>
   <object id="9" name="esquerda" x="-0.333333" y="168.333" width="5.66667" height="37"/>
   <object id="10" name="direita" x="634.545" y="176.299" width="5.33333" height="37.6667"/>
-  <object id="11" name="baixo" x="271" y="362" width="37.6667" height="6"/>
+  <object id="11" name="baixo" x="271" y="360.333" width="37.6667" height="7.66667"/>
  </objectgroup>
 </map>
