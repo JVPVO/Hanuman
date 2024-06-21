@@ -3,6 +3,8 @@ from mapa_WIP import load_map, draw_map_tiles
 from animation_Wip import Animation
 from matriz_otimizada import gerar_matriz, super_linkening
 from objects_mannager import Barrier
+from inimigos import *
+import random
 
 class ConjuntoDeSalas:
     def __init__(self, scale):
@@ -36,12 +38,12 @@ class ConjuntoDeSalas:
         
         return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
     
-    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group):
+    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, all_sprite_gorup, inimigos_grupo):
         nova_sala = sala_de_agora.ponteiro[dest]
         grupo_de_portas.empty()
         grupo_de_colisao.empty()
-        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas)
-        player.rect.x, player.rect.y = 100,100 #por enquanto n sai na porta certinho
+        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, all_sprite_gorup, inimigos_grupo) 
+        player.rect.x, player.rect.y = nova_sala.posicoes_perto_portas[dest] #define a posicao do player com base de onde ele vem
         self.sala_atual = nova_sala.posicao_na_matriz
         return nova_sala
 
@@ -56,6 +58,10 @@ class Sala:
         self.display_surface = pygame.display.get_surface()
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
+        
+        self.posicoes_perto_portas = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #no setup é prenchida de forma contraria ao #self.ponteiro (pq só precisamos dessa posicao se estamos vindo de outro lugar) (tipo uma posicao relativa de novo)
+        
+        
 
         self.portas_object = sprite_portas #dps vai ser esse pra ficar otimizado #NOTE
         #self.portas_object = [Animation('assets\porta_cima.png',2, 80, 73), Animation('assets\porta_baixo.png',2, 85, 32),Animation('assets\porta_direita.png',2, 32,87),Animation('assets\porta_esquerda.png',2, 32, 87)]
@@ -65,20 +71,27 @@ class Sala:
         self.draw_portas(camera) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp, portas_group):
+    def setup(self, scale, colision_gourp, portas_group, all_sprite_group, inimigos_group):
+        #depois ajeitar essa bagunca embaixo #TODO
         for obj in self.tmx_data.get_layer_by_name('portas'):
             if obj.name == 'cima':
                 self.portas_object[0].rect.x, self.portas_object[0].rect.y = obj.x*scale, obj.y*scale
                 self.portas_object[0].y_sort = obj.y*scale
+                self.posicoes_perto_portas['baixo'] = (obj.x*scale, obj.y*scale+35)
             elif obj.name == 'baixo':
                 self.portas_object[1].rect.x, self.portas_object[1].rect.y = obj.x*scale, obj.y*scale
                 self.portas_object[1].y_sort = obj.y*scale
+                self.posicoes_perto_portas['cima'] = (obj.x*scale, obj.y*scale-35)
             elif obj.name == 'direita':
                 self.portas_object[2].rect.x, self.portas_object[2].rect.y = obj.x*scale, obj.y*scale
                 self.portas_object[2].y_sort = obj.y*scale
+                self.posicoes_perto_portas['esquerda'] = (obj.x*scale-35, obj.y*scale)
+
             elif obj.name == 'esquerda':
                 self.portas_object[3].rect.x, self.portas_object[3].rect.y = obj.x*scale, obj.y*scale
                 self.portas_object[3].y_sort = obj.y*scale
+                self.posicoes_perto_portas['direita'] = (obj.x*scale+35, obj.y*scale)
+
         
         for obj in self.tmx_data.get_layer_by_name('portas_entrada'):
             if self.ponteiro[obj.name] != None:
@@ -89,6 +102,10 @@ class Sala:
             Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
+        if not self.all_loaded: #evita de esqueletos nascerem de novo em salas zeradas
+            for _ in range(random.randint(3,8)):
+                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale-30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(all_sprite_group, inimigos_group))
+
         self.all_loaded = True
     
     def draw_portas(self, camera):

@@ -77,7 +77,7 @@ class Game:
     def setup_salas(self):
         self.todas_salas = ConjuntoDeSalas(self.scale)
         self.sala:Sala = self.todas_salas.new_setup()
-        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo)
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.all_sprites, self.inimigos_grupo)
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
@@ -99,7 +99,7 @@ class Game:
             if self.sala.portas == 1:
                 qual_porta = self.player.check_door_collision(self.portas_grupo)
                 if qual_porta != None:
-                    self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites)
+                    self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites,self.all_sprites, self.inimigos_grupo)
                     self.tmx_data = self.sala.tmx_data
                     self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
                     self.map_height = self.tmx_data.height * self.tmx_data.tileheight
@@ -130,6 +130,7 @@ class Game:
                 self.sala.portas = (self.sala.portas+1)%2
             
 
+            
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
@@ -144,11 +145,13 @@ class Game:
                         for dn in inimigo.damage_numbers:
                             self.damage_numbers.append(dn)
                         inimigo.kill()
+                        if len(self.inimigos_grupo) == 0:
+                            self.sala.portas = 1
                 
                 if self.player.colisao(inimigo):
-                  if self.ui.health > 0:
-                      self.player.take_damage(inimigo.ataque)
-                      self.ui.health = self.player.health
+                    if self.ui.health > 0:
+                        self.player.take_damage(inimigo.ataque)
+                        self.ui.health = self.player.health
 
             
             
