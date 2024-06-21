@@ -81,7 +81,8 @@ class Game:
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
-        
+        #Criando o minimapa junto com o conjunto de salas
+        self.minimap = Minimap(mapa=self.todas_salas.matriz_salas)
         
 
     def main(self):
@@ -119,6 +120,9 @@ class Game:
             self.player.draw_damage_numbers(self.screen, self.camera)
 
             self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
+
+            self.minimap.updateMinimap((self.todas_salas.sala_atual[0], self.todas_salas.sala_atual[1]))
+            self.minimap.render(self.screen)
             for damage_number in self.damage_numbers:
                 damage_number.draw(self.screen, self.camera) 
 

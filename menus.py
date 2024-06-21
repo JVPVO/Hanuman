@@ -73,3 +73,40 @@ class DamageNumber:
     def draw(self, surface, camera):
         adjusted_rect = camera.apply(self.rect)
         surface.blit(self.image, adjusted_rect.topleft)
+
+class Minimap:
+    def __init__(self, mapa):
+        self.pos = [-1,-1]
+        self.tile_size = 16
+        self.offset = (10,10)
+        matriz = mapa
+        self.room_img = pygame.image.load("assets/ui/map/room.png").convert_alpha()
+        self.path_img = pygame.image.load("assets/ui/map/room.png").convert_alpha()
+        self.room_img = pygame.transform.scale(self.room_img, (16, 16))
+        self.path_img = pygame.transform.scale(self.path_img, (16,16))
+        for l in range(len(matriz)):
+            for c in range(len(matriz[l])):
+                if matriz[l][c] != None:
+                    matriz[l][c] = matriz[l][c].tipo
+                else:
+                    matriz[l][c] = 0
+        self.mapa = matriz
+    def updateMinimap(self, posicao):
+        pos_atual = [posicao[0], posicao[1]]
+        if self.pos != pos_atual:
+            self.pos = pos_atual
+            x, y = posicao[0], posicao[1]
+            print("Changed rooms")
+
+    def render(self, screen):
+        minimap_width = len(self.mapa[0]) * self.tile_size
+        minimap_height = len(self.mapa) * self.tile_size
+        start_x = screen.get_width() - minimap_width - self.offset[0]
+        start_y = self.offset[1]
+
+        for linha in range(len(self.mapa)):
+            for coluna in range(len(self.mapa[linha])):
+                tile_x = start_x + coluna * self.tile_size
+                tile_y = start_y + linha * self.tile_size
+                if self.mapa[linha][coluna] > 0:
+                    screen.blit(self.room_img, (tile_x, tile_y))
