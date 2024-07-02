@@ -105,6 +105,6 @@ class Skeleton(pygame.sprite.Sprite):
     def update_damage_numbers(self):
         self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
 
-    def draw_damage_numbers(self, surface, camera):
+    def draw_damage_numbers(self, desvio):
         for damage_number in self.damage_numbers:
-            damage_number.draw(surface, camera)
+            damage_number.draw(desvio)

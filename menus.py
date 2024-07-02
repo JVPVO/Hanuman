@@ -18,6 +18,8 @@ class HealthBar:
         self.max_health = 100
         self.health = 100
 
+        self.display = pygame.display.get_surface()
+
     def load_and_scale_image(self, image_file, scale, y_position):
         """Helper function to load and scale an image"""
         animation = Animation(image_file=image_file, total_frames=1, frame_height=16, frame_width=48)
@@ -29,7 +31,8 @@ class HealthBar:
         animation.rect.height = int(16 * scale)
         return animation
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self):
+        surface = self.display
         """Draw the health bar on the given surface"""
         # Calculate the new width of the full health bar
         new_width = int((self.health / self.max_health) * self.full_bar.rect.width)
@@ -48,6 +51,7 @@ class HealthBar:
         font = pygame.font.Font(None, 48)
         image = font.render(f"{self.health}/{self.max_health}", True, (255,255,255))
         surface.blit(image, dest=(int(48*self.scale/2), int(887+(16*self.scale/2))))
+
 class DamageNumber:
     def __init__(self, x, y, damage, duration=1.5, speed=1, color=(255, 0, 0), font_size=32):
         self.x = x
@@ -61,6 +65,8 @@ class DamageNumber:
         self.image = self.font.render(str(damage), True, self.color)
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
+        self.display = pygame.display.get_surface()
+
     def update(self):
         elapsed_time = time.time() - self.start_time
         if elapsed_time < self.duration:
@@ -70,9 +76,10 @@ class DamageNumber:
             return False  # Signal that the damage number should be removed
         return True
 
-    def draw(self, surface, camera):
-        adjusted_rect = camera.apply(self.rect)
-        surface.blit(self.image, adjusted_rect.topleft)
+    def draw(self, desvio):
+        surface = self.display
+
+        surface.blit(self.image, self.rect.topleft + desvio)
 
 class Minimap:
     def __init__(self, mapa):

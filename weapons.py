@@ -33,34 +33,35 @@ class Weapon(RotatableObjects):
         self.projectile_cooldown = 0.3 *1000
         self.last_shoot = pygame.time.get_ticks()
         self.last_direction = pygame.Vector2(0,0) #sempre normalizado (vetor unitário)
+        
+        self.display = pygame.display.get_surface()
 
-    def draw(self, surface:pygame.Surface, camera):
+    def draw(self, desvio):
         tam_s = len(self.shoot)
         for t in range(tam_s-1,-1,-1): #desenha, movimenta e deleta os projeteis
-            self.shoot[t].draw(surface, camera)
+            self.shoot[t].draw(desvio)
             delete_result = self.shoot[t].move(0.5)
             if delete_result:
                 self.shoot.pop(t)
 
-        #surface.blit(pygame.Surface((self.rot_image_rect.width,self.rot_image_rect.height)), camera.apply(pygame.Rect(self.rot_image_rect.x, self.rot_image_rect.y, self.rot_image_rect.width, self.rot_image_rect.height))) 
-        #debug ^
-        surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.rot_image_rect.x, self.rot_image_rect.y, self.rot_image_rect.width, self.rot_image_rect.height)))
+        
+        self.display.blit(self.rotated_img, self.rot_image_rect.topleft + desvio)
     
-    def update(self, playerrect:pygame.Rect, camera, ph, keypressed):
+    def update(self, playerrect:pygame.Rect, desvio, ph, keypressed):
         '''pPos_pComp = (player_x, player_y, player_width, player_height)'''
         #em progresso
         mx, my = pygame.mouse.get_pos()
         if pygame.time.get_ticks() - self.last_shoot  >= self.projectile_cooldown and keypressed[pygame.K_SPACE]:
             self.shots -= 1
-            p = Projectile('assets\slash_demo.png', playerrect.centerx, playerrect.centery, mx, my, 0.1, self.rect, camera, self.scale)
+            p = Projectile('assets\slash_demo.png', playerrect.centerx, playerrect.centery, mx, my, 0.1, self.rect, desvio, self.scale)
             self.shoot.append(p)
             self.last_shoot = pygame.time.get_ticks()
         elif pygame.time.get_ticks() - self.last_shoot >= 50 and self.shots > 0:
             self.shots -= 1
-            p = Projectile('assets\slash_demo.png', playerrect.centerx+20, playerrect.centery+20, mx, my, 0.1, self.rect, camera, self.scale)
+            p = Projectile('assets\slash_demo.png', playerrect.centerx+20, playerrect.centery+20, mx, my, 0.1, self.rect, desvio, self.scale)
             self.shoot.append(p)
         
-        self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, camera)
+        self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, desvio)
         
         
     #pequena modificacao em relacao a versão original (rotação com refrencial espada-mouse -> rotação com refrencial player-espada)
@@ -72,14 +73,13 @@ class Weapon(RotatableObjects):
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
 
-    def set_pos(self, x, y, mx, my, player_height,camera):
+    def set_pos(self, x, y, mx, my, player_height,desvio):
         #em progresso
         self.rect = self.sprite.get_rect(center = (x,y))
         mouse = pygame.Vector2(mx, my)
         player= pygame.Vector2(x, y)
-        camera_v = pygame.Vector2(camera.x, camera.y)
 
-        result = mouse -camera_v - player #deslocamento da origem + correcao da camera
+        result = mouse -desvio - player #deslocamento da origem + correcao da camera
         mag = result.magnitude()
         if mag > 2: #um valor pequeno para o "centro"
             result = result.normalize() * player_height *0.9
@@ -103,7 +103,7 @@ class Weapon(RotatableObjects):
 
 
 class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE   
-    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, camera, initial_scale=1):
+    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, desvio, initial_scale=1):
         super().__init__(img_file, x, y, initial_scale)
 
         self.time_control = self.creation_time = pygame.time.get_ticks()
@@ -112,8 +112,8 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
         self.mx, self.my = mx, my
 
-        dx = mx - self.rect.centerx - camera.x
-        dy = my - self.rect.centery - camera.y
+        dx = mx - self.rect.centerx - desvio.x
+        dy = my - self.rect.centery - desvio.y
         angle = math.degrees(math.atan2(-dy, dx))
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
@@ -121,11 +121,10 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
         self.rect = self.sprite.get_rect(center = (x,y))
         
-        camera_v = pygame.Vector2(camera.x, camera.y)
         mouse = pygame.Vector2(mx, my)
         player= pygame.Vector2(x, y)
         
-        result = mouse - player - camera_v #deslocamento da origem + correcao da camera
+        result = mouse - player - desvio #deslocamento da origem + correcao da camera
         self.result = result
         
         result = result.normalize() * player_rect.height *1.1
@@ -135,6 +134,9 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
         self.rot_image_rect.centery = final.y
         
         self.dano = 10
+
+        self.display = pygame.display.get_surface()
+
     def move(self, vel):
         agora = pygame.time.get_ticks()
         delta_time = agora - self.time_control
@@ -150,8 +152,8 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
             return True
         return False
     
-    def draw(self,surface, camera):
-        surface.blit(self.rotated_img, camera.apply(pygame.Rect(self.rot_image_rect.x, self.rot_image_rect.y, self.rot_image_rect.width, self.rot_image_rect.height)))
+    def draw(self, desvio):
+        self.display.blit(self.rotated_img, self.rot_image_rect.topleft+desvio)
 
 
     

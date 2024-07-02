@@ -93,7 +93,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group))
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio)
             
             #mover isso pra outro lugar dps
             if self.sala.portas == 1:
@@ -113,18 +113,18 @@ class Game:
             self.sala.draw(self.tmx_data, self.scale, self.camera_group.desvio)
             
             self.camera_group.draw(self.tmx_data) #NOTE datatmx desativado por causa do sala.draw
-            self.ui.draw(self.screen)
+            self.ui.draw()
 
             self.player.update_damage_numbers()
-            #self.player.draw_damage_numbers(self.screen, self.camera) #NOTE
+            self.player.draw_damage_numbers(self.camera_group.desvio)
 
             self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
 
             self.minimap.updateMinimap((self.todas_salas.sala_atual[0], self.todas_salas.sala_atual[1]))
             self.minimap.render(self.screen)
             for damage_number in self.damage_numbers:
-                #damage_number.draw(self.screen, self.camera) NOTE
-                pass #NOTE
+                damage_number.draw(self.camera_group.desvio) #NOTE
+
 
             if key_pressed[pygame.K_t]:
                 self.ui.health = 100
@@ -140,7 +140,7 @@ class Game:
                 inimigo.sprite.update()
                 inimigo.movement(self.player.sprite.x, self.player.sprite.y)
                 inimigo.update_damage_numbers()
-                #inimigo.draw_damage_numbers(self.screen, self.camera) NOTE
+                inimigo.draw_damage_numbers(self.camera_group.desvio) 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
                         #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo

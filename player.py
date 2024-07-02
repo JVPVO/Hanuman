@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
             dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
 
-    def handle_keys(self, key_pressed, grupos):
+    def handle_keys(self, key_pressed, grupos, desvio):
         self.pos_anterior = (self.rect.x, self.rect.y)
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
@@ -126,7 +126,7 @@ class Player(pygame.sprite.Sprite):
 
         self.check_collision()
         self.y_sort = self.rect.y + self.rect.height
-        #weapon.update(self.rect, camera, self.rect.height, key_pressed) #NOTE
+        weapon.update(self.rect, desvio, self.rect.height, key_pressed) #NOTE
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -163,7 +163,7 @@ class Player(pygame.sprite.Sprite):
         pos_ajustada = pygame.math.Vector2(self.rect.x, self.rect.y) + desvio
 
         tela.blit(self.sprite.image, pos_ajustada)
-        #self.weapon[self.selected_weapon].draw(tela, camera) #NOTE
+        self.weapon[self.selected_weapon].draw(desvio) #NOTE
 
     def colisao(self, alvo):
         return self.rect.colliderect(alvo.rect)
@@ -178,7 +178,7 @@ class Player(pygame.sprite.Sprite):
     def update_damage_numbers(self):
         self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
 
-    def draw_damage_numbers(self, surface, camera):
+    def draw_damage_numbers(self, desvio):
         for damage_number in self.damage_numbers:
-            damage_number.draw(surface, camera)
+            damage_number.draw(desvio)
 
