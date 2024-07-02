@@ -7,8 +7,9 @@ def load_map(filename):
     tmx_data = load_pygame(filename)
     return tmx_data
 
-def draw_map_tiles(surface, tmx_data, scale, camera):
+def draw_map_tiles(tmx_data, scale, desvio):
     """ Desenha o mapa no Pygame surface com um fator de escala, ajustando pela câmera. """
+    display = pygame.display.get_surface()
     tile_width = tmx_data.tilewidth
     tile_height = tmx_data.tileheight
     
@@ -22,9 +23,14 @@ def draw_map_tiles(surface, tmx_data, scale, camera):
                 if tile:
                     # Redimensiona o tile com base na escala
                     tile = pygame.transform.scale(tile, (scaled_tile_width, scaled_tile_height))
+                    
                     # Calcula a posição correta com a escala aplicada
                     pos_x = x * scaled_tile_width
                     pos_y = y * scaled_tile_height
+                    
+
+                    pos_com_desvio = pygame.math.Vector2(pos_x,pos_y) + desvio
+
                     # Aplica o deslocamento da câmera
-                    surface.blit(tile, camera.apply(pygame.Rect(pos_x, pos_y, scaled_tile_width, scaled_tile_height)))
+                    display.blit(tile, pos_com_desvio)
 

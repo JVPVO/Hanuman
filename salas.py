@@ -5,10 +5,11 @@ from matriz_otimizada import gerar_matriz, super_linkening
 from objects_mannager import Barrier
 from inimigos import *
 import random
+from pathlib import Path
 
 class ConjuntoDeSalas:
     def __init__(self, scale):
-        self.sprite_portas = [Porta('assets\porta_cima.png',2, 90, 73,scale), Porta('assets\porta_baixo.png',2, 85, 32,scale),Porta('assets\porta_direita.png',2, 32,87,scale),Porta('assets\porta_esquerda.png',2, 32, 87,scale)]
+        self.sprite_portas = [Porta(Path('assets\\porta_cima.png'),2, 90, 73,scale), Porta(Path('assets\\porta_baixo.png'),2, 85, 32,scale),Porta(Path('assets\\porta_direita.png'),2, 32,87,scale),Porta(Path('assets\\porta_esquerda.png'),2, 32, 87,scale)]
         self.sala_atual = (0,0)
         self.scale = scale
 
@@ -25,11 +26,11 @@ class ConjuntoDeSalas:
                 if self.molde[l][c] == 0:
                     temp.append(None) #apeend em none
                 elif self.molde[l][c] == 1:
-                    temp.append(Sala('assets\dungeon_model.tmx', 1, (l,c), self.sprite_portas))
+                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 1, (l,c), self.sprite_portas))
                 elif self.molde[l][c] == 2:
-                    temp.append(Sala('assets\dungeon_model.tmx', 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
                 elif self.molde[l][c] == 3:
-                    temp.append(Sala('assets\dungeon_model.tmx', 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
             self.matriz_salas.append(temp)
         
         printar_matriz(self.matriz_salas) #NOTE debug
@@ -66,12 +67,12 @@ class Sala:
         self.portas_object = sprite_portas #dps vai ser esse pra ficar otimizado #NOTE
         #self.portas_object = [Animation('assets\porta_cima.png',2, 80, 73), Animation('assets\porta_baixo.png',2, 85, 32),Animation('assets\porta_direita.png',2, 32,87),Animation('assets\porta_esquerda.png',2, 32, 87)]
 
-    def draw(self, surface, tmx_data, scale, camera):
-        draw_map_tiles(surface, tmx_data, scale, camera)
-        self.draw_portas(camera) #já é dado draw pelo ALLSprites
+    def draw(self, tmx_data, scale, desvio):
+        draw_map_tiles(tmx_data, scale, desvio)
+        self.draw_portas(desvio) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp, portas_group, all_sprite_group, inimigos_group):
+    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group):
         colision_gourp.empty()
        
         #depois ajeitar essa bagunca embaixo #TODO
@@ -107,14 +108,15 @@ class Sala:
         
         if not self.all_loaded: #evita de esqueletos nascerem de novo em salas zeradas
             for _ in range(random.randint(3,8)):
-                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale-30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(all_sprite_group, inimigos_group))
+                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale-30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(camera_group, inimigos_group))
 
         self.all_loaded = True
     
-    def draw_portas(self, camera):
+    def draw_portas(self, desvio):
         for elem, pos in zip(self.portas_object, self.ponteiro.keys()):
             if self.ponteiro[pos] != None:
-                self.display_surface.blit(elem.sprite.frames[self.portas], camera.apply(pygame.Rect(elem.rect.x, elem.rect.y, elem.rect.width, elem.rect.height)))
+                pos_com_desvio = pygame.math.Vector2(elem.rect.x, elem.rect.y) + desvio
+                self.display_surface.blit(elem.sprite.frames[self.portas], pos_com_desvio)
 
 
 class Porta(pygame.sprite.Sprite):

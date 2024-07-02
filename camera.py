@@ -1,4 +1,45 @@
 import pygame
+from mapa_WIP import draw_map_tiles
+from settings import camadas_obj_mundo
+from inimigos import Skeleton
+from player import Player
+
+
+class EverythingScreen(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        self.tela = pygame.display.get_surface()
+        
+        ##desvio com vetor de desvio (pra camera)
+        self.desvio = pygame.math.Vector2()
+
+
+    def draw(self, tmx_data):#NOTE datatmx desativado por causa do sala.draw
+        #chao
+        
+        #blit no chao aqui
+        #draw_map_tiles(tmx_data, 3, self.desvio) #NOTE desativado por causa do sala.draw
+
+
+        bg_sprites = [sprite for sprite in self if sprite.camada < camadas_obj_mundo['bg']]
+        main_sprites = sorted([sprite for sprite in self if sprite.camada == camadas_obj_mundo['main']], key = lambda sprite: sprite.y_sort)
+        top_sprites = [sprite for sprite in self if sprite.camada > camadas_obj_mundo['top']]
+
+        
+        #objetos
+        for layer in (bg_sprites, main_sprites, top_sprites):
+            for elem in layer: #elem = sprite pra maioria dos casos
+                if isinstance(elem, Player):
+                    elem.draw(self.tela,self.desvio)
+                elif isinstance(elem, Skeleton):#depois eu posso adicionar no grupo ai n precisa desse if (adcionar a imagem)#NOTE
+                    pos_com_desvio = elem.rect.topleft + self.desvio
+                    self.tela.blit(elem.sprite.image, pos_com_desvio)
+                else:
+                    pos_com_desvio = elem.rect.topleft + self.desvio
+                    self.tela.blit(elem.image, pos_com_desvio)
+
+    
+
 
 class Camera:
     def __init__(self, width, height):
@@ -9,7 +50,7 @@ class Camera:
         self.y = 0
 
     def apply(self, rect):
-        """Aplica o deslocamento da câmera a um retângulo pygame.Rect para renderizar na posição correta."""
+        """Desloca o rect pra deixar em relacao a camera"""
         return rect.move(self.camera.topleft)
     
     def update(self, target, map_height, map_width, scale):
