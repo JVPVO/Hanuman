@@ -12,9 +12,14 @@ class EverythingScreen(pygame.sprite.Group):
         
         ##desvio com vetor de desvio (pra camera)
         self.desvio = pygame.math.Vector2()
-
-
-    def draw(self, tmx_data):#NOTE datatmx desativado por causa do sala.draw
+        self.metadeTelaW, self.metadeTelaH = self.tela.get_width()//2, self.tela.get_height()//2
+    
+    def centralizar(self, target):
+        '''Centraliza a camera no player'''
+        self.desvio.x = self.metadeTelaW - target.rect.centerx 
+        self.desvio.y = self.metadeTelaH - target.rect.centery
+    def draw(self, player, tmx_data):#NOTE datatmx desativado por causa do sala.draw
+        self.centralizar(player)
         #chao
         
         #blit no chao aqui

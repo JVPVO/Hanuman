@@ -1,4 +1,7 @@
 #TODO Colisão
+
+#TODO Camera com player se movendo
+
 #TODO implementar deltatime
 #TODO implementar deltatime
 #TODO resolver importsss
@@ -112,7 +115,7 @@ class Game:
             #draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
             self.sala.draw(self.tmx_data, self.scale, self.camera_group.desvio)
             
-            self.camera_group.draw(self.tmx_data) #NOTE datatmx desativado por causa do sala.draw
+            self.camera_group.draw(self.player,self.tmx_data) #NOTE datatmx desativado por causa do sala.draw
             self.ui.draw()
 
             self.player.update_damage_numbers()
