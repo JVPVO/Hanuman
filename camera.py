@@ -13,16 +13,50 @@ class EverythingScreen(pygame.sprite.Group):
         ##desvio com vetor de desvio (pra camera)
         self.desvio = pygame.math.Vector2()
         self.metadeTelaW, self.metadeTelaH = self.tela.get_width()//2, self.tela.get_height()//2
+
+        self.bordas = {'esquerda': 600, 'direita': 600, 'cima': 300, 'baixo': 300}
+        
+        l, t = self.bordas['esquerda'], self.bordas['cima'] #esquerda e cima
+        w = self.tela.get_width() - self.bordas['esquerda'] - self.bordas['direita'] #largura
+        h = self.tela.get_height() - self.bordas['cima'] - self.bordas['baixo'] #altura
+
+        self.camera_rect= pygame.Rect(l, t, w, h)
     
-    def centralizar(self, target):
+
+    def centralizar_player(self, target):
         '''Centraliza a camera no player'''
         self.desvio.x = self.metadeTelaW - target.rect.centerx 
         self.desvio.y = self.metadeTelaH - target.rect.centery
+
+    def centralizar_bordas(self, target):
+        '''Centraliza pela caixa (a borda)'''
+        
+        # se o player sair da camera pela esquerda ajusta a borda (e a câmera tambem)
+        if target.rect.left < self.camera_rect.left: self.camera_rect.left = target.rect.left
+
+        # se o player sair da camera pela direita ajusta a borda (e a câmera tambem)
+        if target.rect.right > self.camera_rect.right: self.camera_rect.right = target.rect.right
+
+        # se o player sair da camera por cima ajusta a borda (e a câmera tambem)
+        if target.rect.top < self.camera_rect.top: self.camera_rect.top = target.rect.top
+
+        # se o player sair da camera por baixo ajusta a borda (e a câmera tambem)
+        if target.rect.bottom > self.camera_rect.bottom: self.camera_rect.bottom = target.rect.bottom
+
+       
+        #mesma ideia do centralizar player
+        self.desvio.x = self.bordas['esquerda']  - self.camera_rect.left
+        self.desvio.y = self.bordas['cima'] - self.camera_rect.top 
+
     def draw(self, player, tmx_data):#NOTE datatmx desativado por causa do sala.draw
-        self.centralizar(player)
+        
+        #Se quiser trocar de um modo pra outro é só comentar e descomentar aqui!!
+        self.centralizar_player(player)
+        #self.centralizar_bordas(player)
+        
         #chao
         
-        #blit no chao aqui
+        #blit no chao aqui (por enquanto tá na sala.draw)
         #draw_map_tiles(tmx_data, 3, self.desvio) #NOTE desativado por causa do sala.draw
 
 
@@ -42,6 +76,8 @@ class EverythingScreen(pygame.sprite.Group):
                 else:
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.tela.blit(elem.image, pos_com_desvio)
+
+        #pygame.draw.rect(self.tela, (255,0,0), self.camera_rect, 8) #ver onde estao as bordas (#debug)
 
     
 
