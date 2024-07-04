@@ -8,8 +8,10 @@ class Skeleton(pygame.sprite.Sprite):
         super().__init__(groups)
         #TODO Fazer um json que tem o nome dos inimigos e cada uma das sprites sheets deles, por enquanto vou deixar vazio e hard-coded no código
         self.sprite = Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
+        
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
+    
         self.speed = 2  # Velocidade de movimento do jogador
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
@@ -38,6 +40,7 @@ class Skeleton(pygame.sprite.Sprite):
     
 
         self.damage_numbers = []
+    
     #FUNÇÃO MAIS IMPORTANTE DA NOSSA VIDA, RENDERIZA O PERSONAGEM COM A CÂMERA E É GLOBAL ENTÃO NÃO PRECISA BOTAR PRA TODA HORA                    
     def draw(self, surface:pygame.Surface, camera):
         surface.blit(self.sprite.image, camera.apply(pygame.Rect(self.sprite.x, self.sprite.y, self.rect.width, self.rect.height)))
@@ -51,6 +54,7 @@ class Skeleton(pygame.sprite.Sprite):
             self.processed[self.mode] = True
         self.sprite = self.spritesheets[self.mode]
         self.sprite.x, self.sprite.y = x,y
+    
     def movement(self, playerX, playerY):
         firstPos = (self.sprite.x, self.sprite.y)
         if self.sprite.x > playerX+5: 
@@ -63,6 +67,7 @@ class Skeleton(pygame.sprite.Sprite):
         elif self.sprite.y < playerY-5: self.sprite.y += self.speed
         self.rect.x = self.sprite.x
         self.rect.y = self.sprite.y
+        
         #Ele basicamente testa se houve algum movimento com a invocação da função, se houve, ele realiza a mudança da animação pra uma de corrida
         #Se não houve nenhum movimento ele volta pra animação idle
         if firstPos[0] != self.sprite.x or firstPos[1] != self.sprite.y:
@@ -76,6 +81,7 @@ class Skeleton(pygame.sprite.Sprite):
                 file = self.animations['idle']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
+    
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
             if self.rect.colliderect(alvo.rot_image_rect):
@@ -105,6 +111,6 @@ class Skeleton(pygame.sprite.Sprite):
     def update_damage_numbers(self):
         self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
 
-    def draw_damage_numbers(self, surface, camera):
+    def draw_damage_numbers(self, desvio):
         for damage_number in self.damage_numbers:
-            damage_number.draw(surface, camera)
+            damage_number.draw(desvio)

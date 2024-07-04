@@ -1,5 +1,4 @@
 # TODO da pra otimizar mtt isso aq
-#from salas import Sala #NOTE debug
 import random
 
 def printar_matriz(matriz):
