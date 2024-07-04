@@ -34,20 +34,20 @@ class Weapon(RotatableObjects):
         self.last_shoot = pygame.time.get_ticks()
         self.last_direction = pygame.Vector2(0,0) #sempre normalizado (vetor unitário)
         
-        self.display = pygame.display.get_surface()
+        
 
-    def draw(self, desvio):
+    def draw(self,tela, desvio):
         tam_s = len(self.shoot)
         for t in range(tam_s-1,-1,-1): #desenha, movimenta e deleta os projeteis
-            self.shoot[t].draw(desvio)
+            self.shoot[t].draw(tela,desvio)
             delete_result = self.shoot[t].move(0.5)
             if delete_result:
                 self.shoot.pop(t)
 
         
-        self.display.blit(self.rotated_img, self.rot_image_rect.topleft + desvio)
+        tela.blit(self.rotated_img, self.rot_image_rect.topleft + desvio)
     
-    def update(self, playerrect:pygame.Rect, desvio, ph, keypressed):
+    def update(self, playerrect:pygame.Rect, desvio, ph, keypressed, scaleoffset):
         '''pPos_pComp = (player_x, player_y, player_width, player_height)'''
         #em progresso
         mx, my = pygame.mouse.get_pos()
@@ -61,25 +61,29 @@ class Weapon(RotatableObjects):
             p = Projectile('assets\slash_demo.png', playerrect.centerx+20, playerrect.centery+20, mx, my, 0.1, self.rect, desvio, self.scale)
             self.shoot.append(p)
         
-        self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, desvio)
+        self.set_pos(playerrect.centerx, playerrect.centery, mx, my, ph, desvio, scaleoffset)
         
         
     #pequena modificacao em relacao a versão original (rotação com refrencial espada-mouse -> rotação com refrencial player-espada)
     def update_rot(self, mx, my):
+        
         dx = mx - self.rect.centerx 
-        dy = my - self.rect.centery
-        #print('mouse', mx, my) debug
+        dy = my - self.rect.centery 
+        #print(pygame.mouse.get_pos(), dx,dy)
+        #print('player', mx, my) debug
         angle = math.degrees(math.atan2(dy, -dx)) - 90
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
 
-    def set_pos(self, x, y, mx, my, player_height,desvio):
+    def set_pos(self, x, y, mx, my, player_height,desvio, scaleoffset): #talvez deixar esse scale offset quando der initi
         #em progresso
         self.rect = self.sprite.get_rect(center = (x,y))
         mouse = pygame.Vector2(mx, my)
         player= pygame.Vector2(x, y)
 
-        result = mouse -desvio - player #deslocamento da origem + correcao da camera
+        result = mouse -desvio - player +scaleoffset #deslocamento da origem + correcao da camera
+        
+        print(desvio)
         mag = result.magnitude()
         if mag > 2: #um valor pequeno para o "centro"
             result = result.normalize() * player_height *0.9
@@ -135,7 +139,6 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
         
         self.dano = 10
 
-        self.display = pygame.display.get_surface()
 
     def move(self, vel):
         agora = pygame.time.get_ticks()
@@ -152,8 +155,8 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
             return True
         return False
     
-    def draw(self, desvio):
-        self.display.blit(self.rotated_img, self.rot_image_rect.topleft+desvio)
+    def draw(self,tela, desvio):
+        tela.blit(self.rotated_img, self.rot_image_rect.topleft+desvio)
 
 
     

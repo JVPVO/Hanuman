@@ -19,6 +19,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.width = int(19 * initial_scale)  # Ajusta o rect
         self.rect.height = int(30 * initial_scale)  # Ajusta o rect
         self.y_sort = self.rect.y + self.rect.height
+
+        self.rect_where_draw = self.rect.copy() #depois do primeiro draw já muda (preciso disso quando to lidando com referencial da tela)
         
         self.camada = 1
 
@@ -71,7 +73,7 @@ class Player(pygame.sprite.Sprite):
             dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
 
-    def handle_keys(self, key_pressed, grupos, desvio):
+    def handle_keys(self, key_pressed, grupos, desvio, scaleoffset):
         self.pos_anterior = (self.rect.x, self.rect.y)
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
@@ -126,7 +128,7 @@ class Player(pygame.sprite.Sprite):
 
         self.check_collision()
         self.y_sort = self.rect.y + self.rect.height
-        weapon.update(self.rect, desvio, self.rect.height, key_pressed) #NOTE
+        weapon.update(self.rect, desvio, self.rect.height, key_pressed, scaleoffset) #NOTE
         self.sprite.x, self.sprite.y = self.rect.topleft
 
     def scale(self, scale_factor):
@@ -161,9 +163,11 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self,tela, desvio):
         pos_ajustada = pygame.math.Vector2(self.rect.x, self.rect.y) + desvio
+        self.rect_where_draw.x, self.rect_where_draw.y = pos_ajustada
+
 
         tela.blit(self.sprite.image, pos_ajustada)
-        self.weapon[self.selected_weapon].draw(desvio) #NOTE
+        self.weapon[self.selected_weapon].draw(tela,desvio) 
 
     def colisao(self, alvo):
         return self.rect.colliderect(alvo.rect)

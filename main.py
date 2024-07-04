@@ -86,12 +86,11 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio)
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.camera_group.scale_offset)
             
 
             self.player.sprite.update()
 
-            self.screen.fill((0, 0, 0))
             
 
             self.camera_group.draw(self.player,self.tmx_data, self.drawables_alone) 
