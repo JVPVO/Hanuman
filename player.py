@@ -10,14 +10,17 @@ class Player(pygame.sprite.Sprite):
         super().__init__(camera_grupo)
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=19, frame_height=30)
         self.sprite.x, self.sprite.y = x, y
-        self.rect = pygame.Rect(x, y, 19, 30)  # Tamanho do jogador, ajuste conforme necessário
+
+        self.rect = self.sprite.image.get_rect(topleft=(x,y))
+
         self.speed = 8  # Velocidade de movimento do jogador
+        
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
-        self.sprite.rescale_frames(initial_scale)
-        self.rect.width = int(19 * initial_scale)  # Ajusta o rect
-        self.rect.height = int(30 * initial_scale)  # Ajusta o rect
+
+        #self.sprite.rescale_frames(initial_scale) (nao tirei o rescale pq pode ser que queira mudar o tamanho só do player no futuro sla)
+
         self.y_sort = self.rect.y + self.rect.height
 
         self.rect_where_draw = self.rect.copy() #depois do primeiro draw já muda (preciso disso quando to lidando com referencial da tela)
@@ -31,7 +34,9 @@ class Player(pygame.sprite.Sprite):
         self.pos_anterior = (self.rect.x, self.rect.y)
 
         self.mode = 'idle'
+        
         self.scaled = False
+        
         self.dashing = False
         self.dash_speed = 20  # Velocidade durante o dash
         self.dash_duration = 300  # Duração do dash em milissegundos

@@ -30,7 +30,7 @@ class Game:
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
         # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
-        self.scale = 3
+        self.scale = 1
         
 
         self.ui = HealthBar()
