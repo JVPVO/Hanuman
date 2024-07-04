@@ -23,7 +23,7 @@ class EverythingScreen(pygame.sprite.Group):
 
         self.camera_rect= pygame.Rect(l, t, w, h)
 
-        self.scale = 2
+        self.scale = 1
         self.scale_surface_size = (1920,1080) #como se fosse o "zoom out maximo"
         self.scale_surface = pygame.Surface(self.scale_surface_size, pygame.SRCALPHA) #SRCALPHA para ter transparencia
         self.scale_rect = self.scale_surface.get_rect(center = (self.metadeTelaW, self.metadeTelaH))
@@ -71,7 +71,7 @@ class EverythingScreen(pygame.sprite.Group):
         #chao
        
         #blit no chao aqui (por enquanto tá na sala.draw)
-        draw_map_tiles(tmx_data, 1, self.desvio, self.scale_surface, self.scale_rect) #NOTE desativado por causa do sala.draw
+        draw_map_tiles(tmx_data, 3, self.desvio, self.scale_surface, self.scale_rect) #NOTE desativado por causa do sala.draw
 
     
         for elem in drawable_alone:
@@ -96,6 +96,7 @@ class EverythingScreen(pygame.sprite.Group):
                     self.scale_surface.blit(elem.image, pos_com_desvio)
 
 
+        
         scaled_surf = pygame.transform.scale(self.scale_surface, self.scale_surface_size_vector*self.scale)
         scaled_rect = scaled_surf.get_rect(center = (self.metadeTelaW, self.metadeTelaH))
 

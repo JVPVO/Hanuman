@@ -30,7 +30,7 @@ class Game:
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
         # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
-        self.scale = 1
+        self.scale = 3
         
 
         self.ui = HealthBar()
@@ -85,6 +85,11 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                
+                if event.type == pygame.MOUSEWHEEL:
+                    self.camera_group.scale += event.y * 0.1
+                    if self.camera_group.scale < 0:
+                        self.camera_group.scale = 1
 
             self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.camera_group.scale_offset)
             
@@ -114,6 +119,8 @@ class Game:
             if key_pressed[pygame.K_m]: #inicia a dungeon
                 for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]:
                     grupo.empty()
+
+            
 
                 grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
                 grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala

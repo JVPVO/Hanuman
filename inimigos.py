@@ -9,8 +9,9 @@ class Skeleton(pygame.sprite.Sprite):
         #TODO Fazer um json que tem o nome dos inimigos e cada uma das sprites sheets deles, por enquanto vou deixar vazio e hard-coded no código
         self.sprite = Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
         
-        self.rect = self.sprite.image.get_rect(topleft=(x,y))
-
+        self.sprite.x, self.sprite.y = x, y
+        self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
+    
         self.speed = 2  # Velocidade de movimento do jogador
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
@@ -27,11 +28,11 @@ class Skeleton(pygame.sprite.Sprite):
         self.mode = 'idle'
         self.scaled = False
 
-        # if not self.scaled:
-        #     self.sprite.rescale_frames(initial_scale)
-        #     self.rect.width = int(32 * initial_scale) #ajusta o rect
-        #     self.rect.height = int(32 * initial_scale) #ajusta o rect
-        #     self.scaled = True
+        if not self.scaled:
+            self.sprite.rescale_frames(initial_scale)
+            self.rect.width = int(32 * initial_scale) #ajusta o rect
+            self.rect.height = int(32 * initial_scale) #ajusta o rect
+            self.scaled = True
     
         self.animations = {'idle': 'Skeleton-Idle.png', 'run': 'Skeleton_Run-Sheet.png'}
         self.processed = {'idle': True, 'run': False}
@@ -48,7 +49,7 @@ class Skeleton(pygame.sprite.Sprite):
         if not self.processed[self.mode]:
             objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
             objeto.x, objeto.y = x, y
-            #objeto.rescale_frames(3)
+            objeto.rescale_frames(3)
             self.spritesheets[self.mode] = objeto
             self.processed[self.mode] = True
         self.sprite = self.spritesheets[self.mode]

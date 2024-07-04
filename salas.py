@@ -59,6 +59,9 @@ class ConjuntoDeSalas:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                
+                if event.type == pygame.MOUSEWHEEL:
+                    self.camera_group.scale += event.y * 0.1
 
             self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.scaleoffset)
             
