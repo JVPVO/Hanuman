@@ -40,7 +40,8 @@ class Animation:
         """Redimensiona os frames do sprite com base no fator de escala absoluto."""
         self.scale_factor = scale_factor
         self.frames = [pygame.transform.scale(frame, (int(self.frame_width * scale_factor), int(self.frame_height * scale_factor))) for frame in self.frames]
-    
+        self.image = self.frames[self.current_frame]
+
     def rotate(self,orientation_dest, cooldown = 80):
         orientation_dest = 0 if orientation_dest == 'r' else 1 #converte pra numero
         

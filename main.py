@@ -40,6 +40,8 @@ class Game:
         
 
         self.camera_group = EverythingScreen()
+        self.drawables_alone = pygame.sprite.Group()
+
         self.collision_sprites = pygame.sprite.Group()
         #Grupo de inimigos para serem renderizados e removidos da tela quando necessário
         self.inimigos_grupo = pygame.sprite.Group()
@@ -79,10 +81,14 @@ class Game:
     def setup_salas(self):
         self.todas_salas = ConjuntoDeSalas(self.scale)
         self.sala:Sala = self.todas_salas.new_setup()
+        self.drawables_alone.add(self.sala)
+
         self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo)
+
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
+        
         #Criando o minimapa junto com o conjunto de salas
         self.minimap = Minimap(mapa=self.todas_salas.matriz_salas)
         
@@ -102,7 +108,7 @@ class Game:
             if self.sala.portas == 1:
                 qual_porta = self.player.check_door_collision(self.portas_grupo)
                 if qual_porta != None:
-                    self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites,self.camera_group, self.inimigos_grupo)
+                    self.sala = self.todas_salas.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites,self.camera_group, self.inimigos_grupo, self.drawables_alone)
                     self.tmx_data = self.sala.tmx_data
                     self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
                     self.map_height = self.tmx_data.height * self.tmx_data.tileheight
@@ -113,9 +119,10 @@ class Game:
             
             
             #draw_map_tiles(self.screen, self.tmx_data, self.scale, self.camera)
-            self.sala.draw(self.tmx_data, self.scale, self.camera_group.desvio)
+            #self.sala.draw(self.tmx_data, self.scale, self.camera_group.desvio)
             
-            self.camera_group.draw(self.player,self.tmx_data) #NOTE datatmx desativado por causa do sala.draw
+
+            self.camera_group.draw(self.player,self.tmx_data, self.drawables_alone) #NOTE datatmx desativado por causa do sala.draw
             self.ui.draw()
 
             self.player.update_damage_numbers()

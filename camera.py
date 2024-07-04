@@ -1,9 +1,10 @@
+from typing import Any
 import pygame
 from mapa_WIP import draw_map_tiles
 from settings import camadas_obj_mundo
 from inimigos import Skeleton
 from player import Player
-
+from salas import Sala
 
 class EverythingScreen(pygame.sprite.Group):
     def __init__(self):
@@ -48,16 +49,21 @@ class EverythingScreen(pygame.sprite.Group):
         self.desvio.x = self.bordas['esquerda']  - self.camera_rect.left
         self.desvio.y = self.bordas['cima'] - self.camera_rect.top 
 
-    def draw(self, player, tmx_data):#NOTE datatmx desativado por causa do sala.draw
+        
+    def draw(self, player, tmx_data, drawable_alone:pygame.sprite.Group):#NOTE datatmx desativado por causa do sala.draw
         
         #Se quiser trocar de um modo pra outro é só comentar e descomentar aqui!!
         self.centralizar_player(player)
         #self.centralizar_bordas(player)
         
         #chao
-        
+       
         #blit no chao aqui (por enquanto tá na sala.draw)
-        #draw_map_tiles(tmx_data, 3, self.desvio) #NOTE desativado por causa do sala.draw
+        draw_map_tiles(tmx_data, 3, self.desvio) #NOTE desativado por causa do sala.draw
+
+    
+        for elem in drawable_alone:
+            elem.draw(self.desvio)
 
 
         bg_sprites = [sprite for sprite in self if sprite.camada < camadas_obj_mundo['bg']]

@@ -39,23 +39,30 @@ class ConjuntoDeSalas:
         
         return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
     
-    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, all_sprite_gorup, inimigos_grupo):
+    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, all_sprite_gorup, inimigos_grupo, drawble_alone):
+        drawble_alone.remove(sala_de_agora)
+        
         nova_sala = sala_de_agora.ponteiro[dest]
         grupo_de_portas.empty()
         grupo_de_colisao.empty()
         nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, all_sprite_gorup, inimigos_grupo) 
         player.rect.x, player.rect.y = nova_sala.posicoes_perto_portas[dest] #define a posicao do player com base de onde ele vem
         self.sala_atual = nova_sala.posicao_na_matriz
+
+        drawble_alone.add(nova_sala)
         return nova_sala
 
 
-class Sala:
+
+
+class Sala(pygame.sprite.Sprite):
     def __init__(self, tmx_path, tipo, pos_na_matriz, sprite_portas):
+        super().__init__()
 
         self.tmx_data = load_map(tmx_path)
         self.ponteiro = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #cima baixo direita esquerda
-        self.portas = 0
-        self.all_loaded = False
+        self.portas = 0 #vira 1 quando os inimigos morrem
+        self.all_clear = False
         self.display_surface = pygame.display.get_surface()
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
@@ -106,13 +113,15 @@ class Sala:
             print('a')
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
-        if not self.all_loaded: #evita de esqueletos nascerem de novo em salas zeradas
+        if not self.all_clear: #evita de esqueletos nascerem de novo em salas zeradas
             for _ in range(random.randint(3,8)):
-                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale-30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(camera_group, inimigos_group))
+                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale -30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(camera_group, inimigos_group))
 
-        self.all_loaded = True
+        self.all_clear = True
     
-    def draw_portas(self, desvio):
+
+    def draw(self, desvio):
+        #esse draw é só nas portas, o resto é feito pelo draw do da funcao do mapa que é chamada lá na camera
         for elem, pos in zip(self.portas_object, self.ponteiro.keys()):
             if self.ponteiro[pos] != None:
                 pos_com_desvio = pygame.math.Vector2(elem.rect.x, elem.rect.y) + desvio
