@@ -115,7 +115,7 @@ class Game:
                 for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]:
                     grupo.empty()
 
-                grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player)
+                grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
                 grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala
 
                 self.setup_base() #quando voltar pra base tem que resetar tudo

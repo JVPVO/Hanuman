@@ -23,8 +23,8 @@ class EverythingScreen(pygame.sprite.Group):
 
         self.camera_rect= pygame.Rect(l, t, w, h)
 
-        self.scale = 0.2
-        self.scale_surface_size = (2000,2000)
+        self.scale = 1
+        self.scale_surface_size = (1920,1080) #como se fosse o "zoom out maximo"
         self.scale_surface = pygame.Surface(self.scale_surface_size, pygame.SRCALPHA) #SRCALPHA para ter transparencia
         self.scale_rect = self.scale_surface.get_rect(center = (self.metadeTelaW, self.metadeTelaH))
         self.scale_surface_size_vector = pygame.math.Vector2(self.scale_surface_size)
@@ -75,7 +75,7 @@ class EverythingScreen(pygame.sprite.Group):
 
     
         for elem in drawable_alone:
-            elem.draw(self.desvio)
+            elem.draw(self.scale_surface, self.desvio)
 
 
         bg_sprites = [sprite for sprite in self if sprite.camada < camadas_obj_mundo['bg']]

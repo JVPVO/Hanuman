@@ -11,7 +11,7 @@ import random
 from pathlib import Path
 
 class ConjuntoDeSalas:
-    def __init__(self, scale, ui, camera_group, collision_sprites, drawables_alone, player):
+    def __init__(self, scale, ui, camera_group, collision_sprites, drawables_alone, player, scaleoffset):
         self.sprite_portas = [Porta(Path('assets\\porta_cima.png'),2, 90, 73,scale), Porta(Path('assets\\porta_baixo.png'),2, 85, 32,scale),Porta(Path('assets\\porta_direita.png'),2, 32,87,scale),Porta(Path('assets\\porta_esquerda.png'),2, 32, 87,scale)]
         self.sala_atual = (0,0)
         self.scale = scale
@@ -45,6 +45,8 @@ class ConjuntoDeSalas:
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
         self.map_height = self.tmx_data.height * self.tmx_data.tileheight
 
+        self.scaleoffset = scaleoffset
+
         #minimap é criado no new_setup
 
 
@@ -58,7 +60,7 @@ class ConjuntoDeSalas:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio)
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.scaleoffset)
             
             #mover isso pra outro lugar dps
             if self.sala.portas == 1:
@@ -189,7 +191,6 @@ class Sala(pygame.sprite.Sprite):
         self.ponteiro = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #cima baixo direita esquerda
         self.portas = 0 #vira 1 quando os inimigos morrem
         self.all_clear = False
-        self.display_surface = pygame.display.get_surface()
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
         
@@ -200,9 +201,9 @@ class Sala(pygame.sprite.Sprite):
         self.portas_object = sprite_portas #dps vai ser esse pra ficar otimizado #NOTE
         #self.portas_object = [Animation('assets\porta_cima.png',2, 80, 73), Animation('assets\porta_baixo.png',2, 85, 32),Animation('assets\porta_direita.png',2, 32,87),Animation('assets\porta_esquerda.png',2, 32, 87)]
 
-    def draw(self, tmx_data, scale, desvio):
-        draw_map_tiles(tmx_data, scale, desvio)
-        self.draw_portas(desvio) #já é dado draw pelo ALLSprites
+    def draw(self, tmx_data, scale, desvio, tela):
+        draw_map_tiles(tmx_data, scale, desvio, tela)
+        #self.draw_portas(desvio) #já é dado draw pelo ALLSprites
 
     
     def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group):
@@ -246,12 +247,12 @@ class Sala(pygame.sprite.Sprite):
         self.all_clear = True
     
 
-    def draw(self, desvio):
+    def draw(self,surf, desvio):
         #esse draw é só nas portas, o resto é feito pelo draw do da funcao do mapa que é chamada lá na camera
         for elem, pos in zip(self.portas_object, self.ponteiro.keys()):
             if self.ponteiro[pos] != None:
                 pos_com_desvio = pygame.math.Vector2(elem.rect.x, elem.rect.y) + desvio
-                self.display_surface.blit(elem.sprite.frames[self.portas], pos_com_desvio)
+                surf.blit(elem.sprite.frames[self.portas], pos_com_desvio)
 
 
 class Porta(pygame.sprite.Sprite):

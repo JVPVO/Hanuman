@@ -81,9 +81,9 @@ class Weapon(RotatableObjects):
         mouse = pygame.Vector2(mx, my)
         player= pygame.Vector2(x, y)
 
-        result = mouse -desvio - player +scaleoffset #deslocamento da origem + correcao da camera
-        
-        print(desvio)
+        result = mouse -desvio - player +scaleoffset #deslocamento da origem + correcao da camera (o scaleoffset é pra counterar o deslocamento que a camera faz no rect pra desenhar)
+
+        #print(desvio)
         mag = result.magnitude()
         if mag > 2: #um valor pequeno para o "centro"
             result = result.normalize() * player_height *0.9
