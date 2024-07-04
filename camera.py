@@ -86,7 +86,7 @@ class EverythingScreen(pygame.sprite.Group):
         #pygame.draw.rect(self.tela, (255,0,0), self.camera_rect, 8) #ver onde estao as bordas (#debug)
 
     
-
+#NOTE A camera do cara do video n tem aquilo de nao sair do mapa, teremos que implementar de novo depois (não é dificil pq temos a camera antiga ainda)
 
 class Camera:
     def __init__(self, width, height):

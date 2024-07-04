@@ -3,15 +3,136 @@ from mapa_WIP import load_map, draw_map_tiles
 from animation_Wip import Animation
 from matriz_otimizada import gerar_matriz, super_linkening
 from objects_mannager import Barrier
+
 from inimigos import *
+from menus import *
+
 import random
 from pathlib import Path
 
 class ConjuntoDeSalas:
-    def __init__(self, scale):
+    def __init__(self, scale, ui, camera_group, collision_sprites, drawables_alone, player):
         self.sprite_portas = [Porta(Path('assets\\porta_cima.png'),2, 90, 73,scale), Porta(Path('assets\\porta_baixo.png'),2, 85, 32,scale),Porta(Path('assets\\porta_direita.png'),2, 32,87,scale),Porta(Path('assets\\porta_esquerda.png'),2, 32, 87,scale)]
         self.sala_atual = (0,0)
         self.scale = scale
+        self.finalizou = False
+
+        self.saiu = False
+
+        ##para o game loop
+        self.screen = pygame.display.get_surface()
+        self.inimigos_grupo = pygame.sprite.Group()
+        self.portas_grupo = pygame.sprite.Group()
+        self.collision_sprites = collision_sprites #é melhor usar o que já tem
+        
+        self.drawables_alone = drawables_alone
+        self.camera_group = camera_group
+        self.player = player
+        self.ui = ui
+
+        self.damage_numbers = []
+
+        self.camera_group.add(self.player)
+
+
+
+        self.sala:Sala = self.new_setup()
+        self.drawables_alone.add(self.sala)
+
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo)
+
+        self.tmx_data = self.sala.tmx_data
+        self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
+        self.map_height = self.tmx_data.height * self.tmx_data.tileheight
+
+        #minimap é criado no new_setup
+
+
+
+    def sala_game_loop(self):
+        while not self.saiu:
+            key_pressed = pygame.key.get_pressed()
+            
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio)
+            
+            #mover isso pra outro lugar dps
+            if self.sala.portas == 1:
+                qual_porta = self.player.check_door_collision(self.portas_grupo)
+                if qual_porta != None:
+                    self.sala = self.mudanca_de_sala(self.player, qual_porta, self.sala, self.portas_grupo, self.collision_sprites,self.camera_group, self.inimigos_grupo, self.drawables_alone)
+                    self.tmx_data = self.sala.tmx_data
+                    self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
+                    self.map_height = self.tmx_data.height * self.tmx_data.tileheight
+
+            self.player.sprite.update()
+            
+            self.screen.fill((0, 0, 0))
+            
+            
+
+            self.camera_group.draw(self.player,self.tmx_data, self.drawables_alone) #NOTE datatmx desativado por causa do sala.draw
+            self.ui.draw()
+
+            self.player.update_damage_numbers()
+            self.player.draw_damage_numbers(self.camera_group.desvio)
+
+            self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
+
+            self.minimap.updateMinimap((self.sala_atual[0], self.sala_atual[1]))
+            self.minimap.render(self.screen)
+            for damage_number in self.damage_numbers:
+                damage_number.draw(self.camera_group.desvio) #NOTE
+
+
+            if key_pressed[pygame.K_t]:
+                self.ui.health = 100
+                self.player.health = 100
+            
+            if key_pressed[pygame.K_h]:
+                self.sala.portas = (self.sala.portas+1)%2
+            
+            if key_pressed[pygame.K_e]:
+                self.saiu = True #acaba com a brincadeira
+
+            
+            for inimigo in self.inimigos_grupo:
+                #inimigo.draw(self.screen, self.camera)
+                inimigo.sprite.update()
+                inimigo.movement(self.player.sprite.x, self.player.sprite.y)
+                inimigo.update_damage_numbers()
+                inimigo.draw_damage_numbers(self.camera_group.desvio) 
+                for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
+                    if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
+                        #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo
+                        #Solução tlvz seja fzr o indicador de dano ser desenhado por fora? mas é tanto import que mds do céu
+                        #Vou jogar pra um lista e iterar as funções da lista, solução meio boba e simplista mas a vida tem dessas
+                        for dn in inimigo.damage_numbers:
+                            self.damage_numbers.append(dn)
+                        inimigo.kill()
+                        if len(self.inimigos_grupo) == 0:
+                            self.sala.portas = 1
+                
+                if self.player.colisao(inimigo):
+                    if self.ui.health > 0:
+                        self.player.take_damage(inimigo.ataque)
+                        self.ui.health = self.player.health
+
+            
+            
+            pygame.display.flip()
+
+
+        for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]: #limpa tudo
+            grupo.empty()
+
+        return
+
+
 
 
     def new_setup(self):
@@ -36,6 +157,11 @@ class ConjuntoDeSalas:
         printar_matriz(self.matriz_salas) #NOTE debug
         print(f'posicao do player: {(self.sala_atual[0],self.sala_atual[1])} ')
         super_linkening(self.matriz_salas, linhas, colunas) #liga todas as salas como se fosse magica!!!!
+
+
+
+        #Criando o minimapa junto com o conjunto de salas
+        self.minimap = Minimap(mapa=self.molde)
         
         return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
     
@@ -145,7 +271,7 @@ class Porta(pygame.sprite.Sprite):
         self.sprite.rescale_frames(self.scale_factor)
         
         
-    
+
 
 
 #####

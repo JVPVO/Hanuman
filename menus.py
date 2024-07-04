@@ -91,13 +91,9 @@ class Minimap:
         self.path_img = pygame.image.load("assets/ui/map/room.png").convert_alpha()
         self.room_img = pygame.transform.scale(self.room_img, (16, 16))
         self.path_img = pygame.transform.scale(self.path_img, (16,16))
-        for l in range(len(matriz)):
-            for c in range(len(matriz[l])):
-                if matriz[l][c] != None:
-                    matriz[l][c] = matriz[l][c].tipo
-                else:
-                    matriz[l][c] = 0
+        
         self.mapa = matriz
+        
     def updateMinimap(self, posicao):
         pos_atual = [posicao[0], posicao[1]]
         if self.pos != pos_atual:
