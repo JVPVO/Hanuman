@@ -39,7 +39,7 @@ class Game:
         self.running = True
         
         self.time_elapsed = 0
-        self.tempo_antes = 0
+        self.tempo_antes = pygame.time.get_ticks()
 
         self.camera_group = EverythingScreen()
         self.drawables_alone = pygame.sprite.Group()
@@ -120,11 +120,13 @@ class Game:
 
             if key_pressed[pygame.K_m]: #inicia a dungeon
                 for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]:
+
                     grupo.empty()
 
             
 
                 grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
+                grupo_de_salas.tempo_antes = pygame.time.get_ticks() #pra começar a contar o tempo do gameloop da sala agora só (é bom fazer isso por causa do delta time)
                 grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala
 
                 self.setup_base() #quando voltar pra base tem que resetar tudo
@@ -136,7 +138,7 @@ class Game:
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
-                inimigo.movement(self.player.sprite.x, self.player.sprite.y, self.time_elapsed/1000)
+                inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
@@ -155,6 +157,8 @@ class Game:
                         self.ui.health = self.player.health
 
             pygame.display.flip()
+            
+            #a atualizacao do tempo tem que ser aqui no final do loop já que a ideia do delta time é "tempo passado entre frames"
             agora = pygame.time.get_ticks()
             self.time_elapsed = agora - self.tempo_antes
             self.tempo_antes = agora

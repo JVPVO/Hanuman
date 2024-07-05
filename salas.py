@@ -36,9 +36,11 @@ class ConjuntoDeSalas:
 
 
         self.time_elapsed = 0 
-        self.tempo_antes = 0
+        self.tempo_antes = pygame.time.get_ticks()
 
         self.sala:Sala = self.new_setup()
+        self.player.rect.x, self.player.rect.y = 100, 100
+
         self.drawables_alone.add(self.sala)
 
         self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo)
@@ -56,6 +58,7 @@ class ConjuntoDeSalas:
     def sala_game_loop(self):
         while not self.saiu:
             key_pressed = pygame.key.get_pressed()
+            self.screen.fill((0, 0, 0))
             
             
             for event in pygame.event.get():
@@ -78,7 +81,6 @@ class ConjuntoDeSalas:
 
             self.player.sprite.update()
             
-            self.screen.fill((0, 0, 0))
             
             
 
@@ -110,7 +112,7 @@ class ConjuntoDeSalas:
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
-                inimigo.movement(self.player.sprite.x, self.player.sprite.y, self.time_elapsed/1000)
+                inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
@@ -165,7 +167,7 @@ class ConjuntoDeSalas:
             self.matriz_salas.append(temp)
         
         printar_matriz(self.matriz_salas) #NOTE debug
-        print(f'posicao do player: {(self.sala_atual[0],self.sala_atual[1])} ')
+        print(f'posicao do player no mapa: {(self.sala_atual[0],self.sala_atual[1])} ')
         super_linkening(self.matriz_salas, linhas, colunas) #liga todas as salas como se fosse magica!!!!
 
 
@@ -198,7 +200,7 @@ class Sala(pygame.sprite.Sprite):
         self.tmx_data = load_map(tmx_path)
         self.ponteiro = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #cima baixo direita esquerda
         self.portas = 0 #vira 1 quando os inimigos morrem
-        self.all_clear = False
+        self.ja_passou_setup = False
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
         
@@ -248,11 +250,11 @@ class Sala(pygame.sprite.Sprite):
             print('a')
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
-        if not self.all_clear: #evita de esqueletos nascerem de novo em salas zeradas
+        if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas
             for _ in range(random.randint(3,8)):
-                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale -30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale-30), initial_scale=3, groups=(camera_group, inimigos_group))
+                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale -30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale - 40), initial_scale=3, groups=(camera_group, inimigos_group))
 
-        self.all_clear = True
+        self.ja_passou_setup = True
     
 
     def draw(self,surf, desvio):

@@ -51,7 +51,7 @@ class Skeleton(pygame.sprite.Sprite):
         if not self.processed[self.mode]:
             objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
             objeto.x, objeto.y = x, y
-            objeto.rescale_frames(3)
+            objeto.rescale_frames(self.scale_factor)
             self.spritesheets[self.mode] = objeto
             self.processed[self.mode] = True
         self.sprite = self.spritesheets[self.mode]

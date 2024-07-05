@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.scaled = False
         
         self.dashing = False
-        self.dash_speed = 20  # Velocidade durante o dash
+        self.dash_speed = 1860  # Velocidade durante o dash
         self.dash_duration = 300  # Duração do dash em milissegundos
         self.dash_cooldown = 1000  # Tempo de cooldown do dash em milissegundos
         self.last_dash_time = pygame.time.get_ticks() - self.dash_cooldown
@@ -86,9 +86,9 @@ class Player(pygame.sprite.Sprite):
         mouse_pos = pygame.mouse.get_pos()
 
         if key_pressed[pygame.K_LCTRL]:
-            self.speed = 1
+            self.speed = 94
         else:
-            if self.speed == 1:
+            if self.speed == 94:
                 self.dash(mouse_pos)
             self.speed = 750
 

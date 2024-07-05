@@ -63,10 +63,10 @@
   <object id="5" name="baixo" gid="629" x="246.874" y="367.65" width="85" height="32"/>
  </objectgroup>
  <objectgroup id="4" name="colisao_b">
-  <object id="6" x="1" y="1" width="637.5" height="44"/>
-  <object id="12" x="0.0652174" y="0.5" width="1" height="367.333"/>
-  <object id="13" x="0.181818" y="363.879" width="639.545" height="4.0303"/>
-  <object id="14" x="637.803" y="0.409091" width="2" height="366.545"/>
+  <object id="6" x="1" y="-45" width="637.5" height="90"/>
+  <object id="12" x="-72.9348" y="0.5" width="74" height="367.333"/>
+  <object id="13" x="0.181818" y="362.546" width="639.545" height="62.3636"/>
+  <object id="14" x="637.803" y="0.409091" width="106" height="366.545"/>
  </objectgroup>
  <objectgroup id="5" name="portas_entrada">
   <object id="8" name="cima" x="283" y="43.6667" width="31.6667" height="5"/>
