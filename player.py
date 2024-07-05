@@ -1,7 +1,7 @@
 # player.py
 import pygame
 from animation_Wip import Animation
-from inimigos import Skeleton
+from inimigos import Skeleton, Rat
 from weapons import Weapon
 from menus import DamageNumber
 
@@ -80,6 +80,8 @@ class Player(pygame.sprite.Sprite):
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
 
     def handle_keys(self, key_pressed, grupos, desvio, scaleoffset, deltatime):
+        # Os grupos em questão sao o grupo de inimigos e o grupo da camera, respectivamente (vem da main.py)
+
         self.pos_anterior = (self.rect.x, self.rect.y)
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
@@ -121,7 +123,8 @@ class Player(pygame.sprite.Sprite):
             pygame.quit()
         if key_pressed[pygame.K_l]:
             if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-                Skeleton(self.sprite.x + 30, self.sprite.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]))
+                Rat(self.rect.x + 30, self.rect.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]))
+                #Skeleton(self.rect.x + 30, self.rect.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]))
                 self.last_scale_time = pygame.time.get_ticks()
 
         if firstPos[0] != self.rect.x or firstPos[1] != self.rect.y:

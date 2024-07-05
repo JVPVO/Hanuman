@@ -22,8 +22,8 @@ class Skeleton(pygame.sprite.Sprite):
         self.camada = 1
         self.y_sort = self.rect.y
 
-        self.ataque = 5
-        self.health = 30
+        self.ataque = 5 #Dano do inimigo
+        self.health = 30 #Vida do inimigo
         self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
         self.ataquesRecebidos = {}
 
@@ -116,3 +116,49 @@ class Skeleton(pygame.sprite.Sprite):
     def draw_damage_numbers(self, desvio):
         for damage_number in self.damage_numbers:
             damage_number.draw(desvio)
+
+
+class Rat(Skeleton):
+    #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc
+    def __init__(self, x, y, initial_scale, groups):
+        super().__init__(x, y, initial_scale, groups)
+        self.sprite = Animation(image_file='assets/Rat-Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
+        self.sprite.x, self.sprite.y = x, y
+        self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do inimigo, ajuste conforme necessário
+
+
+        self.speed = 200  # Velocidade de movimento do inimigo
+        self.ataque = 8 #Dano do inimigo
+        self.health = 15 #Vida do inimigo
+        self.animations = {'idle': 'Rat-Idle-Sheet.png', 'run': 'Rat-Run-Sheet.png'}
+
+    
+    def movement(self, playerX, playerY, deltatime):
+        firstPos = (self.sprite.x, self.sprite.y)
+        if self.sprite.x > playerX+5: 
+            self.sprite.x -= self.speed * deltatime
+            self.sprite.rotate('l')
+        elif self.sprite.x < playerX-5: 
+            self.sprite.x += self.speed * deltatime
+            self.sprite.rotate('r')
+        if self.sprite.y > playerY+5: self.sprite.y -= self.speed * deltatime
+        elif self.sprite.y < playerY-5: self.sprite.y += self.speed * deltatime
+        self.rect.x = self.sprite.x
+        self.rect.y = self.sprite.y
+        
+        #Ele basicamente testa se houve algum movimento com a invocação da função, se houve, ele realiza a mudança da animação pra uma de corrida
+        #Se não houve nenhum movimento ele volta pra animação idle
+        if firstPos[0] != self.sprite.x or firstPos[1] != self.sprite.y:
+            if self.mode != 'run':
+                self.mode = 'run'
+                file = self.animations['run']
+                self.loader(file, self.sprite.x, self.sprite.y, frames=6)
+        else:
+            if self.mode != 'idle':
+                self.mode = 'idle'
+                file = self.animations['idle']
+                self.loader(file, self.sprite.x, self.sprite.y, frames=4)
+        self.y_sort = self.rect.y + self.rect.height
+
+
+
