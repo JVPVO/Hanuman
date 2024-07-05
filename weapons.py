@@ -142,7 +142,7 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
     def move(self, vel):
         agora = pygame.time.get_ticks()
-        delta_time = agora - self.time_control
+        delta_time = agora - self.time_control #é uma especie de delta time
         self.time_control = agora
 
         

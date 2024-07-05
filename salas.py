@@ -35,6 +35,8 @@ class ConjuntoDeSalas:
         self.camera_group.add(self.player)
 
 
+        self.time_elapsed = 0 
+        self.tempo_antes = 0
 
         self.sala:Sala = self.new_setup()
         self.drawables_alone.add(self.sala)
@@ -63,7 +65,7 @@ class ConjuntoDeSalas:
                 if event.type == pygame.MOUSEWHEEL:
                     self.camera_group.scale += event.y * 0.1
 
-            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.scaleoffset)
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.scaleoffset, self.time_elapsed/1000)
             
             #mover isso pra outro lugar dps
             if self.sala.portas == 1:
@@ -108,7 +110,7 @@ class ConjuntoDeSalas:
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
-                inimigo.movement(self.player.sprite.x, self.player.sprite.y)
+                inimigo.movement(self.player.sprite.x, self.player.sprite.y, self.time_elapsed/1000)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
@@ -130,6 +132,9 @@ class ConjuntoDeSalas:
             
             
             pygame.display.flip()
+            agora = pygame.time.get_ticks()
+            self.time_elapsed = agora - self.tempo_antes
+            self.tempo_antes = agora
 
 
         for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]: #limpa tudo

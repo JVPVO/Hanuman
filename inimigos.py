@@ -1,3 +1,5 @@
+#TODO colisao do esqueleto
+
 import pygame
 from pygame.sprite import *
 from animation_Wip import Animation
@@ -10,9 +12,9 @@ class Skeleton(pygame.sprite.Sprite):
         self.sprite = Animation(image_file='assets/Skeleton-Idle.png', total_frames=4, frame_width=32, frame_height=32)
         
         self.sprite.x, self.sprite.y = x, y
-        self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do jogador, ajuste conforme necessário
+        self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do inimigo, ajuste conforme necessário
     
-        self.speed = 2  # Velocidade de movimento do jogador
+        self.speed = 188  # Velocidade de movimento do inimigo
         self.scale_factor = initial_scale
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
@@ -55,16 +57,16 @@ class Skeleton(pygame.sprite.Sprite):
         self.sprite = self.spritesheets[self.mode]
         self.sprite.x, self.sprite.y = x,y
     
-    def movement(self, playerX, playerY):
+    def movement(self, playerX, playerY, deltatime):
         firstPos = (self.sprite.x, self.sprite.y)
         if self.sprite.x > playerX+5: 
-            self.sprite.x -= self.speed
+            self.sprite.x -= self.speed * deltatime
             self.sprite.rotate('l')
         elif self.sprite.x < playerX-5: 
-            self.sprite.x += self.speed
+            self.sprite.x += self.speed * deltatime
             self.sprite.rotate('r')
-        if self.sprite.y > playerY+5: self.sprite.y -= self.speed
-        elif self.sprite.y < playerY-5: self.sprite.y += self.speed
+        if self.sprite.y > playerY+5: self.sprite.y -= self.speed * deltatime
+        elif self.sprite.y < playerY-5: self.sprite.y += self.speed * deltatime
         self.rect.x = self.sprite.x
         self.rect.y = self.sprite.y
         

@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         
         self.rect = pygame.Rect(x, y, 19, 30)  # Tamanho do jogador, ajuste conforme necessário
         
-        self.speed = 8  # Velocidade de movimento do jogador
+        self.speed = 750 # Velocidade de movimento do jogador (pixels por segundo) CUIDADO QUE ESSE valor é sobrescrito no handle_keys 
         self.scale_factor = initial_scale
         
         self.last_scale_time = pygame.time.get_ticks()
@@ -79,7 +79,7 @@ class Player(pygame.sprite.Sprite):
             dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
 
-    def handle_keys(self, key_pressed, grupos, desvio, scaleoffset):
+    def handle_keys(self, key_pressed, grupos, desvio, scaleoffset, deltatime):
         self.pos_anterior = (self.rect.x, self.rect.y)
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
@@ -90,27 +90,28 @@ class Player(pygame.sprite.Sprite):
         else:
             if self.speed == 1:
                 self.dash(mouse_pos)
-            self.speed = 8
+            self.speed = 750
 
         if self.dashing:
             if pygame.time.get_ticks() - self.dash_start_time <= self.dash_duration:
                 dash_speed = self.dash_speed
-                self.rect.x += self.dash_direction.x * dash_speed
-                self.rect.y += self.dash_direction.y * dash_speed
+                self.rect.x += self.dash_direction.x * dash_speed * deltatime
+                self.rect.y += self.dash_direction.y * dash_speed * deltatime
             else:
                 self.dashing = False
 
         if not self.dashing:
             if key_pressed[pygame.K_w]:
-                self.rect.y -= self.speed
+                self.rect.y -= self.speed * deltatime
+    
             if key_pressed[pygame.K_s]:
-                self.rect.y += self.speed
+                self.rect.y += self.speed * deltatime
             if key_pressed[pygame.K_a]:
                 self.sprite.rotate('l')
-                self.rect.x -= self.speed
+                self.rect.x -= self.speed * deltatime
             if key_pressed[pygame.K_d]:
                 self.sprite.rotate('r')
-                self.rect.x += self.speed
+                self.rect.x += self.speed * deltatime
 
         if key_pressed[pygame.K_p]:
             self.scale(1.5)
@@ -191,4 +192,7 @@ class Player(pygame.sprite.Sprite):
     def draw_damage_numbers(self, desvio):
         for damage_number in self.damage_numbers:
             damage_number.draw(desvio)
+
+
+
 
