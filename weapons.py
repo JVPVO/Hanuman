@@ -1,8 +1,9 @@
 
 import pygame, math
 
-class RotatableObjects():
+class RotatableObjects(pygame.sprite.Sprite):
     def __init__(self, img_file, x, y, initial_scale = 1):
+        super().__init__()
         sprite = pygame.image.load(img_file).convert_alpha()
         sprite_width = sprite.get_width()
         sprite_height = sprite.get_height()
@@ -159,11 +160,12 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
 class Bow(Weapon):
     #seria possivel fazer uma classe maior decente, mas a gente tá sem tempo
-    def __init__(self, img_file, x, y, initial_scale=1):
+    def __init__(self, img_file, x, y, projectile_group, initial_scale=1):
         super().__init__(img_file, x, y, initial_scale)
 
         self.projectile_cooldown = 1 *1000
         self.projectile_sprite = 'assets\Cursed-Arrow.png'
+        self.projectile_group = projectile_group
     
     def update_rot(self, mx, my):
         
@@ -178,25 +180,31 @@ class Bow(Weapon):
     def update(self, enemyrrect:pygame.Rect, desvio, eh, scaleoffset, player_rect): #eh = enemy height
         '''pPos_pComp = (player_x, player_y, player_width, player_height)''' #nesse caso é do inimigo
         #em progresso
-        mx, my = player_rect.x, player_rect.y #nao aponta mais pro mouse e sim pro player
+        mx, my = player_rect.centerx, player_rect.centery #nao aponta mais pro mouse e sim pro player
+
         if pygame.time.get_ticks() - self.last_shoot  >= self.projectile_cooldown: #tirei o keypressed[pygame.K_SPACE] pq o bow por enquanto é do inimigo
             self.shots -= 1
-            p = Projectile(self.projectile_sprite, enemyrrect.centerx, enemyrrect.centery, mx, my, 1, self.rect, desvio, self.scale)
+            p = Projectile(self.projectile_sprite, enemyrrect.centerx, enemyrrect.centery, mx+desvio.x, my+desvio.y, 1, self.rect, desvio, self.scale)
             self.shoot.append(p)
             self.last_shoot = pygame.time.get_ticks()
+            self.projectile_group.add(p)
         
-        
-        self.set_pos(enemyrrect.centerx, enemyrrect.centery, mx, my, eh, desvio, scaleoffset)
+        self.set_pos(enemyrrect.centerx, enemyrrect.centery, mx+desvio.x, my+desvio.y, eh, desvio, scaleoffset)
     
     def draw(self,tela, desvio):
         tam_s = len(self.shoot)
         for t in range(tam_s-1,-1,-1): #desenha, movimenta e deleta os projeteis
             self.shoot[t].draw(tela,desvio)
+            pygame.draw.rect(tela, (255,255,255), (self.shoot[t].rot_image_rect.topleft + desvio, self.shoot[t].rot_image_rect.size), 2)
             delete_result = self.shoot[t].move(1.2)
             if delete_result:
+                self.shoot[t].kill()
                 self.shoot.pop(t)
-
+        
         tela.blit(self.rotated_img, self.rot_image_rect.topleft + desvio)
+        pygame.draw.rect(tela, (255,255,255), (self.rot_image_rect.topleft + desvio , self.rot_image_rect.size), 2)
+        
+
 
         
     

@@ -24,6 +24,7 @@ class ConjuntoDeSalas:
         self.inimigos_grupo = pygame.sprite.Group()
         self.portas_grupo = pygame.sprite.Group()
         self.collision_sprites = collision_sprites #é melhor usar o que já tem
+        self.projectile_group = pygame.sprite.Group() #projeteis que podem dar dano no player
         
         self.drawables_alone = drawables_alone
         self.camera_group = camera_group
@@ -68,7 +69,7 @@ class ConjuntoDeSalas:
                 if event.type == pygame.MOUSEWHEEL:
                     self.camera_group.scale += event.y * 0.1
 
-            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.scaleoffset, self.time_elapsed/1000)
+            self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group, self.projectile_group), self.camera_group.desvio, self.scaleoffset, self.time_elapsed/1000)
             
             #mover isso pra outro lugar dps
             if self.sala.portas == 1:
@@ -134,6 +135,13 @@ class ConjuntoDeSalas:
                     if self.ui.health > 0:
                         self.player.take_damage(inimigo.ataque)
                         self.ui.health = self.player.health
+                
+                if len(self.projectile_group) != 0:
+                    for proj in self.projectile_group:
+                        if proj.rot_image_rect.colliderect(self.player.rect):
+                            self.player.take_damage(proj.dano)
+                            self.ui.health = self.player.health
+                            proj.kill()
 
             
             

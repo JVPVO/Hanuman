@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
             pygame.quit()
         if key_pressed[pygame.K_l]:
             if pygame.time.get_ticks() - self.last_scale_time > self.scale_cooldown:
-                Rat(self.rect.x + 30, self.rect.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]))
+                Rat(self.rect.x + 30, self.rect.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]), projectile_group=grupos[2])
                 #Skeleton(self.rect.x + 30, self.rect.y + 30, initial_scale=3, groups=(grupos[0], grupos[1]))
                 self.last_scale_time = pygame.time.get_ticks()
 

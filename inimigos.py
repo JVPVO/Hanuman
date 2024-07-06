@@ -123,13 +123,13 @@ class Skeleton(pygame.sprite.Sprite):
 
 class Rat(Skeleton):
     #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc (#TODO depois fazer uma calasse pro inimigo?)
-    def __init__(self, x, y, initial_scale, groups):
+    def __init__(self, x, y, initial_scale, groups, projectile_group):
         super().__init__(x, y, initial_scale, groups)
         self.sprite = Animation(image_file='assets/Rat-Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do inimigo, ajuste conforme necessário
 
-        self.weapon = [Bow('assets/Cursed-Bow.png', 70, 30, initial_scale)]
+        self.weapon = [Bow('assets/Cursed-Bow.png', 70, 30,projectile_group, initial_scale)]
         self.projectile_group = pygame.sprite.Group()
 
         self.scale_factor = initial_scale
@@ -137,7 +137,7 @@ class Rat(Skeleton):
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
 
 
-        self.speed = 200  # Velocidade de movimento do inimigo
+        self.speed = 0  # Velocidade de movimento do inimigo
         self.ataque = 8 #Dano do inimigo
         self.health = 15 #Vida do inimigo
 
@@ -159,9 +159,7 @@ class Rat(Skeleton):
 
         self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
         self.ataquesRecebidos = {}
-
-
-        
+  
 
         self.damage_numbers = []
 
@@ -193,7 +191,7 @@ class Rat(Skeleton):
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
 
-    def loader(self, file, x, y, frames): #n sei porque se nao tiver ele carrega a do esqueleto (???)
+    def loader(self, file, x, y, frames,): #n sei porque se nao tiver ele carrega a do esqueleto (???)
         if not self.processed[self.mode]:
             objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
             objeto.x, objeto.y = x, y
