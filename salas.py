@@ -2,7 +2,7 @@ import pygame
 from mapa_WIP import load_map, draw_map_tiles
 from animation_Wip import Animation
 from matriz_otimizada import gerar_matriz, super_linkening
-from objects_mannager import Barrier
+from objects_mannager import Barrier, Objects
 
 from inimigos import *
 from menus import *
@@ -172,11 +172,11 @@ class ConjuntoDeSalas:
                 if self.molde[l][c] == 0:
                     temp.append(None) #apeend em none
                 elif self.molde[l][c] == 1:
-                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 1, (l,c), self.sprite_portas))
+                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 1, (l,c), self.sprite_portas))
                 elif self.molde[l][c] == 2:
-                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
                 elif self.molde[l][c] == 3:
-                    temp.append(Sala(Path('assets\\dungeon_model.tmx'), 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
             self.matriz_salas.append(temp)
         
         printar_matriz(self.matriz_salas) #NOTE debug
@@ -253,6 +253,7 @@ class Sala(pygame.sprite.Sprite):
                 self.posicoes_perto_portas['direita'] = (obj.x*scale+35, obj.y*scale)
 
         
+        
         for obj in self.tmx_data.get_layer_by_name('portas_entrada'):
             if self.ponteiro[obj.name] != None:
                 Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (portas_group), obj.name) #, self.all_sprites pra debug
@@ -262,20 +263,41 @@ class Sala(pygame.sprite.Sprite):
             Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
             print('a')
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+
+        for obj in self.tmx_data.get_layer_by_name('colisao_objs'):
+            Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
+            #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+        
+        for obj in self.tmx_data.get_layer_by_name('objetos_nc'): #adcio0na os objetos (já com a escala) no grupo
+            imagem = pygame.transform.scale(obj.image, (obj.width*scale, obj.height*scale))
+            atual = Objects((obj.x*scale, obj.y*scale), imagem, (camera_group))
+            #por enquanto vai ser sem colisao direto no obj
+
+        
+        spawn_area_list = []
+        for obj in self.tmx_data.get_layer_by_name('spawn_en'): #adciona a area em que os inimigos podem dar spawn a lista
+            x_top, x_bot = obj.x*scale, (obj.x+obj.width)*scale #min e max de x
+            y_top, y_bot = obj.y*scale, (obj.y+obj.height)*scale # min e max de y
+            spawn_area_list.append((int(x_top), int(x_bot), int(y_top), int(y_bot)))
         
         if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas
-            area_de_possivel_spawnX = (100, self.tmx_data.width * self.tmx_data.tilewidth * scale -100)
-            area_de_possivel_spawnY = (200, self.tmx_data.height * self.tmx_data.tileheight * scale - 170)
-            # print(self.tmx_data.height * self.tmx_data.tileheight)
-            # input(scale)
-            
+
             for _ in range(random.randint(3,8)): 
-                s =Skeleton(random.randint(area_de_possivel_spawnX[0], area_de_possivel_spawnX[1]), random.randint(area_de_possivel_spawnY[0], area_de_possivel_spawnY[1]), initial_scale=scale, groups=(camera_group, inimigos_group))
+                x, y = self.choose_area_to_spawn(spawn_area_list)
+                s =Skeleton(x, y, initial_scale=scale, groups=(camera_group, inimigos_group))
             for _ in range(random.randint(0,2)):
-                r = Rat(random.randint(area_de_possivel_spawnX[0], area_de_possivel_spawnX[1]), random.randint(area_de_possivel_spawnY[0], area_de_possivel_spawnY[1]), initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
+                x, y = self.choose_area_to_spawn(spawn_area_list)
+                r = Rat(x, y, initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
 
         self.ja_passou_setup = True
     
+
+    def choose_area_to_spawn(self, spawn_area_list):
+        '''Escolhe uma area aleatoria e uma posicao aleatoria dentro da area'''
+        area = random.choice(spawn_area_list)
+        x = random.randint(area[0], area[1])
+        y = random.randint(area[2], area[3])
+        return x, y
 
     def draw(self,surf, desvio):
         #esse draw é só nas portas, o resto é feito pelo draw do da funcao do mapa que é chamada lá na camera

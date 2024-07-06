@@ -70,7 +70,7 @@ class EverythingScreen(pygame.sprite.Group):
         #chao
        
         #blit no chao aqui (por enquanto tá na sala.draw)
-        draw_map_tiles(tmx_data, 3, self.desvio, self.scale_surface, self.scale_rect) #NOTE desativado por causa do sala.draw
+        draw_map_tiles(tmx_data, 3, self.desvio, self.scale_surface) #NOTE desativado por causa do sala.draw
 
     
         for elem in drawable_alone:
