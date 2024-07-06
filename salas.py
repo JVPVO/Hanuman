@@ -115,6 +115,10 @@ class ConjuntoDeSalas:
                 inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
+
+                if isinstance(inimigo, Rat):
+                    inimigo.weapon[0].update(inimigo.rect, self.camera_group.desvio, inimigo.rect.height, self.scaleoffset, self.player.rect) 
+
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
                     if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
                         #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo

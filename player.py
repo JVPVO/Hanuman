@@ -2,7 +2,7 @@
 import pygame
 from animation_Wip import Animation
 from inimigos import Skeleton, Rat
-from weapons import Weapon
+from weapons import Weapon,Bow
 from menus import DamageNumber
 
 class Player(pygame.sprite.Sprite):

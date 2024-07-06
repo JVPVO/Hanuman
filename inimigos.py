@@ -4,6 +4,7 @@ import pygame
 from pygame.sprite import *
 from animation_Wip import Animation
 from menus import DamageNumber
+from weapons import Bow
 
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, initial_scale, groups):
@@ -86,7 +87,9 @@ class Skeleton(pygame.sprite.Sprite):
     
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
-            if self.rect.colliderect(alvo.rot_image_rect):
+            #depois botar um if aqui pra quando a colisao for unica (um if que destrua o projetil (precisaria disso pra uma flecha por exemplo))
+            #mas por enquanto o player n tem arco ent tudo certo
+            if self.rect.colliderect(alvo.rot_image_rect): 
                 self.ataquesRecebidos[id(alvo)] = pygame.time.get_ticks()
                 if self.health-alvo.dano > 0:
                     self.take_damage(alvo.dano)
@@ -119,18 +122,48 @@ class Skeleton(pygame.sprite.Sprite):
 
 
 class Rat(Skeleton):
-    #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc
+    #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc (#TODO depois fazer uma calasse pro inimigo?)
     def __init__(self, x, y, initial_scale, groups):
         super().__init__(x, y, initial_scale, groups)
         self.sprite = Animation(image_file='assets/Rat-Idle-Sheet.png', total_frames=4, frame_width=32, frame_height=32)
         self.sprite.x, self.sprite.y = x, y
         self.rect = pygame.Rect(x, y, 32, 32)  # Tamanho do inimigo, ajuste conforme necessário
 
+        self.weapon = [Bow('assets/Cursed-Bow.png', 70, 30, initial_scale)]
+        self.projectile_group = pygame.sprite.Group()
+
+        self.scale_factor = initial_scale
+        self.last_scale_time = pygame.time.get_ticks()
+        self.scale_cooldown = 500  # Cooldown de 500 milissegundos
+
 
         self.speed = 200  # Velocidade de movimento do inimigo
         self.ataque = 8 #Dano do inimigo
         self.health = 15 #Vida do inimigo
+
+        self.scaled = False 
+        if not self.scaled:
+            self.sprite.rescale_frames(initial_scale)
+            self.rect.width = int(32 * initial_scale) #ajusta o rect
+            self.rect.height = int(32 * initial_scale) #ajusta o rect
+            self.scaled = True
+
+        self.mode = 'idle'
         self.animations = {'idle': 'Rat-Idle-Sheet.png', 'run': 'Rat-Run-Sheet.png'}
+        self.processed = {'idle': True, 'run': False}
+        self.spritesheets = {'idle': self.sprite}
+
+        
+        self.camada = 1
+        self.y_sort = self.rect.y
+
+        self.invencibilidade = 300 #Cooldown de 300 milissegundos para cada ataque individual
+        self.ataquesRecebidos = {}
+
+
+        
+
+        self.damage_numbers = []
 
     
     def movement(self, playerX, playerY, deltatime):
@@ -160,5 +193,19 @@ class Rat(Skeleton):
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
 
+    def loader(self, file, x, y, frames): #n sei porque se nao tiver ele carrega a do esqueleto (???)
+        if not self.processed[self.mode]:
+            objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
+            objeto.x, objeto.y = x, y
+            objeto.rescale_frames(self.scale_factor)
+            self.spritesheets[self.mode] = objeto
+            self.processed[self.mode] = True
+        self.sprite = self.spritesheets[self.mode]
+        self.sprite.x, self.sprite.y = x,y
 
+    def weapon_use(self, desvio, sacaleoffset, player_rect):
+        self.weapon[0].update(self.rect, desvio, self.rect.height, sacaleoffset, player_rect)
+
+    def draw(self,tela, desvio): #na verdade esse draw é pro weapon
+        self.weapon[0].draw(tela, desvio)
 

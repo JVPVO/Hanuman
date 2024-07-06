@@ -1,8 +1,7 @@
-from typing import Any
 import pygame
 from mapa_WIP import draw_map_tiles
 from settings import camadas_obj_mundo
-from inimigos import Skeleton
+from inimigos import Skeleton, Rat
 from player import Player
 from salas import Sala
 
@@ -87,7 +86,13 @@ class EverythingScreen(pygame.sprite.Group):
         for layer in (bg_sprites, main_sprites, top_sprites):
             for elem in layer: #elem = sprite pra maioria dos casos
                 if isinstance(elem, Player):
+                    pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2)
                     elem.draw(self.scale_surface,self.desvio)
+                elif isinstance(elem, Rat): #tem que vir antes do skeleton pq rat herda de skeleton
+                    pos_com_desvio = elem.rect.topleft + self.desvio
+                    self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
+                    pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2)
+                    elem.draw(self.scale_surface, self.desvio) # só isso que muda em comparação com o esqueleto
                 elif isinstance(elem, Skeleton):#depois eu posso adicionar no grupo ai n precisa desse if (adcionar a imagem)#NOTE
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
