@@ -135,6 +135,8 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
         
         self.rot_image_rect.centerx = final.x
         self.rot_image_rect.centery = final.y
+
+        self.hitted = False #se já acertou o player
         
         self.dano = 10
 
@@ -194,15 +196,17 @@ class Bow(Weapon):
     def draw(self,tela, desvio):
         tam_s = len(self.shoot)
         for t in range(tam_s-1,-1,-1): #desenha, movimenta e deleta os projeteis
-            self.shoot[t].draw(tela,desvio)
-            pygame.draw.rect(tela, (255,255,255), (self.shoot[t].rot_image_rect.topleft + desvio, self.shoot[t].rot_image_rect.size), 2)
-            delete_result = self.shoot[t].move(1.2)
-            if delete_result:
-                self.shoot[t].kill()
+            tiro = self.shoot[t]
+            
+            tiro.draw(tela,desvio)
+            #pygame.draw.rect(tela, (255,255,255), (tiro.rot_image_rect.topleft + desvio, tiro.rot_image_rect.size), 2) #debug
+            delete_result = tiro.move(1.2)
+            if tiro.hitted or delete_result:
+                tiro.kill()
                 self.shoot.pop(t)
         
         tela.blit(self.rotated_img, self.rot_image_rect.topleft + desvio)
-        pygame.draw.rect(tela, (255,255,255), (self.rot_image_rect.topleft + desvio , self.rot_image_rect.size), 2)
+        #pygame.draw.rect(tela, (255,255,255), (self.rot_image_rect.topleft + desvio , self.rot_image_rect.size), 2) #debug
         
 
 

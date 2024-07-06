@@ -1,5 +1,7 @@
 #TODO colisao do esqueleto
 
+#lembrete (lembra que aqui em vez de usar rect.x é melhor usar o sprite.x (serve pro y tbm))
+
 import pygame
 from pygame.sprite import *
 from animation_Wip import Animation
@@ -31,6 +33,8 @@ class Skeleton(pygame.sprite.Sprite):
         self.mode = 'idle'
         self.scaled = False
 
+        self.pos_anterior = (self.rect.x, self.rect.y)
+
         if not self.scaled:
             self.sprite.rescale_frames(initial_scale)
             self.rect.width = int(32 * initial_scale) #ajusta o rect
@@ -58,7 +62,7 @@ class Skeleton(pygame.sprite.Sprite):
         self.sprite = self.spritesheets[self.mode]
         self.sprite.x, self.sprite.y = x,y
     
-    def movement(self, playerX, playerY, deltatime):
+    def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.sprite.x, self.sprite.y)
         if self.sprite.x > playerX+5: 
             self.sprite.x -= self.speed * deltatime
@@ -84,6 +88,10 @@ class Skeleton(pygame.sprite.Sprite):
                 file = self.animations['idle']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
+
+        self.colisao_com_objetos(collision_sprites)
+        self.pos_anterior = (self.sprite.x, self.sprite.y)
+
     
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
@@ -120,6 +128,15 @@ class Skeleton(pygame.sprite.Sprite):
         for damage_number in self.damage_numbers:
             damage_number.draw(desvio)
 
+    def colisao_com_objetos(self, collision_sprites):
+        for objeto in collision_sprites:
+            eixox = self.sprite.x + self.rect.width > objeto.hitbox.x and self.sprite.x < objeto.hitbox.x + objeto.hitbox.width
+            eixoy = self.sprite.y + self.rect.height > objeto.hitbox.y and self.sprite.y + self.rect.height < objeto.hitbox.y + objeto.hitbox.height
+            if eixox and eixoy:
+                if eixox:
+                    self.sprite.x = self.pos_anterior[0]
+                if eixoy:
+                    self.sprite.y = self.pos_anterior[1]
 
 class Rat(Skeleton):
     #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc (#TODO depois fazer uma calasse pro inimigo?)
@@ -137,7 +154,7 @@ class Rat(Skeleton):
         self.scale_cooldown = 500  # Cooldown de 500 milissegundos
 
 
-        self.speed = 0  # Velocidade de movimento do inimigo
+        self.speed = 60  # Velocidade de movimento do inimigo
         self.ataque = 8 #Dano do inimigo
         self.health = 15 #Vida do inimigo
 
@@ -164,16 +181,16 @@ class Rat(Skeleton):
         self.damage_numbers = []
 
     
-    def movement(self, playerX, playerY, deltatime):
+    def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.sprite.x, self.sprite.y)
-        if self.sprite.x > playerX+5: 
-            self.sprite.x -= self.speed * deltatime
-            self.sprite.rotate('l')
-        elif self.sprite.x < playerX-5: 
+        if self.sprite.x > playerX+10: 
             self.sprite.x += self.speed * deltatime
+            self.sprite.rotate('l')
+        elif self.sprite.x < playerX-10: 
+            self.sprite.x -= self.speed * deltatime
             self.sprite.rotate('r')
-        if self.sprite.y > playerY+5: self.sprite.y -= self.speed * deltatime
-        elif self.sprite.y < playerY-5: self.sprite.y += self.speed * deltatime
+        if self.sprite.y > playerY+10: self.sprite.y += self.speed * deltatime
+        elif self.sprite.y < playerY-10: self.sprite.y -= self.speed * deltatime
         self.rect.x = self.sprite.x
         self.rect.y = self.sprite.y
         
@@ -191,6 +208,9 @@ class Rat(Skeleton):
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
 
+        self.colisao_com_objetos(collision_sprites) #talvez ele possa dar um dash pra alguma direcao aleatoria se chegar na parede
+        self.pos_anterior = (self.sprite.x, self.sprite.y)
+
     def loader(self, file, x, y, frames,): #n sei porque se nao tiver ele carrega a do esqueleto (???)
         if not self.processed[self.mode]:
             objeto = Animation(image_file=f'assets/{file}', total_frames=frames, frame_width=32, frame_height=32)
@@ -206,4 +226,6 @@ class Rat(Skeleton):
 
     def draw(self,tela, desvio): #na verdade esse draw é pro weapon
         self.weapon[0].draw(tela, desvio)
+
+    
 

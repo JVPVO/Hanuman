@@ -140,6 +140,7 @@ class Player(pygame.sprite.Sprite):
         self.y_sort = self.rect.y + self.rect.height
         weapon.update(self.rect, desvio, self.rect.height, key_pressed, scaleoffset) #NOTE
         self.sprite.x, self.sprite.y = self.rect.topleft
+        print(self.rect.x, self.rect.y) # TIRAR DPEOIS DEBUG
 
     def scale(self, scale_factor):
         now = pygame.time.get_ticks()

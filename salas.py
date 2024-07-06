@@ -44,7 +44,7 @@ class ConjuntoDeSalas:
 
         self.drawables_alone.add(self.sala)
 
-        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo)
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo, self.projectile_group)
 
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
@@ -113,7 +113,7 @@ class ConjuntoDeSalas:
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
-                inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000)
+                inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000, self.collision_sprites)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
 
@@ -141,6 +141,7 @@ class ConjuntoDeSalas:
                         if proj.rot_image_rect.colliderect(self.player.rect):
                             self.player.take_damage(proj.dano)
                             self.ui.health = self.player.health
+                            proj.hitted = True
                             proj.kill()
 
             
@@ -228,7 +229,7 @@ class Sala(pygame.sprite.Sprite):
         #self.draw_portas(desvio) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group):
+    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group, projectile_group):
         colision_gourp.empty()
        
         #depois ajeitar essa bagunca embaixo #TODO
@@ -263,8 +264,15 @@ class Sala(pygame.sprite.Sprite):
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
         
         if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas
-            for _ in range(random.randint(3,8)):
-                Skeleton(random.randint(30, self.tmx_data.width * self.tmx_data.tilewidth * scale -30), random.randint(30, self.tmx_data.height * self.tmx_data.tileheight * scale - 40), initial_scale=3, groups=(camera_group, inimigos_group))
+            area_de_possivel_spawnX = (100, self.tmx_data.width * self.tmx_data.tilewidth * scale -100)
+            area_de_possivel_spawnY = (200, self.tmx_data.height * self.tmx_data.tileheight * scale - 170)
+            # print(self.tmx_data.height * self.tmx_data.tileheight)
+            # input(scale)
+            
+            for _ in range(random.randint(3,8)): 
+                s =Skeleton(random.randint(area_de_possivel_spawnX[0], area_de_possivel_spawnX[1]), random.randint(area_de_possivel_spawnY[0], area_de_possivel_spawnY[1]), initial_scale=scale, groups=(camera_group, inimigos_group))
+            for _ in range(random.randint(0,2)):
+                r = Rat(random.randint(area_de_possivel_spawnX[0], area_de_possivel_spawnX[1]), random.randint(area_de_possivel_spawnY[0], area_de_possivel_spawnY[1]), initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
 
         self.ja_passou_setup = True
     
