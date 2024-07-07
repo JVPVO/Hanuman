@@ -19,7 +19,7 @@ class ConjuntoDeSalas:
 
         self.saiu = False
 
-        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(2)] # só tem 2 salas por enquanto
+        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(3)] # só tem 2 salas por enquanto
         
         ##para o game loop
         self.screen = pygame.display.get_surface()
@@ -203,7 +203,7 @@ class ConjuntoDeSalas:
         camera_group.empty()
         camera_group.add(player)
         inimigos_grupo.empty()
-        
+
         
         nova_sala = sala_de_agora.ponteiro[dest]
         grupo_de_portas.empty()

@@ -1,4 +1,5 @@
 # player.py
+#TODO consertar dash na nova colisao e dash como atravesar parede
 import pygame
 from animation_Wip import Animation
 from inimigos import Skeleton, Rat
