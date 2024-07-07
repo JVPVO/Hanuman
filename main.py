@@ -1,12 +1,5 @@
-#TODO Colisão
 
-#TODO Camera com player se movendo
-
-#TODO implementar deltatime
-#TODO implementar deltatime
 #TODO resolver importsss
-#falta voltar o que ela antes + draw player no grupo + colisao efetiva
-
 #NOTE o arco do inimigo fica bugado na base porque o gameloop daqui tá diferente (não atualizei ainda)
 
 from inimigos import *

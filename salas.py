@@ -68,6 +68,8 @@ class ConjuntoDeSalas:
                 
                 if event.type == pygame.MOUSEWHEEL:
                     self.camera_group.scale += event.y * 0.1
+                    if self.camera_group.scale < 0:
+                        self.camera_group.scale = 1
 
             self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group, self.projectile_group), self.camera_group.desvio, self.scaleoffset, self.time_elapsed/1000)
             
@@ -113,11 +115,11 @@ class ConjuntoDeSalas:
             for inimigo in self.inimigos_grupo:
                 #inimigo.draw(self.screen, self.camera)
                 inimigo.sprite.update()
-                inimigo.movement(self.player.rect.x, self.player.rect.y, self.time_elapsed/1000, self.collision_sprites)
+                inimigo.movement(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.time_elapsed/1000, self.collision_sprites)
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
 
-                if isinstance(inimigo, Rat) and not inimigo.check_vision(self.player.rect.x, self.player.rect.y, self.collision_sprites): #ta duplicado
+                if isinstance(inimigo, Rat) and not inimigo.check_vision(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.collision_sprites): #ta duplicado
                     inimigo.weapon[0].update(inimigo.rect, self.camera_group.desvio, inimigo.rect.height, self.scaleoffset, self.player.rect) 
 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):

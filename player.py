@@ -23,6 +23,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.width = int(19 * initial_scale)  # Ajusta o rect
         self.rect.height = int(30 * initial_scale)  # Ajusta o rect
         self.y_sort = self.rect.y + self.rect.height
+        self.hitbox_C =self.rect.inflate(-self.rect.width/3,-self.rect.height/2) #hitbox de colisao do player
+        self.hitbox_C.bottom = self.rect.bottom
 
         self.rect_where_draw = self.rect.copy() #depois do primeiro draw já muda (preciso disso quando to lidando com referencial da tela)
         
@@ -32,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.selected_weapon = 0
         self.health = 100
         self.collision_sprites = collision_sprites #pro palyer checar se ta colidindo
-        self.pos_anterior = (self.rect.x, self.rect.y)
+        self.pos_anterior = (self.hitbox_C.x, self.hitbox_C.y)
 
         self.mode = 'idle'
         
@@ -82,7 +84,7 @@ class Player(pygame.sprite.Sprite):
     def handle_keys(self, key_pressed, grupos, desvio, scaleoffset, deltatime):
         # Os grupos em questão sao o grupo de inimigos e o grupo da camera, respectivamente (vem da main.py)
 
-        self.pos_anterior = (self.rect.x, self.rect.y)
+        self.pos_anterior = (self.hitbox_C.x, self.hitbox_C.y)
         weapon = self.weapon[self.selected_weapon]
         firstPos = (self.rect.x, self.rect.y)
         mouse_pos = pygame.mouse.get_pos()
@@ -108,12 +110,16 @@ class Player(pygame.sprite.Sprite):
     
             if key_pressed[pygame.K_s]:
                 self.rect.y += self.speed * deltatime
+            self.check_collision(1)
+            
             if key_pressed[pygame.K_a]:
                 self.sprite.rotate('l')
                 self.rect.x -= self.speed * deltatime
             if key_pressed[pygame.K_d]:
                 self.sprite.rotate('r')
                 self.rect.x += self.speed * deltatime
+            self.check_collision(0)
+            
 
         if key_pressed[pygame.K_p]:
             self.scale(1.5)
@@ -136,7 +142,7 @@ class Player(pygame.sprite.Sprite):
                 self.mode = 'idle'
                 self.loader('idle', self.animations['idle'], frames=4)
 
-        self.check_collision()
+        #self.check_collision()
         self.y_sort = self.rect.y + self.rect.height
         weapon.update(self.rect, desvio, self.rect.height, key_pressed, scaleoffset) #NOTE
         self.sprite.x, self.sprite.y = self.rect.topleft
@@ -150,23 +156,36 @@ class Player(pygame.sprite.Sprite):
                 self.sprite.rescale_frames(self.scale_factor)
                 self.rect.width = int(19 * self.scale_factor)
                 self.rect.height = int(30 * self.scale_factor)
+                
 
-    def check_collision(self):
+    def check_collision(self, direcao):
+        '''Checa a colisao com objetos e resolve ela'''
+
+        self.hitbox_C.centerx = self.rect.centerx
+        self.hitbox_C.bottom = self.rect.bottom
         for objeto in self.collision_sprites:
-            eixox = self.rect.x + self.rect.width > objeto.hitbox.x and self.rect.x < objeto.hitbox.x + objeto.hitbox.width
-            eixoy = self.rect.y + self.rect.height > objeto.hitbox.y and self.rect.y + self.rect.height < objeto.hitbox.y + objeto.hitbox.height
-            if eixox and eixoy:
-                if eixox:
-                    self.rect.x = self.pos_anterior[0]
-                if eixoy:
-                    self.rect.y = self.pos_anterior[1]
+            if self.hitbox_C.colliderect(objeto.rect):
+                sentido = (self.hitbox_C.x - self.pos_anterior[0], self.hitbox_C.y - self.pos_anterior[1])
+                if direcao == 0:
+                    if sentido[0] > 0:
+                        self.hitbox_C.right = objeto.rect.left
+                    elif sentido[0] < 0:
+                        self.hitbox_C.left = objeto.rect.right
+                    self.rect.centerx = self.hitbox_C.centerx
+                elif direcao == 1:
+                    if sentido[1] > 0:
+                        self.hitbox_C.bottom = objeto.rect.top 
+                    elif sentido[1] < 0:
+                        self.hitbox_C.top = objeto.rect.bottom 
+                    self.rect.bottom = self.hitbox_C.bottom
+        
+        
+        
     
     def check_door_collision(self, portasgrupo):
         #quase que função duplicada, melhorar isso depois
         for objeto in portasgrupo:
-            eixox = self.rect.x + self.rect.width > objeto.hitbox.x and self.rect.x < objeto.hitbox.x + objeto.hitbox.width
-            eixoy = self.rect.y + self.rect.height > objeto.hitbox.y and self.rect.y + self.rect.height < objeto.hitbox.y + objeto.hitbox.height
-            if eixox and eixoy:
+            if self.hitbox_C.colliderect(objeto.rect):
                 return objeto.tag
         return None
 

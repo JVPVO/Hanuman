@@ -95,7 +95,7 @@
  <objectgroup id="4" name="colisao_b">
   <object id="6" x="1" y="-18" width="432.833" height="63"/>
   <object id="12" x="-29.9348" y="15.8333" width="31" height="209.333"/>
-  <object id="13" x="174.182" y="362.546" width="154.878" height="42.3636"/>
+  <object id="13" x="176.182" y="362.546" width="142.211" height="42.3636"/>
   <object id="14" x="637.803" y="73.7424" width="53" height="251.212"/>
   <object id="15" x="0" y="206" width="65.3333" height="83.3333"/>
   <object id="16" x="64" y="272" width="110" height="96"/>
@@ -119,7 +119,7 @@
   <object id="32" gid="632" x="174" y="349" width="16" height="22"/>
  </objectgroup>
  <objectgroup id="9" name="colisao_objs">
-  <object id="35" x="176" y="340" width="22.6667" height="26"/>
+  <object id="35" x="176" y="340" width="22.6667" height="20.6667"/>
   <object id="37" x="67.3333" y="261.333" width="8" height="9.33333"/>
   <object id="40" x="58" y="45.3333" width="10.6667" height="8.66667"/>
   <object id="41" x="448" y="105.333" width="46.6667" height="21.3333"/>
