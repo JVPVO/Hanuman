@@ -19,6 +19,8 @@ class ConjuntoDeSalas:
 
         self.saiu = False
 
+        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(2)] # só tem 2 salas por enquanto
+        
         ##para o game loop
         self.screen = pygame.display.get_surface()
         self.inimigos_grupo = pygame.sprite.Group()
@@ -40,7 +42,7 @@ class ConjuntoDeSalas:
         self.tempo_antes = pygame.time.get_ticks()
 
         self.sala:Sala = self.new_setup()
-        self.player.rect.x, self.player.rect.y = 100, 100
+        self.player.rect.x, self.player.rect.y = self.get_first_pos_player(self.sala, self.scale) #ele tem uma area pra nascer pela primeira vez
 
         self.drawables_alone.add(self.sala)
 
@@ -174,11 +176,14 @@ class ConjuntoDeSalas:
                 if self.molde[l][c] == 0:
                     temp.append(None) #apeend em none
                 elif self.molde[l][c] == 1:
-                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 1, (l,c), self.sprite_portas))
+                    sala_path = Path(random.choice(self.salas_comuns_sprites))
+                    temp.append(Sala(sala_path, 1, (l,c), self.sprite_portas))
                 elif self.molde[l][c] == 2:
-                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    sala_path = Path(random.choice(self.salas_comuns_sprites))
+                    temp.append(Sala(sala_path, 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
                 elif self.molde[l][c] == 3:
-                    temp.append(Sala(Path('assets\\dungeon_room_1_0.tmx'), 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    sala_path = Path(random.choice(self.salas_comuns_sprites))
+                    temp.append(Sala(sala_path, 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
             self.matriz_salas.append(temp)
         
         printar_matriz(self.matriz_salas) #NOTE debug
@@ -194,6 +199,11 @@ class ConjuntoDeSalas:
     
     def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, camera_group, inimigos_grupo, drawble_alone):
         drawble_alone.remove(sala_de_agora)
+        grupo_de_colisao.empty()
+        camera_group.empty()
+        camera_group.add(player)
+        inimigos_grupo.empty()
+        
         
         nova_sala = sala_de_agora.ponteiro[dest]
         grupo_de_portas.empty()
@@ -205,7 +215,16 @@ class ConjuntoDeSalas:
 
         drawble_alone.add(nova_sala)
         return nova_sala
+    
+    def get_first_pos_player(self, sala_obj, scale):
+        spawn_area_list = []
+        tmx_data = sala_obj.tmx_data
+        for obj in tmx_data.get_layer_by_name('first_start_pos_player'): #adciona a area em que os inimigos podem dar spawn a lista
+            x_top, x_bot = obj.x*scale, (obj.x+obj.width)*scale #min e max de x
+            y_top, y_bot = obj.y*scale, (obj.y+obj.height)*scale # min e max de y
+            spawn_area_list.append((int(x_top), int(x_bot), int(y_top), int(y_bot)))
 
+        return sala_obj.choose_area_to_spawn(spawn_area_list)
 
 
 
