@@ -60,8 +60,8 @@ class EverythingScreen(pygame.sprite.Group):
 
         
     def draw(self, player, tmx_data, drawable_alone:pygame.sprite.Group):#NOTE datatmx desativado por causa do sala.draw
-        self.tela.fill((0, 0, 0))
-        self.scale_surface.fill((0, 0, 0))
+        self.tela.fill((20, 20, 18))
+        self.scale_surface.fill((20, 20, 18))
 
         #Se quiser trocar de um modo pra outro é só comentar e descomentar aqui!!
         self.centralizar_player(player)
@@ -82,24 +82,36 @@ class EverythingScreen(pygame.sprite.Group):
         top_sprites = [sprite for sprite in self if sprite.camada > camadas_obj_mundo['top']]
 
         
+        enemy_pos = []  #debug pra campo de visao
+
         #objetos
         for layer in (bg_sprites, main_sprites, top_sprites):
             for elem in layer: #elem = sprite pra maioria dos casos
                 if isinstance(elem, Player):
                     #pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2) #debug
                     elem.draw(self.scale_surface,self.desvio)
+                    
+                    player_pos = (elem.rect.centerx+self.desvio.x, elem.rect.y+self.desvio.y+elem.rect.height) #debug pra campo de visao
+
                 elif isinstance(elem, Rat): #tem que vir antes do skeleton pq rat herda de skeleton
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
                     #pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2) #debug
                     elem.draw(self.scale_surface, self.desvio) # só isso que muda em comparação com o esqueleto
+                    enemy_pos.append((elem.rect.centerx+self.desvio.x, elem.rect.centery+self.desvio.y)) #debug pra campo de visao
+
                 elif isinstance(elem, Skeleton):#depois eu posso adicionar no grupo ai n precisa desse if (adcionar a imagem)#NOTE
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
+                    enemy_pos.append((elem.rect.centerx+self.desvio.x, elem.rect.centery+self.desvio.y)) #debug pra campo de visao
+
+
                 else:
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.scale_surface.blit(elem.image, pos_com_desvio)
 
+        for pos in enemy_pos:
+            pygame.draw.line(self.scale_surface, (255,0,0), player_pos, pos, 2)
 
         
         scaled_surf = pygame.transform.scale(self.scale_surface, self.scale_surface_size_vector*self.scale)

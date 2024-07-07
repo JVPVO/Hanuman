@@ -24,6 +24,8 @@ class Skeleton(pygame.sprite.Sprite):
         
         self.camada = 1
         self.y_sort = self.rect.y
+        
+        self.vendo = False #se o inimigo tá vendo o player
 
         self.ataque = 5 #Dano do inimigo
         self.health = 30 #Vida do inimigo
@@ -64,16 +66,20 @@ class Skeleton(pygame.sprite.Sprite):
     
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.sprite.x, self.sprite.y)
-        if self.sprite.x > playerX+5: 
-            self.sprite.x -= self.speed * deltatime
-            self.sprite.rotate('l')
-        elif self.sprite.x < playerX-5: 
-            self.sprite.x += self.speed * deltatime
-            self.sprite.rotate('r')
-        if self.sprite.y > playerY+5: self.sprite.y -= self.speed * deltatime
-        elif self.sprite.y < playerY-5: self.sprite.y += self.speed * deltatime
-        self.rect.x = self.sprite.x
-        self.rect.y = self.sprite.y
+        
+        campo_de_visao = not self.check_vision(playerX, playerY, collision_sprites)
+
+        if campo_de_visao:
+            if self.sprite.x > playerX+5: 
+                self.sprite.x -= self.speed * deltatime
+                self.sprite.rotate('l')
+            elif self.sprite.x < playerX-5: 
+                self.sprite.x += self.speed * deltatime
+                self.sprite.rotate('r')
+            if self.sprite.y > playerY+5: self.sprite.y -= self.speed * deltatime
+            elif self.sprite.y < playerY-5: self.sprite.y += self.speed * deltatime
+            self.rect.x = self.sprite.x
+            self.rect.y = self.sprite.y
         
         #Ele basicamente testa se houve algum movimento com a invocação da função, se houve, ele realiza a mudança da animação pra uma de corrida
         #Se não houve nenhum movimento ele volta pra animação idle
@@ -82,6 +88,7 @@ class Skeleton(pygame.sprite.Sprite):
                 self.mode = 'run'
                 file = self.animations['run']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=6)
+            self.colisao_com_objetos(collision_sprites)
         else:
             if self.mode != 'idle':
                 self.mode = 'idle'
@@ -89,9 +96,14 @@ class Skeleton(pygame.sprite.Sprite):
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
 
-        self.colisao_com_objetos(collision_sprites)
+
         self.pos_anterior = (self.sprite.x, self.sprite.y)
 
+    def check_vision(self, px, py, collision_sprites): #TODO ta bugado ainda vou resolver
+        for objeto in collision_sprites: #se for botar um inimigo colidivel no futro tem que tomar cuidado com isso (fazer um if)
+            if objeto.rect.clipline((px, py+19*self.scale_factor+10),(self.rect.centerx, self.rect.centery)):
+                return True #se tem algo colidindo com a linha entre o player e o inimigo, o inimigo não pode ver o player
+        return False
     
     def colisao(self, alvo):
         if id(alvo) not in self.ataquesRecebidos:
@@ -138,6 +150,9 @@ class Skeleton(pygame.sprite.Sprite):
                 if eixoy:
                     self.sprite.y = self.pos_anterior[1]
 
+    
+    
+
 class Rat(Skeleton):
     #Herda o modelo geral do esqueleto, mas vou mudar os ataques e etc (#TODO depois fazer uma calasse pro inimigo?)
     def __init__(self, x, y, initial_scale, groups, projectile_group):
@@ -179,20 +194,26 @@ class Rat(Skeleton):
   
 
         self.damage_numbers = []
+        self.weapon[0].rect.x = self.rect.x - 10
+        self.weapon[0].rect.y = self.rect.y - 10
 
     
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.sprite.x, self.sprite.y)
-        if self.sprite.x > playerX+10: 
-            self.sprite.x += self.speed * deltatime
-            self.sprite.rotate('l')
-        elif self.sprite.x < playerX-10: 
-            self.sprite.x -= self.speed * deltatime
-            self.sprite.rotate('r')
-        if self.sprite.y > playerY+10: self.sprite.y += self.speed * deltatime
-        elif self.sprite.y < playerY-10: self.sprite.y -= self.speed * deltatime
-        self.rect.x = self.sprite.x
-        self.rect.y = self.sprite.y
+        
+        campo_de_visao = not self.check_vision(playerX, playerY, collision_sprites)
+
+        if campo_de_visao:
+            if self.sprite.x > playerX+10: 
+                self.sprite.x += self.speed * deltatime
+                self.sprite.rotate('l')
+            elif self.sprite.x < playerX-10: 
+                self.sprite.x -= self.speed * deltatime
+                self.sprite.rotate('r')
+            if self.sprite.y > playerY+10: self.sprite.y += self.speed * deltatime
+            elif self.sprite.y < playerY-10: self.sprite.y -= self.speed * deltatime
+            self.rect.x = self.sprite.x
+            self.rect.y = self.sprite.y
         
         #Ele basicamente testa se houve algum movimento com a invocação da função, se houve, ele realiza a mudança da animação pra uma de corrida
         #Se não houve nenhum movimento ele volta pra animação idle
@@ -201,6 +222,7 @@ class Rat(Skeleton):
                 self.mode = 'run'
                 file = self.animations['run']
                 self.loader(file, self.sprite.x, self.sprite.y, frames=6)
+            self.colisao_com_objetos(collision_sprites) #talvez ele possa dar um dash pra alguma direcao aleatoria se chegar na parede
         else:
             if self.mode != 'idle':
                 self.mode = 'idle'
@@ -208,7 +230,6 @@ class Rat(Skeleton):
                 self.loader(file, self.sprite.x, self.sprite.y, frames=4)
         self.y_sort = self.rect.y + self.rect.height
 
-        self.colisao_com_objetos(collision_sprites) #talvez ele possa dar um dash pra alguma direcao aleatoria se chegar na parede
         self.pos_anterior = (self.sprite.x, self.sprite.y)
 
     def loader(self, file, x, y, frames,): #n sei porque se nao tiver ele carrega a do esqueleto (???)
@@ -228,4 +249,9 @@ class Rat(Skeleton):
         self.weapon[0].draw(tela, desvio)
 
     
-
+def colisao(rect, objhitbox):
+    eixox = rect.x + rect.width > objhitbox.x and rect.x < objhitbox.x + objhitbox.width
+    eixoy = rect.y + rect.height > objhitbox.y and rect.y + rect.height < objhitbox.y + objhitbox.height
+    if eixox and eixoy:
+        return True
+    return False

@@ -44,7 +44,7 @@ class ConjuntoDeSalas:
 
         self.drawables_alone.add(self.sala)
 
-        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo, self.projectile_group)
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo, self.projectile_group, self.player.rect)
 
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
@@ -117,7 +117,7 @@ class ConjuntoDeSalas:
                 inimigo.update_damage_numbers()
                 inimigo.draw_damage_numbers(self.camera_group.desvio) 
 
-                if isinstance(inimigo, Rat):
+                if isinstance(inimigo, Rat) and not inimigo.check_vision(self.player.rect.x, self.player.rect.y, self.collision_sprites): #ta duplicado
                     inimigo.weapon[0].update(inimigo.rect, self.camera_group.desvio, inimigo.rect.height, self.scaleoffset, self.player.rect) 
 
                 for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
@@ -190,13 +190,14 @@ class ConjuntoDeSalas:
         
         return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
     
-    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, all_sprite_gorup, inimigos_grupo, drawble_alone):
+    def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, camera_group, inimigos_grupo, drawble_alone):
         drawble_alone.remove(sala_de_agora)
         
         nova_sala = sala_de_agora.ponteiro[dest]
         grupo_de_portas.empty()
         grupo_de_colisao.empty()
-        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, all_sprite_gorup, inimigos_grupo) 
+        self.projectile_group.empty()
+        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, camera_group, inimigos_grupo, self.projectile_group, self.player.rect) 
         player.rect.x, player.rect.y = nova_sala.posicoes_perto_portas[dest] #define a posicao do player com base de onde ele vem
         self.sala_atual = nova_sala.posicao_na_matriz
 
@@ -229,7 +230,7 @@ class Sala(pygame.sprite.Sprite):
         #self.draw_portas(desvio) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group, projectile_group):
+    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group, projectile_group, playerrect):
         colision_gourp.empty()
        
         #depois ajeitar essa bagunca embaixo #TODO
@@ -288,6 +289,8 @@ class Sala(pygame.sprite.Sprite):
             for _ in range(random.randint(0,2)):
                 x, y = self.choose_area_to_spawn(spawn_area_list)
                 r = Rat(x, y, initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
+                
+
 
         self.ja_passou_setup = True
     
