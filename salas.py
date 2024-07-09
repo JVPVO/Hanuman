@@ -115,43 +115,7 @@ class ConjuntoDeSalas:
                 self.saiu = True #acaba com a brincadeira
 
             
-            for inimigo in self.inimigos_grupo:
-                #inimigo.draw(self.screen, self.camera)
-                inimigo.sprite.update()
-                inimigo.movement(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.time_elapsed/1000, self.collision_sprites)
-                inimigo.update_damage_numbers()
-                inimigo.draw_damage_numbers(self.camera_group.desvio) 
-
-                if isinstance(inimigo, Rat) and not inimigo.check_vision(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.collision_sprites): #ta duplicado
-                    inimigo.weapon[0].update(inimigo.rect, self.camera_group.desvio, inimigo.rect.height, self.scaleoffset, self.player.rect) 
-
-                for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
-                    if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
-                        #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo
-                        #Solução tlvz seja fzr o indicador de dano ser desenhado por fora? mas é tanto import que mds do céu
-                        #Vou jogar pra um lista e iterar as funções da lista, solução meio boba e simplista mas a vida tem dessas
-                        for dn in inimigo.damage_numbers:
-                            self.damage_numbers.append(dn)
-                        inimigo.kill()
-                        if len(self.inimigos_grupo) == 0:
-                            self.sala.portas = 1
-
-                        #se o inimigo morre dropa algo
-                        Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados), 'nada', self.scale)
-                        
-                
-                if self.player.colisao(inimigo):
-                    if self.ui.health > 0:
-                        self.player.take_damage(inimigo.ataque)
-                        self.ui.health = self.player.health
-                
-                if len(self.projectile_group) != 0:
-                    for proj in self.projectile_group:
-                        if proj.rot_image_rect.colliderect(self.player.rect):
-                            self.player.take_damage(proj.dano)
-                            self.ui.health = self.player.health
-                            proj.hitted = True
-                            proj.kill()
+            self.gerenciador_de_inimigos()
             
             for drop in self.sala_atual_obj.dropados:
                 drop.animate()
@@ -206,6 +170,50 @@ class ConjuntoDeSalas:
         
         return self.sala_atual_obj #retorna a sala
     
+    def gerenciador_de_inimigos(self):
+        '''Tudo que envolve inimigos porvavelmente tá aqui'''
+        #Só movi pra cá pra ficar mais organizado
+
+        for inimigo in self.inimigos_grupo:
+            #inimigo.draw(self.screen, self.camera)
+            inimigo.sprite.update()
+            inimigo.movement(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.time_elapsed/1000, self.collision_sprites)
+            inimigo.update_damage_numbers()
+            inimigo.draw_damage_numbers(self.camera_group.desvio) 
+
+            #Rato nao mira no player se ele nao tiver visao
+            if isinstance(inimigo, Rat) and not inimigo.check_vision(self.player.hitbox_C.centerx, self.player.hitbox_C.centery, self.collision_sprites): #ta duplicado
+                inimigo.weapon[0].update(inimigo.rect, self.camera_group.desvio, inimigo.rect.height, self.scaleoffset, self.player.rect) 
+
+            for i in range(len(self.player.weapon[self.player.selected_weapon].shoot)):
+                if inimigo.colisao(self.player.weapon[self.player.selected_weapon].shoot[i]):
+                    #O último hit do inimigo não é desenhado já que o desenho tá associado ao grupo de inimigos e a gente remove ele do grupo
+                    #Solução tlvz seja fzr o indicador de dano ser desenhado por fora? mas é tanto import que mds do céu
+                    #Vou jogar pra um lista e iterar as funções da lista, solução meio boba e simplista mas a vida tem dessas
+                    for dn in inimigo.damage_numbers:
+                        self.damage_numbers.append(dn)
+                    inimigo.kill()
+                    if len(self.inimigos_grupo) == 0:
+                        self.sala.portas = 1
+
+                    #se o inimigo morre dropa algo (dropa sempre por enquanto)
+                    Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados), 'nada', self.scale)
+                    
+            
+            if self.player.colisao(inimigo):
+                if self.ui.health > 0:
+                    self.player.take_damage(inimigo.ataque)
+                    self.ui.health = self.player.health
+            
+            if len(self.projectile_group) != 0:
+                for proj in self.projectile_group:
+                    if proj.rot_image_rect.colliderect(self.player.rect):
+                        self.player.take_damage(proj.dano)
+                        self.ui.health = self.player.health
+                        proj.hitted = True
+                        proj.kill()
+
+
     def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, camera_group, inimigos_grupo, drawble_alone):
         drawble_alone.remove(sala_de_agora)
         grupo_de_colisao.empty()

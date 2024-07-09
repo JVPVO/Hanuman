@@ -218,19 +218,14 @@ class Dropaveis(pygame.sprite.Sprite):
     def __init__(self, enemy_rect, sprite_img_path, groups, funcao, scale): #grupos deve ser o da camera e o de items da sala
         super().__init__(groups)
         self.posX = enemy_rect.centerx
-        
-        self.Y_max = enemy_rect.y
-        self.Y_end = enemy_rect.bottom
-        self.Y_start = enemy_rect.centery
-        self.y_sort = 0 #vai mudando enquanto se movimenta
-
-        self.camada = 1 #fica em cima de tudo até agora
-        
 
         self.funcao = funcao
 
+        self.Y_start = enemy_rect.centery
         self.image = pygame.image.load(sprite_img_path).convert_alpha()
         self.rect = self.image.get_rect(topleft=(self.posX, self.Y_start)) #posicao inicial no centro do inimigo
+        self.camada = 1 #fica em cima de tudo até agora
+        
 
         self.scale = scale #nao ta implemntado a escala dinamia ainda
         self.rect.width = int(self.rect.width*scale)
@@ -238,9 +233,14 @@ class Dropaveis(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
         
+        self.Y_max = enemy_rect.y
+        self.Y_end = enemy_rect.bottom - self.rect.height
+        self.y_sort = 0 #vai mudando enquanto se movimenta
+
+        
         self.start = pygame.time.get_ticks()
         self.last_time = self.start
-        self.animation_duration = 0.8 * 1000
+        self.animation_duration = 0.7 * 1000
         self.animation_ended = False
         self.vel = (self.Y_start-self.Y_max)/(self.animation_duration/2000) #nessa ordem pra ficar positivo
         #pela construcao dessa velocidade o movimento termina no segundo que determinamos, com a caida 2x mais rapida que a subida
