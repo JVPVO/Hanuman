@@ -229,7 +229,7 @@ class Dropaveis(pygame.sprite.Sprite):
         self.Y_start = enemy_rect.centery
         self.image = pygame.image.load(sprite_img_path).convert_alpha()
         self.rect = self.image.get_rect(topleft=(self.posX, self.Y_start)) #posicao inicial no centro do inimigo
-        self.camada = 1 #fica em cima de tudo até agora
+        self.camada = 1 
         
 
         self.scale = scale #nao ta implemntado a escala dinamica ainda
@@ -271,3 +271,15 @@ class Dropaveis(pygame.sprite.Sprite):
         self.y_sort = self.rect.centery
         self.last_time = agora
         
+class Loja(Dropaveis):
+    def __init__(self, pos, sprite_img_path, groups, funcao, intesnsidade, dropados_grupo, scale):
+        super().__init__(pygame.Rect(0,0,0,0), sprite_img_path, groups, funcao, intesnsidade, scale)
+        self.grupo_da_loja = dropados_grupo
+        self.rect.centerx, self.rect.centery = pos
+    def animate(self):
+        #pra nao dar problema na hora do game loop lá
+        return
+    def delete_others(self):
+        for item in self.grupo_da_loja:
+            if item != self:
+                item.kill()

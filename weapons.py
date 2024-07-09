@@ -35,6 +35,7 @@ class Weapon(RotatableObjects):
         self.last_shoot = pygame.time.get_ticks()
         self.last_direction = pygame.Vector2(0,0) #sempre normalizado (vetor unitário)
         self.projectile_sprite = 'assets\slash_demo.png' #sprite padrao do projeteil
+        self.damage = 10
         
         
 
@@ -55,7 +56,7 @@ class Weapon(RotatableObjects):
         mx, my = pygame.mouse.get_pos()
         if pygame.time.get_ticks() - self.last_shoot  >= self.projectile_cooldown and keypressed[pygame.K_SPACE]:
             self.shots -= 1
-            p = Projectile(self.projectile_sprite, playerrect.centerx, playerrect.centery, mx, my, 0.1, self.rect, desvio, self.scale)
+            p = Projectile(self.projectile_sprite, playerrect.centerx, playerrect.centery, mx, my, 0.1, self.rect, desvio, self.scale, self.damage)
             self.shoot.append(p)
             self.last_shoot = pygame.time.get_ticks()
         
@@ -106,7 +107,7 @@ class Weapon(RotatableObjects):
 
 
 class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE   
-    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, desvio, initial_scale=1):
+    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, desvio, initial_scale=1, dano=10):
         super().__init__(img_file, x, y, initial_scale)
 
         self.time_control = self.creation_time = pygame.time.get_ticks()
@@ -138,7 +139,7 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
         self.hitted = False #se já acertou o player
         
-        self.dano = 10
+        self.dano = dano
 
 
     def move(self, vel):

@@ -19,7 +19,8 @@ class ConjuntoDeSalas:
 
         self.saiu = False
 
-        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(4)] # só tem 2 salas por enquanto
+        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(4)] # só tem 4 salas por enquanto...
+        self.salas_lojas = [f'assets\\dungeon_room_2_0.tmx'] #só tem 1 loja por enquanto
         
         ##para o game loop
         self.screen = pygame.display.get_surface()
@@ -153,8 +154,8 @@ class ConjuntoDeSalas:
                     sala_path = Path(random.choice(self.salas_comuns_sprites))
                     temp.append(Sala(sala_path, 1, (l,c), self.sprite_portas))
                 elif self.molde[l][c] == 2:
-                    sala_path = Path(random.choice(self.salas_comuns_sprites))
-                    temp.append(Sala(sala_path, 2, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
+                    sala_path = Path(random.choice(self.salas_lojas))
+                    temp.append(Sala(sala_path, 2, (l,c), self.sprite_portas)) 
                 elif self.molde[l][c] == 3:
                     sala_path = Path(random.choice(self.salas_comuns_sprites))
                     temp.append(Sala(sala_path, 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
@@ -201,7 +202,7 @@ class ConjuntoDeSalas:
 
                     #se o inimigo morre pode dropar algo
                     if random.randrange(100) < 20: #chance de drop 20 porcento
-                        funcao, intensidade, asset = self._gerador_pocao()
+                        funcao, intensidade, asset = _gerador_pocao(pesos=[0.7, 0.3]) #(70% de vida e 30% de aumentar_vida_maxima)
                         Dropaveis(inimigo.rect, asset , (self.camera_group, self.sala_atual_obj.dropados, self.collision_sprites), funcao, intensidade, self.scale)
                     
             
@@ -253,21 +254,6 @@ class ConjuntoDeSalas:
 
         return sala_obj.choose_area_to_spawn(spawn_area_list)
 
-    def _gerador_pocao(self):
-        funcoes = ['vida', 'aumentar_vida_maxima']
-        escolhido = random.choices(funcoes, weights=[0.7, 0.3], k=1)[0] #escolhe uma das funcoes com base na probabilidade (70% de vida e 30% de aumentar_vida_maxima)
-        intensidade = 0
-        asset = 'assets\\dungeon_props\\'
-
-        if escolhido == 'vida':
-            intensidade = random.randint(10, 20)
-            asset = 'assets\\dungeon_props\\dungeon_props_24.png'
-        elif escolhido == 'aumentar_vida_maxima':
-            intensidade = random.randint(5, 10)
-            asset = 'assets\\dungeon_props\\novos_27.png'
-        
-        return escolhido, intensidade, asset
-
 
 class Sala(pygame.sprite.Sprite):
     def __init__(self, tmx_path, tipo, pos_na_matriz, sprite_portas):
@@ -275,7 +261,7 @@ class Sala(pygame.sprite.Sprite):
 
         self.tmx_data = load_map(tmx_path)
         self.ponteiro = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #cima baixo direita esquerda
-        self.portas = 0 #vira 1 quando os inimigos morrem
+        self.portas = 0 #vira 1 quando os inimigos morrem 
         self.ja_passou_setup = False
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
@@ -340,20 +326,37 @@ class Sala(pygame.sprite.Sprite):
 
         
         spawn_area_list = []
-        for obj in self.tmx_data.get_layer_by_name('spawn_en'): #adciona a area em que os inimigos podem dar spawn a lista
-            x_top, x_bot = obj.x*scale, (obj.x+obj.width)*scale #min e max de x
-            y_top, y_bot = obj.y*scale, (obj.y+obj.height)*scale # min e max de y
-            spawn_area_list.append((int(x_top), int(x_bot), int(y_top), int(y_bot)))
+        for obj in self.tmx_data.get_layer_by_name('spawn_en'): #adciona a area em que os inimigos podem dar spawn a lista (tambem é usado pros itens da loja)
+            if self.tipo ==1:
+                x_top, x_bot = obj.x*scale, (obj.x+obj.width)*scale #min e max de x
+                y_top, y_bot = obj.y*scale, (obj.y+obj.height)*scale # min e max de y
+                spawn_area_list.append((int(x_top), int(x_bot), int(y_top), int(y_bot)))
+            
+            elif self.tipo == 2: #quando for loja
+                #usaremos as areas de spawn para os itens da loja
+                x_center = (obj.x+obj.width/2)*scale
+                y_center = (obj.y+obj.height/2)*scale
+                spawn_area_list.append((x_center, y_center))
         
-        if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas
+        if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas (e itens de lojas também)
+            
+            if self.tipo == 1:
+                for _ in range(random.randint(3,8)): 
+                    x, y = self.choose_area_to_spawn(spawn_area_list)
+                    s =Skeleton(x, y, initial_scale=scale, groups=(camera_group, inimigos_group))
+                for _ in range(random.randint(0,2)):
+                    x, y = self.choose_area_to_spawn(spawn_area_list)
+                    r = Rat(x, y, initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
+            
+            elif self.tipo == 2:
+                self.portas = 1
+                funcao, intensidade, asset = _gerador_pocao(tipo='loja')
+                for c, zipado in enumerate(zip(funcao, intensidade, asset)): #tres itens na loja
+                    func, intens, asset_path = zipado
+                    x, y = spawn_area_list[c]
+                    Loja((x,y), asset_path,(camera_group, self.dropados, colision_gourp), func,intens, self.dropados, scale) #cria um item do tipo loja
 
-            for _ in range(random.randint(3,8)): 
-                x, y = self.choose_area_to_spawn(spawn_area_list)
-                s =Skeleton(x, y, initial_scale=scale, groups=(camera_group, inimigos_group))
-            for _ in range(random.randint(0,2)):
-                x, y = self.choose_area_to_spawn(spawn_area_list)
-                r = Rat(x, y, initial_scale=scale, groups=(camera_group, inimigos_group), projectile_group=projectile_group)
-                
+                         
 
 
         self.ja_passou_setup = True
@@ -391,6 +394,47 @@ class Porta(pygame.sprite.Sprite):
         self.sprite.rescale_frames(self.scale_factor)
         
         
+
+
+
+def _gerador_pocao(pesos:list=[], tipo='comum'):
+        '''gera o efeito com base no tipo do coletavel'''
+        if tipo == 'comum':
+            funcoes = ['vida', 'aumentar_vida_maxima']
+            escolhido = random.choices(funcoes, weights=pesos, k=1)[0] #escolhe uma das funcoes com base na probabilidade 
+            intensidade = 0#vai ser sobrescrito
+            asset = 'assets\\dungeon_props\\'#vai ser sobrescrito
+
+            if escolhido == 'vida':
+                intensidade = random.randint(10, 20)
+                asset = 'assets\\dungeon_props\\dungeon_props_24.png'
+            elif escolhido == 'aumentar_vida_maxima':
+                intensidade = random.randint(5, 10)
+                asset = 'assets\\dungeon_props\\novos_27.png'
+        
+        elif tipo == 'loja':
+            funcoes = ['max_health', 'more_damage',  'more_speed', 'aumentar_vida_maxima']
+            escolhido = random.sample(funcoes, 3)#escolhe 3 pra loja
+            intensidade = []
+            asset = [] #TODO ASSETS DECENTES tem uns de teste ali
+
+            for cada in escolhido:
+                if cada == 'max_health':
+                    intensidade.append(None) #não tem intensidade
+                    asset.append('assets\\dungeon_props\\max_health.png')
+                elif cada == 'more_damage':
+                    intensidade.append(random.randint(5, 10)) #absoluto
+                    asset.append('assets\\dungeon_props\\mais_dano.png')
+                elif cada == 'more_speed':
+                    intensidade.append(random.randint(0, 45)) #em percentual
+                    asset.append('assets\\dungeon_props\\speed.png')
+                elif cada == 'aumentar_vida_maxima':
+                    intensidade.append(random.randint(20, 40)) #absoluto
+                    asset.append('assets\\dungeon_props\\novos_27.png')
+        
+
+        
+        return escolhido, intensidade, asset
 
 
 

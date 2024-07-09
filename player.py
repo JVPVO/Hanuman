@@ -15,6 +15,8 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, 19, 30)  # Tamanho do jogador, ajuste conforme necessário
         
         self.speed = 750 # Velocidade de movimento do jogador (pixels por segundo) CUIDADO QUE ESSE valor é sobrescrito no handle_keys 
+        self.default_speed = self.speed
+
         self.scale_factor = initial_scale
         
         self.last_scale_time = pygame.time.get_ticks()
@@ -53,6 +55,7 @@ class Player(pygame.sprite.Sprite):
         self.last_dash_time = pygame.time.get_ticks() - self.dash_cooldown
         self.dash_start_time = None
         self.dash_direction = pygame.Vector2(0, 0)
+        self.seped_pre_dash = 94
 
         self.animations = {'idle': 'Idle-Sheet.png', 'run': 'Run-Sheet.png'}
         self.processed = {'idle': False, 'run': False}
@@ -96,11 +99,11 @@ class Player(pygame.sprite.Sprite):
         mouse_pos = pygame.mouse.get_pos()
 
         if key_pressed[pygame.K_LCTRL]:
-            self.speed = 94
+            self.speed = self.seped_pre_dash
         else:
-            if self.speed == 94:
+            if self.speed == self.seped_pre_dash:
                 self.dash(mouse_pos)
-            self.speed = 750
+            self.speed = self.default_speed
 
         if self.dashing:
             if pygame.time.get_ticks() - self.dash_start_time <= self.dash_duration:
@@ -171,14 +174,18 @@ class Player(pygame.sprite.Sprite):
 
     def check_collision(self, direcao):
         '''Checa a colisao com objetos e resolve ela'''
-        from inimigos import Dropaveis
+        from inimigos import Dropaveis, Loja
         self.hitbox_C.centerx = self.rect.centerx
         self.hitbox_C.bottom = self.rect.bottom
         for objeto in self.collision_sprites:
             if self.hitbox_C.colliderect(objeto.rect):
                 if isinstance(objeto, Dropaveis):
                     self.interacao_com_dropavel(objeto.funcao, objeto.intensidade)
+
+                    if isinstance(objeto, Loja): objeto.delete_others()# se ta na loja quando pega um deleta o resto
+
                     objeto.kill()
+                    continue
 
                 sentido = (self.hitbox_C.x - self.pos_anterior[0], self.hitbox_C.y - self.pos_anterior[1])
                 if direcao == 0:
@@ -200,11 +207,20 @@ class Player(pygame.sprite.Sprite):
             if self.health > self.max_health: self.health = self.max_health #impee de passar da vida maxima
             self.ui.health = self.health
         
-        if funcao == "aumentar_vida_maxima":
+        elif funcao == "aumentar_vida_maxima":
             self.max_health += intensidade
             self.ui.max_health = self.max_health
             self.health += int(intensidade*0.2)
             self.ui.health = self.health
+        
+        #esses só na loja da pra pegar
+        elif funcao == 'max_health':
+            self.health = self.max_health
+            self.ui.health = self.health
+        elif funcao == 'more_damage':
+            self.weapon[0].damage += intensidade
+        elif funcao == 'more_speed':
+            self.default_speed *= (1 + intensidade/100)
 
 
     def check_door_collision(self, portasgrupo):
