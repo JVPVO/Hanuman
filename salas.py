@@ -41,7 +41,7 @@ class ConjuntoDeSalas:
         self.time_elapsed = 0 
         self.tempo_antes = pygame.time.get_ticks()
 
-        self.sala:Sala = self.new_setup()
+        self.sala:Sala = self.first_setup()
         self.sala_atual_obj = self.sala #sala atual como objeto
         self.player.rect.x, self.player.rect.y = self.get_first_pos_player(self.sala, self.scale) #ele tem uma area pra nascer pela primeira vez
 
@@ -96,6 +96,7 @@ class ConjuntoDeSalas:
             self.player.update_damage_numbers()
             self.player.draw_damage_numbers(self.camera_group.desvio)
 
+            #UI
             self.damage_numbers = [dn for dn in self.damage_numbers if dn.update()]
 
             self.minimap.updateMinimap((self.sala_atual[0], self.sala_atual[1]))
@@ -104,9 +105,10 @@ class ConjuntoDeSalas:
                 damage_number.draw(self.camera_group.desvio) #NOTE
 
 
+            #key handles
             if key_pressed[pygame.K_t]:
-                self.ui.health = 100
-                self.player.health = 100
+                self.ui.health = self.ui.max_health
+                self.player.health = self.player.max_health
             
             if key_pressed[pygame.K_h]:
                 self.sala.portas = (self.sala.portas+1)%2
@@ -114,7 +116,9 @@ class ConjuntoDeSalas:
             if key_pressed[pygame.K_e]:
                 self.saiu = True #acaba com a brincadeira
 
-            
+
+
+            #tudo relacionado a inimigo
             self.gerenciador_de_inimigos()
             
             for drop in self.sala_atual_obj.dropados:
@@ -133,9 +137,8 @@ class ConjuntoDeSalas:
         return
 
 
-
-
-    def new_setup(self):
+    def first_setup(self):
+        '''Setup da primeira sala + ciracao de todas as outras salas'''
         self.molde, self.sala_atual = gerar_matriz(6, 10) #gera a matriz e define a primeira sala
         
         linhas = len(self.molde)
@@ -196,8 +199,10 @@ class ConjuntoDeSalas:
                     if len(self.inimigos_grupo) == 0:
                         self.sala.portas = 1
 
-                    #se o inimigo morre dropa algo (dropa sempre por enquanto)
-                    Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados), 'nada', self.scale)
+                    #se o inimigo morre pode dropar algo
+                    if random.randrange(100) < 20: #chance de drop 20 porcento
+                        funcao, intensidade = self._gerador_pocao()
+                        Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados, self.collision_sprites), funcao, intensidade, self.scale)
                     
             
             if self.player.colisao(inimigo):
@@ -230,6 +235,11 @@ class ConjuntoDeSalas:
         player.rect.x, player.rect.y = nova_sala.posicoes_perto_portas[dest] #define a posicao do player com base de onde ele vem
         self.sala_atual = nova_sala.posicao_na_matriz
 
+        #adciona o dropados a camera
+        for elem in nova_sala.dropados:
+            camera_group.add(elem)
+        
+        self.sala_atual_obj = nova_sala
         drawble_alone.add(nova_sala)
         return nova_sala
     
@@ -243,6 +253,17 @@ class ConjuntoDeSalas:
 
         return sala_obj.choose_area_to_spawn(spawn_area_list)
 
+    def _gerador_pocao(self):
+        funcoes = ['vida', 'aumentar_vida_maxima']
+        escolhido = random.choices(funcoes, weights=[0.7, 0.3], k=1)[0] #escolhe uma das funcoes com base na probabilidade (70% de vida e 30% de aumentar_vida_maxima)
+        intensidade = 0
+
+        if escolhido == 'vida':
+            intensidade = random.randint(10, 20)
+        elif escolhido == 'aumentar_vida_maxima':
+            intensidade = random.randint(5, 10)
+        
+        return escolhido, intensidade
 
 
 class Sala(pygame.sprite.Sprite):
@@ -404,4 +425,4 @@ if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((1920, 1080))
     a = ConjuntoDeSalas()
-    a.new_setup()
+    a.first_setup()

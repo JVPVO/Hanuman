@@ -46,7 +46,7 @@ class Game:
         #grupo de portas
         self.portas_grupo = pygame.sprite.Group()
 
-        self.player = Player(100, 100, self.collision_sprites, self.camera_group, self.scale)
+        self.player = Player(100, 100, self.collision_sprites, self.camera_group, self.ui, self.scale)
 
 
         #Grupo de números indicadores de dano, só usados quando o inimigo vai ser removido do grupo de iteração

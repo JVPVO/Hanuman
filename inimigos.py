@@ -4,6 +4,7 @@ import pygame
 from animation_Wip import Animation
 from menus import DamageNumber
 from weapons import Bow
+from random import randint
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, initial_scale, groups, image_file, total_frames, frame_width, frame_height):
@@ -139,6 +140,8 @@ class Enemy(pygame.sprite.Sprite):
         self.hitbox_C.centerx = self.rect.centerx
         self.hitbox_C.bottom = self.rect.bottom
         for objeto in colision_sprites:
+            if isinstance(objeto, Dropaveis): continue #inimigos ignoram os itens dropaveis
+
             if self.hitbox_C.colliderect(objeto.rect):
                 sentido = (self.hitbox_C.x - self.pos_anterior[0], self.hitbox_C.y - self.pos_anterior[1])
                 if direcao == 0:
@@ -215,11 +218,13 @@ class Rat(Enemy):
 
 
 class Dropaveis(pygame.sprite.Sprite):
-    def __init__(self, enemy_rect, sprite_img_path, groups, funcao, scale): #grupos deve ser o da camera e o de items da sala
+    def __init__(self, enemy_rect, sprite_img_path, groups, funcao, intensidade, scale): #grupos deve ser o da camera e o de items da sala
+        '''Funcao é o que faz e intensidade é o a quantidade do efeito'''
         super().__init__(groups)
-        self.posX = enemy_rect.centerx
+        self.posX = randint(int(enemy_rect.x), int(enemy_rect.right)) #para quando iinmigos ficarem amontoados o drop nao ficar
 
         self.funcao = funcao
+        self.intensidade = intensidade
 
         self.Y_start = enemy_rect.centery
         self.image = pygame.image.load(sprite_img_path).convert_alpha()
@@ -227,7 +232,7 @@ class Dropaveis(pygame.sprite.Sprite):
         self.camada = 1 #fica em cima de tudo até agora
         
 
-        self.scale = scale #nao ta implemntado a escala dinamia ainda
+        self.scale = scale #nao ta implemntado a escala dinamica ainda
         self.rect.width = int(self.rect.width*scale)
         self.rect.height = int(self.rect.height*scale)
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
