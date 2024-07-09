@@ -19,7 +19,7 @@ class ConjuntoDeSalas:
 
         self.saiu = False
 
-        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(3)] # só tem 2 salas por enquanto
+        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(4)] # só tem 2 salas por enquanto
         
         ##para o game loop
         self.screen = pygame.display.get_surface()
@@ -201,8 +201,8 @@ class ConjuntoDeSalas:
 
                     #se o inimigo morre pode dropar algo
                     if random.randrange(100) < 20: #chance de drop 20 porcento
-                        funcao, intensidade = self._gerador_pocao()
-                        Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados, self.collision_sprites), funcao, intensidade, self.scale)
+                        funcao, intensidade, asset = self._gerador_pocao()
+                        Dropaveis(inimigo.rect, asset , (self.camera_group, self.sala_atual_obj.dropados, self.collision_sprites), funcao, intensidade, self.scale)
                     
             
             if self.player.colisao(inimigo):
@@ -257,13 +257,16 @@ class ConjuntoDeSalas:
         funcoes = ['vida', 'aumentar_vida_maxima']
         escolhido = random.choices(funcoes, weights=[0.7, 0.3], k=1)[0] #escolhe uma das funcoes com base na probabilidade (70% de vida e 30% de aumentar_vida_maxima)
         intensidade = 0
+        asset = 'assets\\dungeon_props\\'
 
         if escolhido == 'vida':
             intensidade = random.randint(10, 20)
+            asset = 'assets\\dungeon_props\\dungeon_props_24.png'
         elif escolhido == 'aumentar_vida_maxima':
             intensidade = random.randint(5, 10)
+            asset = 'assets\\dungeon_props\\novos_27.png'
         
-        return escolhido, intensidade
+        return escolhido, intensidade, asset
 
 
 class Sala(pygame.sprite.Sprite):

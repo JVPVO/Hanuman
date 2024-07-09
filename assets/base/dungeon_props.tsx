@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="dungeon_props" tilewidth="64" tileheight="96" tilecount="47" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="dungeon_props" tilewidth="64" tileheight="96" tilecount="67" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../dungeon_props/dungeon_props_02.png" width="16" height="23"/>
@@ -141,5 +141,65 @@
  </tile>
  <tile id="46">
   <image source="../dungeon_props/viga_03.png" width="48" height="96"/>
+ </tile>
+ <tile id="47">
+  <image source="../dungeon_props/novos_03.png" width="14" height="29"/>
+ </tile>
+ <tile id="48">
+  <image source="../dungeon_props/novos_05.png" width="14" height="29"/>
+ </tile>
+ <tile id="49">
+  <image source="../dungeon_props/novos_08.png" width="10" height="12"/>
+ </tile>
+ <tile id="50">
+  <image source="../dungeon_props/novos_10.png" width="16" height="22"/>
+ </tile>
+ <tile id="51">
+  <image source="../dungeon_props/novos_12.png" width="16" height="20"/>
+ </tile>
+ <tile id="52">
+  <image source="../dungeon_props/novos_18.png" width="16" height="17"/>
+ </tile>
+ <tile id="53">
+  <image source="../dungeon_props/novos_22.png" width="16" height="15"/>
+ </tile>
+ <tile id="54">
+  <image source="../dungeon_props/novos_23.png" width="16" height="14"/>
+ </tile>
+ <tile id="55">
+  <image source="../dungeon_props/novos_27.png" width="14" height="16"/>
+ </tile>
+ <tile id="56">
+  <image source="../dungeon_props/viga2_03.png" width="64" height="96"/>
+ </tile>
+ <tile id="57">
+  <image source="../dungeon_props/livros_03.png" width="4" height="9"/>
+ </tile>
+ <tile id="58">
+  <image source="../dungeon_props/livros_05.png" width="5" height="9"/>
+ </tile>
+ <tile id="59">
+  <image source="../dungeon_props/livros_07.png" width="5" height="9"/>
+ </tile>
+ <tile id="60">
+  <image source="../dungeon_props/livros_09.png" width="5" height="9"/>
+ </tile>
+ <tile id="61">
+  <image source="../dungeon_props/livros_16.png" width="9" height="11"/>
+ </tile>
+ <tile id="62">
+  <image source="../dungeon_props/livros_18.png" width="9" height="11"/>
+ </tile>
+ <tile id="63">
+  <image source="../dungeon_props/livros_20.png" width="9" height="11"/>
+ </tile>
+ <tile id="64">
+  <image source="../dungeon_props/livros_22.png" width="8" height="11"/>
+ </tile>
+ <tile id="65">
+  <image source="../dungeon_props/livros_25.png" width="7" height="7"/>
+ </tile>
+ <tile id="66">
+  <image source="../dungeon_props/livros_27.png" width="6" height="7"/>
  </tile>
 </tileset>

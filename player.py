@@ -203,7 +203,7 @@ class Player(pygame.sprite.Sprite):
         if funcao == "aumentar_vida_maxima":
             self.max_health += intensidade
             self.ui.max_health = self.max_health
-            self.health = int(intensidade*0.2)
+            self.health += int(intensidade*0.2)
             self.ui.health = self.health
 
 
