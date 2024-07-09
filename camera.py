@@ -81,7 +81,7 @@ class EverythingScreen(pygame.sprite.Group):
         main_sprites = sorted([sprite for sprite in self if sprite.camada == camadas_obj_mundo['main']], key = lambda sprite: sprite.y_sort)
         top_sprites = [sprite for sprite in self if sprite.camada > camadas_obj_mundo['top']]
 
-        
+         
         enemy_pos = []  #debug pra campo de visao
 
         #objetos

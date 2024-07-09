@@ -42,6 +42,7 @@ class ConjuntoDeSalas:
         self.tempo_antes = pygame.time.get_ticks()
 
         self.sala:Sala = self.new_setup()
+        self.sala_atual_obj = self.sala #sala atual como objeto
         self.player.rect.x, self.player.rect.y = self.get_first_pos_player(self.sala, self.scale) #ele tem uma area pra nascer pela primeira vez
 
         self.drawables_alone.add(self.sala)
@@ -134,6 +135,10 @@ class ConjuntoDeSalas:
                         inimigo.kill()
                         if len(self.inimigos_grupo) == 0:
                             self.sala.portas = 1
+
+                        #se o inimigo morre dropa algo
+                        Dropaveis(inimigo.rect, 'assets\\dungeon_props\\dungeon_props_24.png' , (self.camera_group, self.sala_atual_obj.dropados), 'nada', self.scale)
+                        
                 
                 if self.player.colisao(inimigo):
                     if self.ui.health > 0:
@@ -147,7 +152,9 @@ class ConjuntoDeSalas:
                             self.ui.health = self.player.health
                             proj.hitted = True
                             proj.kill()
-
+            
+            for drop in self.sala_atual_obj.dropados:
+                drop.animate()
             
             
             pygame.display.flip()
@@ -194,8 +201,10 @@ class ConjuntoDeSalas:
 
         #Criando o minimapa junto com o conjunto de salas
         self.minimap = Minimap(mapa=self.molde)
+
+        self.sala_atual_obj = self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]]
         
-        return self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]] #retorna a sala
+        return self.sala_atual_obj #retorna a sala
     
     def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, camera_group, inimigos_grupo, drawble_alone):
         drawble_alone.remove(sala_de_agora)
@@ -238,6 +247,8 @@ class Sala(pygame.sprite.Sprite):
         self.ja_passou_setup = False
         self.tipo = tipo
         self.posicao_na_matriz = pos_na_matriz
+
+        self.dropados = pygame.sprite.Group() #pra intens dropados
         
         self.posicoes_perto_portas = {'cima':None, 'baixo':None, 'direita':None, 'esquerda':None} #no setup é prenchida de forma contraria ao #self.ponteiro (pq só precisamos dessa posicao se estamos vindo de outro lugar) (tipo uma posicao relativa de novo)
         
