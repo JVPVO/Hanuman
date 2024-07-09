@@ -35,7 +35,7 @@ class Enemy(pygame.sprite.Sprite):
         self.pos_anterior = (self.rect.x, self.rect.y)
 
         self.animations = {}
-        self.processed = {'idle': True}
+        self.processed = {'idle': True, 'run':False}
         self.spritesheets = {'idle': self.sprite}
 
         self.damage_numbers = []
