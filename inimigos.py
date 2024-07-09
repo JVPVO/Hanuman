@@ -273,7 +273,7 @@ class Dropaveis(pygame.sprite.Sprite):
         
 class Loja(Dropaveis):
     def __init__(self, pos, sprite_img_path, groups, funcao, intesnsidade, dropados_grupo, scale):
-        super().__init__(pygame.Rect(0,0,0,0), sprite_img_path, groups, funcao, intesnsidade, scale)
+        super().__init__(pygame.Rect(0,0,0,0), sprite_img_path, groups, funcao, intesnsidade, scale-1) #passo -1 pq o sprite é mtt grande
         self.grupo_da_loja = dropados_grupo
         self.rect.centerx, self.rect.centery = pos
     def animate(self):

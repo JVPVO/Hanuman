@@ -421,13 +421,13 @@ def _gerador_pocao(pesos:list=[], tipo='comum'):
             for cada in escolhido:
                 if cada == 'max_health':
                     intensidade.append(None) #não tem intensidade
-                    asset.append('assets\\dungeon_props\\max_health.png')
+                    asset.append('assets\\dungeon_props\\item_loja_03.png')
                 elif cada == 'more_damage':
                     intensidade.append(random.randint(5, 10)) #absoluto
-                    asset.append('assets\\dungeon_props\\mais_dano.png')
+                    asset.append('assets\\dungeon_props\\item_loja_06.png')
                 elif cada == 'more_speed':
                     intensidade.append(random.randint(0, 45)) #em percentual
-                    asset.append('assets\\dungeon_props\\speed.png')
+                    asset.append('assets\\dungeon_props\\item_loja_09.png')
                 elif cada == 'aumentar_vida_maxima':
                     intensidade.append(random.randint(20, 40)) #absoluto
                     asset.append('assets\\dungeon_props\\novos_27.png')
