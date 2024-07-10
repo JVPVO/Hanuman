@@ -216,6 +216,15 @@ class Rat(Enemy):
     def draw(self, tela, desvio): #na verdade esse draw é só pro weapon
         self.weapon[0].draw(tela, desvio)
 
+class Banshee(Enemy):
+    def __init__(self, x, y, initial_scale, groups):
+        super().__init__(x, y, initial_scale, groups, 'assets/Banshee-Idle-Sheet.png', 4, 48, 48) #nao sei porque esse ela fez em 48x48
+        #ainda n tem um banshee Idle sheet... mas vai ter
+        #a ideia é aparecer só de vez em quando e consegue voar e atravessar paredes (a implementacao nao parece dificil)
+
+class Boss(Enemy):
+    def __init__(self, x, y, initial_scale, groups, image_file, total_frames, frame_width, frame_height):
+        super().__init__(x, y, initial_scale+1, groups, image_file, total_frames, frame_width, frame_height)
 
 
 class Dropaveis(pygame.sprite.Sprite):
