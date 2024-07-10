@@ -124,7 +124,7 @@ class EverythingScreen(pygame.sprite.Group):
         for pos in enemy_pos:
             pygame.draw.line(self.scale_surface, (255,0,0), player_pos, pos, 2)
             pass
-
+        
         
         scaled_surf = pygame.transform.scale(self.scale_surface, self.scale_surface_size_vector*self.scale)
         scaled_rect = scaled_surf.get_rect(center = (self.metadeTelaW, self.metadeTelaH))

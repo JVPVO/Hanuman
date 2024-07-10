@@ -234,7 +234,7 @@ class Boss(Enemy):
         
         self.cooldown_pulo = 5000  # 5 segundos entre os pulos
         self.last_jump_time = pygame.time.get_ticks()
-        self.duracao_pulo = 750  # pulo dura 0.75
+        self.duracao_pulo = 800  # pulo dura 0.7
         self.jump_start_time = 0
         self.alvo_pulo = None
         
@@ -270,7 +270,7 @@ class Boss(Enemy):
                 self.inicio_pulo(self.map_width, self.map_height)
 
         elif self.acao_atual == 'pulando':
-            self.pulo(agora, deltatime)
+            self.pulo(agora, collision_sprites)
 
         self.update_animation(firstPos)
         
@@ -282,9 +282,9 @@ class Boss(Enemy):
         self.last_jump_time = self.jump_start_time
 
         # Escolhe uma posicao aleatoria para pular
-        self.alvo_pulo = (random.randint(100, int(map_width - 100)), random.randint(100, int(map_height - 100)))
+        self.alvo_pulo = (random.randint(200, 1500), random.randint(250, 610))#por enquanto hard coded msm (mas vai usar o map size dps)
 
-    def pulo(self, agora, deltatime):
+    def pulo(self, agora, collision_sprites):
         progresso = (agora - self.jump_start_time) / self.duracao_pulo #o quanto do pulo já foi feito
 
         if progresso < 1:
@@ -292,15 +292,23 @@ class Boss(Enemy):
             progresso_suave = 1 - 0.5*(1 - progresso) ** 2
 
             self.rect.x = self.ajuste_ease(self.rect.x, self.alvo_pulo[0], progresso_suave)
+            self.colisao_com_objetos(collision_sprites, 0)
+
             self.rect.y = self.ajuste_ease(self.rect.y, self.alvo_pulo[1], progresso_suave)
+            self.colisao_com_objetos(collision_sprites, 0)
+
             
         else:
             self.rect.x, self.rect.y = self.alvo_pulo
             self.acao_atual = 'andando'
+
+            ##start projectile function###
+            
             
         #ajuste de hitbox
         self.hitbox_C.centerx = self.rect.centerx
         self.hitbox_C.bottom = self.rect.bottom
+        
            
 
     def ajuste_ease(self, start, end, coeficiente):
