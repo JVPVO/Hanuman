@@ -21,6 +21,7 @@ class ConjuntoDeSalas:
 
         self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(4)] # só tem 4 salas por enquanto...
         self.salas_lojas = [f'assets\\dungeon_room_2_0.tmx'] #só tem 1 loja por enquanto
+        self.salas_boss = [f'assets\\dungeon_room_3_0.tmx'] #só tem 1 sala de chefe por enquanto
         
         ##para o game loop
         self.screen = pygame.display.get_surface()
@@ -157,7 +158,7 @@ class ConjuntoDeSalas:
                     sala_path = Path(random.choice(self.salas_lojas))
                     temp.append(Sala(sala_path, 2, (l,c), self.sprite_portas)) 
                 elif self.molde[l][c] == 3:
-                    sala_path = Path(random.choice(self.salas_comuns_sprites))
+                    sala_path = Path(random.choice(self.salas_boss))
                     temp.append(Sala(sala_path, 3, (l,c), self.sprite_portas)) #por enquanto tá igual o 1 mas qnd a gnt tiver o mapa das salas a gnt troca o tmx
             self.matriz_salas.append(temp)
         

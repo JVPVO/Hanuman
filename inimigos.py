@@ -14,8 +14,6 @@ class Enemy(pygame.sprite.Sprite):
         self.sprite = Animation(image_file=image_file, total_frames=total_frames, frame_width=frame_width, frame_height=frame_height)
         
         self.rect = pygame.Rect(x, y, frame_width, frame_height)
-        self.hitbox_C = self.rect.inflate(-self.rect.width/3, -self.rect.height/2)
-        self.hitbox_C.bottom = self.rect.bottom
         
         self.speed = 0
         self.scale_factor = initial_scale
@@ -47,6 +45,8 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.height = int(frame_height * initial_scale)
             self.scaled = True
 
+        self.hitbox_C = self.rect.inflate(-self.rect.width/3, -self.rect.height/2)
+        self.hitbox_C.bottom = self.rect.bottom
     
     def loader(self, file, x, y, frames):
         if not self.processed[self.mode]:
@@ -57,6 +57,7 @@ class Enemy(pygame.sprite.Sprite):
             self.processed[self.mode] = True
         self.sprite = self.spritesheets[self.mode]
         self.rect.x, self.rect.y = x, y
+        
     
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.rect.x, self.rect.y)
@@ -101,7 +102,7 @@ class Enemy(pygame.sprite.Sprite):
         '''Retorna TRUE se inimigo nao pode ver o player'''
         #px e py devem ser o x e y do hitbox do player
         for objeto in collision_sprites: #se for botar um inimigo colidivel no futuro tem que tomar cuidado com isso (fazer um if)
-            if objeto.rect.clipline((px, py), (self.rect.centerx, self.rect.centery)):
+            if objeto.rect.clipline((px, py), (self.hitbox_C.centerx, self.hitbox_C.centery)):
                 return True #se tem algo colidindo com a linha entre o player e o inimigo, o inimigo não pode ver o player
         return False
     

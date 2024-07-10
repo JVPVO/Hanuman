@@ -128,7 +128,7 @@
   <object id="42" x="73.3333" y="113.333" width="112" height="112"/>
   <object id="43" x="204.667" y="185.333" width="112" height="88"/>
   <object id="45" x="340.667" y="168" width="112" height="112"/>
-  <object id="46" x="485.333" y="142.667" width="112" height="112"/>
+  <object id="46" x="485.333" y="156.667" width="99" height="98"/>
  </objectgroup>
  <objectgroup id="11" name="first_start_pos_player">
   <object id="48" x="114" y="55" width="53" height="42"/>
