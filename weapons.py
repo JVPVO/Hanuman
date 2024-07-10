@@ -107,7 +107,7 @@ class Weapon(RotatableObjects):
 
 
 class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE   
-    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, desvio, initial_scale=1, dano=10):
+    def __init__(self,img_file, x, y, mx, my, duration_time, player_rect, desvio, initial_scale=1, dano=10, rotation_start=0):
         super().__init__(img_file, x, y, initial_scale)
 
         self.time_control = self.creation_time = pygame.time.get_ticks()
@@ -118,7 +118,7 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
         dx = mx - self.rect.centerx - desvio.x
         dy = my - self.rect.centery - desvio.y
-        angle = math.degrees(math.atan2(-dy, dx))
+        angle = math.degrees(math.atan2(-dy, dx)) + rotation_start
 
         self.rotated_img = pygame.transform.rotate(self.sprite, angle)
         self.rot_image_rect = self.rotated_img.get_rect(center = self.rect.center)

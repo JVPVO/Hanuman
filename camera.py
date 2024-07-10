@@ -116,6 +116,10 @@ class EverythingScreen(pygame.sprite.Group):
                     self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
                     pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2) #debug
                     pygame.draw.rect(self.scale_surface, (255,0,255), (elem.hitbox_C.topleft + self.desvio, elem.hitbox_C.size), 2) #debug
+
+                    elem.draw(self.scale_surface, self.desvio)#desenhar os projeteis
+
+
                     
                 else:
                     pos_com_desvio = elem.rect.topleft + self.desvio
