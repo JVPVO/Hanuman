@@ -338,6 +338,11 @@ class Sala(pygame.sprite.Sprite):
                 x_center = (obj.x+obj.width/2)*scale
                 y_center = (obj.y+obj.height/2)*scale
                 spawn_area_list.append((x_center, y_center))
+            elif self.tipo == 3: #quando for sala de chefe
+                meio_x = (self.tmx_data.width * self.tmx_data.tilewidth * scale)/2
+                meio_y = (self.tmx_data.height * self.tmx_data.tileheight * scale)/2
+                break #por enquanto que nao tem area de inimigos
+                #depois botar a area de inimigos
         
         if not self.ja_passou_setup: #evita de esqueletos nascerem de novo em salas zeradas (e itens de lojas também)
             
@@ -356,6 +361,9 @@ class Sala(pygame.sprite.Sprite):
                     func, intens, asset_path = zipado
                     x, y = spawn_area_list[c]
                     Loja((x,y), asset_path,(camera_group, self.dropados, colision_gourp), func,intens, self.dropados, scale) #cria um item do tipo loja
+            
+            elif self.tipo == 3:
+                Boss(meio_x, meio_y, scale, (camera_group, inimigos_group), ((self.tmx_data.width * self.tmx_data.tilewidth * scale), (self.tmx_data.height * self.tmx_data.tileheight * scale)))
 
                          
 

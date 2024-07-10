@@ -1,7 +1,7 @@
 import pygame
 from mapa_WIP import draw_map_tiles
 from settings import camadas_obj_mundo
-from inimigos import Skeleton, Rat
+from inimigos import Skeleton, Rat, Boss
 from player import Player
 from salas import Sala
 
@@ -110,8 +110,13 @@ class EverythingScreen(pygame.sprite.Group):
                     enemy_pos.append((elem.hitbox_C.centerx+self.desvio.x, elem.hitbox_C.centery+self.desvio.y)) #debug pra campo de visao tirar depois
                     pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2) #debug
                     pygame.draw.rect(self.scale_surface, (255,0,255), (elem.hitbox_C.topleft + self.desvio, elem.hitbox_C.size), 2) #debug
-
-
+                
+                elif isinstance(elem, Boss):#depois eu posso adicionar no grupo ai n precisa desse if (adcionar a imagem)#NOTE
+                    pos_com_desvio = elem.rect.topleft + self.desvio
+                    self.scale_surface.blit(elem.sprite.image, pos_com_desvio)
+                    pygame.draw.rect(self.scale_surface, (255,255,255), (elem.rect.topleft + self.desvio, elem.rect.size), 2) #debug
+                    pygame.draw.rect(self.scale_surface, (255,0,255), (elem.hitbox_C.topleft + self.desvio, elem.hitbox_C.size), 2) #debug
+                    
                 else:
                     pos_com_desvio = elem.rect.topleft + self.desvio
                     self.scale_surface.blit(elem.image, pos_com_desvio)

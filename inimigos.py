@@ -4,7 +4,8 @@ import pygame
 from animation_Wip import Animation
 from menus import DamageNumber
 from weapons import Bow
-from random import randint
+import random
+import math
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, initial_scale, groups, image_file, total_frames, frame_width, frame_height):
@@ -218,21 +219,101 @@ class Rat(Enemy):
 
 class Banshee(Enemy):
     def __init__(self, x, y, initial_scale, groups):
-        super().__init__(x, y, initial_scale, groups, 'assets/Banshee-Idle-Sheet.png', 4, 48, 48) #nao sei porque esse ela fez em 48x48
+        super().__init__(x, y, initial_scale, groups, 'assets\\Banshee-Idle-Sheet.png', 4, 48, 48) #nao sei porque esse ela fez em 48x48
         #ainda n tem um banshee Idle sheet... mas vai ter
         #a ideia é aparecer só de vez em quando e consegue voar e atravessar paredes (a implementacao nao parece dificil)
 
 class Boss(Enemy):
-    def __init__(self, x, y, initial_scale, groups, image_file, total_frames, frame_width, frame_height):
-        super().__init__(x, y, initial_scale+1, groups, image_file, total_frames, frame_width, frame_height)
+    #TODO: trocar sprite boss
+    def __init__(self, x, y, initial_scale, groups, map_size):
+        super().__init__(x, y, initial_scale+1, groups, 'assets\\Knight-Idle-Sheet.png', 4, 32, 32)
+        self.speed = 50  # bem devagar
+        self.health = 300
+        self.ataque = 20
+
+        
+        self.cooldown_pulo = 5000  # 5 segundos entre os pulos
+        self.last_jump_time = pygame.time.get_ticks()
+        self.duracao_pulo = 750  # pulo dura 0.75
+        self.jump_start_time = 0
+        self.alvo_pulo = None
+        
+        self.acao_atual = 'andando'  # pulando ou andando
+        self.animations = {'idle': 'Knight-Idle-Sheet.png', 'run': 'Knight-Run-Sheet.png'}
+        self.map_width, self.map_height = map_size
+
+    def movement(self, playerX, playerY, deltatime, collision_sprites):
+        firstPos = (self.rect.x, self.rect.y)
+        agora = pygame.time.get_ticks()
+
+        if self.acao_atual == 'andando':
+            #anda em direçao ao player
+            dx = playerX-self.rect.centerx
+            dy = playerY-self.rect.centery
+            if dx == 0 and dy==0: 
+                dx+=1 #nao da pra normalizar um nulo
+                dy+=1
+            
+            direcao_player = pygame.math.Vector2(dx, dy).normalize()
+            
+            self.rect.x += direcao_player.x * self.speed * deltatime
+            self.colisao_com_objetos(collision_sprites, 0)
+            
+            self.sprite.rotate('l') if direcao_player.x < 0 else self.sprite.rotate('r')
+
+            self.rect.y += direcao_player.y * self.speed * deltatime
+            self.colisao_com_objetos(collision_sprites, 1)
+
+            
+            # Se for hora de pular ele pula #ALEATORIZAR DPS serrá?
+            if agora - self.last_jump_time > self.cooldown_pulo:
+                self.inicio_pulo(self.map_width, self.map_height)
+
+        elif self.acao_atual == 'pulando':
+            self.pulo(agora, deltatime)
+
+        self.update_animation(firstPos)
+        
+
+    def inicio_pulo(self, map_width, map_height):
+        '''Praticamente ajeita as variaveis e escolhe o destino do pulo'''
+        self.acao_atual = 'pulando'
+        self.jump_start_time = pygame.time.get_ticks()
+        self.last_jump_time = self.jump_start_time
+
+        # Escolhe uma posicao aleatoria para pular
+        self.alvo_pulo = (random.randint(100, int(map_width - 100)), random.randint(100, int(map_height - 100)))
+
+    def pulo(self, agora, deltatime):
+        progresso = (agora - self.jump_start_time) / self.duracao_pulo #o quanto do pulo já foi feito
+
+        if progresso < 1:
+            # Essa funcao de suavidade é a ease out quadratica #https://stackoverflow.com/questions/13462001/ease-in-and-ease-out-animation-formula
+            progresso_suave = 1 - 0.5*(1 - progresso) ** 2
+
+            self.rect.x = self.ajuste_ease(self.rect.x, self.alvo_pulo[0], progresso_suave)
+            self.rect.y = self.ajuste_ease(self.rect.y, self.alvo_pulo[1], progresso_suave)
+            
+        else:
+            self.rect.x, self.rect.y = self.alvo_pulo
+            self.acao_atual = 'andando'
+            
+        #ajuste de hitbox
+        self.hitbox_C.centerx = self.rect.centerx
+        self.hitbox_C.bottom = self.rect.bottom
+           
+
+    def ajuste_ease(self, start, end, coeficiente):
+        return start + (end - start) * coeficiente
+
 
 
 class Dropaveis(pygame.sprite.Sprite):
     def __init__(self, enemy_rect, sprite_img_path, groups, funcao, intensidade, scale): #grupos deve ser o da camera e o de items da sala
         '''Funcao é o que faz e intensidade é o a quantidade do efeito'''
         super().__init__(groups)
-        self.posX = randint(int(enemy_rect.x), int(enemy_rect.right)) #para quando iinmigos ficarem amontoados o drop nao ficar
-
+        self.posX = random.randint(int(enemy_rect.x), int(enemy_rect.right)) #para quando iinmigos ficarem amontoados o drop nao ficar
+        
         self.funcao = funcao
         self.intensidade = intensidade
 
