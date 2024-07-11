@@ -243,8 +243,12 @@ class Boss(Enemy):
         self.map_width, self.map_height = map_size
 
         self.projectile_group = pygame.sprite.Group() 
+        self.projectile_spawn_delay = 200  # delay entre cada projétil spawnando
         self.projectile_move_delay = 1000  # delay em ms para projeteis se moverem
         self.projectile_start_time = 0
+        self.projectiles_to_spawn = []
+        self.ja_foi_projeteis = False
+        self.last_projectile_spawn_time = 0
 
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.rect.x, self.rect.y)
@@ -277,7 +281,8 @@ class Boss(Enemy):
             self.pulo(agora, collision_sprites)
 
         self.update_animation(firstPos)
-        self.mover_projeteis()
+        self.att_projeteis(agora)
+
         
 
     def inicio_pulo(self, map_width, map_height):
@@ -307,7 +312,7 @@ class Boss(Enemy):
             self.rect.x, self.rect.y = self.alvo_pulo
             self.acao_atual = 'andando'
             
-            self.gerar_projeteis() #terminou o pulo
+            self.gerar_projeteis_start() #terminou o pulo
             
             
         #ajuste de hitbox
@@ -315,46 +320,59 @@ class Boss(Enemy):
         self.hitbox_C.bottom = self.rect.bottom
         
 
-    def gerar_projeteis(self):
+    def gerar_projeteis_start(self):
         angulos_lista = [i for i in range(0, 360, 45)] # 8 projeteis
-        for angulo in angulos_lista:
-            
-            projectile = Projectile(
-                'assets\\espada_knight.png', 
-                self.rect.centerx,
-                self.rect.centery,
-                self.rect.centerx + math.cos(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
-                #valor positivo é pra esquerda
+        self.projectiles_to_spawn = angulos_lista
+        self.ja_foi_projeteis = True
+        self.last_projectile_spawn_time = pygame.time.get_ticks()
+    
 
-                self.rect.centery - math.sin(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
-                #valor negativo é pra direita
+    def att_projeteis(self, tempo):
+        '''Gerencia projeteis e move eles'''
+        if self.ja_foi_projeteis:
+            if tempo - self.last_projectile_spawn_time > self.projectile_spawn_delay:
+                if self.projectiles_to_spawn:
+                    angulo = self.projectiles_to_spawn.pop(0)
+                    projectile = Projectile(
+                        'assets\\espada_knight.png',
+                        self.rect.centerx,
+                        self.rect.centery,
+                        
+                        #nao sei se seria mais rapido usar o vector do python
+                        self.rect.centerx + math.cos(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
+                        #valor positivo é pra esquerda
 
-                5,  # Duracao do projétil (ainda fazer direito #TODO)
-                self.rect,
-                pygame.math.Vector2(0, 0),  #n preciso disso
-                self.scale_factor-1,  # Scale
-                20,  # Dano
-                -85 #tirar o angulo que a espada tá (projetil considera ela deitada)
-            )
-            self.projectile_group.add(projectile)
-        
-        self.projectile_start_time = pygame.time.get_ticks()
+                        self.rect.centery - math.sin(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
+                        #valor negativo é pra direita
+                        
+                        5,  # Duracao do projétil (ainda fazer direito #TODO)
+                        self.rect,
+                        pygame.math.Vector2(0, 0),  #n preciso disso
+                        self.scale_factor-1,  # Scale
+                        20,  # Dano
+                        -85 #tirar o angulo que a espada tá (projetil considera ela deitada)
+                    )
+                    
+                    self.projectile_group.add(projectile)
+                    self.last_projectile_spawn_time = tempo
+                else:
+                    self.ja_foi_projeteis = False
+                    self.projectile_start_time = tempo
 
-    def mover_projeteis(self):
-        if len(self.projectile_group) == 0: return
-        current_time = pygame.time.get_ticks()
-        
-        # Atualiza posicao
-        for projectile in self.projectile_group:
-            if current_time - self.projectile_start_time > self.projectile_move_delay:
-                projectile.move(0.4) #pode mudar a velocidade se quiser
-            
+        elif len(self.projectile_group) > 0: #depois que já tem vai sendo lancado
+            if tempo - self.projectile_start_time > self.projectile_move_delay:
+                for projectile in self.projectile_group:
+                    projectile.move(0.4)
+
         # TODO remover projectiles que ja morreram do tempo
         self.projectile_group.update()
+
+
 
     def draw(self, tela, desvio): #só para os projeteis
         for elem in self.projectile_group:
             elem.draw(tela, desvio)
+            pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
 
     def ajuste_ease(self, start, end, coeficiente):
         return start + (end - start) * coeficiente
