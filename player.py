@@ -209,6 +209,7 @@ class Player(pygame.sprite.Sprite):
                     self.rect.bottom = self.hitbox_C.bottom
                 
                 if objeto == self.quem_portal[0]:
+                    self.quem_portal[0].kill()
                     self.quem_portal[0]=True
         
     def interacao_com_dropavel(self, funcao, intensidade): #talvez adcionar um icone de interação

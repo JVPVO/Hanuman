@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="colidable_base_blocks" tilewidth="111" tileheight="146" tilecount="26" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="colidable_base_blocks" tilewidth="111" tileheight="146" tilecount="27" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="base/basepngs/images/obj_01.png" width="8" height="10"/>
@@ -78,5 +78,8 @@
  </tile>
  <tile id="25">
   <image source="base/basepngs/images/avores_m_05.png" width="111" height="146"/>
+ </tile>
+ <tile id="26">
+  <image source="dungeon_props/portal_03.png" width="15" height="16"/>
  </tile>
 </tileset>

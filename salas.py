@@ -14,8 +14,15 @@ class ConjuntoDeSalas:
     def __init__(self, scale, ui, camera_group, collision_sprites, drawables_alone, player, scaleoffset):
         self.sprite_portas = [Porta(Path('assets\\porta_cima.png'),2, 90, 73,scale), Porta(Path('assets\\porta_baixo.png'),2, 85, 32,scale),Porta(Path('assets\\porta_direita.png'),2, 32,87,scale),Porta(Path('assets\\porta_esquerda.png'),2, 32, 87,scale)]
         self.sala_atual = (0,0)
+        self.player = player
         self.scale = scale
+        
         self.finalizou = False
+        self.how_many_cleared = 1  #vao ser sobrescritos no first setup (é um porque a loja já conta como uma sala)
+        self.clear_goal = 0        #vao ser sobrescritos no first setup
+        self.player.quem_portal = [False] #vai ser sobrescrito nos setups
+        self.portal = self.player.quem_portal #linkou com player
+
 
         self.saiu = False
 
@@ -32,7 +39,6 @@ class ConjuntoDeSalas:
         
         self.drawables_alone = drawables_alone
         self.camera_group = camera_group
-        self.player = player
         self.ui = ui
 
         self.damage_numbers = []
@@ -49,7 +55,7 @@ class ConjuntoDeSalas:
 
         self.drawables_alone.add(self.sala)
 
-        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo, self.projectile_group, self.player.rect)
+        self.sala.setup(self.scale, self.collision_sprites, self.portas_grupo, self.camera_group, self.inimigos_grupo, self.projectile_group, self.player, self.finalizou)
 
         self.tmx_data = self.sala.tmx_data
         self.map_width = self.tmx_data.width * self.tmx_data.tilewidth
@@ -115,7 +121,7 @@ class ConjuntoDeSalas:
             if key_pressed[pygame.K_h]:
                 self.sala.portas = (self.sala.portas+1)%2
             
-            if key_pressed[pygame.K_e]:
+            if key_pressed[pygame.K_e] or self.portal[0]==True:
                 self.saiu = True #acaba com a brincadeira
 
 
@@ -141,7 +147,10 @@ class ConjuntoDeSalas:
 
     def first_setup(self):
         '''Setup da primeira sala + ciracao de todas as outras salas'''
-        self.molde, self.sala_atual = gerar_matriz(6, 10) #gera a matriz e define a primeira sala
+        
+        qntd_de_salas = 10
+        self.molde, self.sala_atual = gerar_matriz(6, qntd_de_salas) #gera a matriz e define a primeira sala (matriz 6x6)
+        self.clear_goal = qntd_de_salas
         
         linhas = len(self.molde)
         colunas = len(self.molde[0])
@@ -200,6 +209,7 @@ class ConjuntoDeSalas:
                     inimigo.kill()
                     if len(self.inimigos_grupo) == 0:
                         self.sala.portas = 1
+                        self.how_many_cleared += 1
 
                     #se o inimigo morre pode dropar algo
                     if random.randrange(100) < 20: #chance de drop 20 porcento
@@ -230,10 +240,14 @@ class ConjuntoDeSalas:
 
         
         nova_sala = sala_de_agora.ponteiro[dest]
+
+        if self.clear_goal <= self.how_many_cleared:
+            self.finalizou = True
+
         grupo_de_portas.empty()
         grupo_de_colisao.empty()
         self.projectile_group.empty()
-        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, camera_group, inimigos_grupo, self.projectile_group, self.player.rect) 
+        nova_sala.setup(self.scale, grupo_de_colisao, grupo_de_portas, camera_group, inimigos_grupo, self.projectile_group, self.player, self.finalizou) 
         player.rect.x, player.rect.y = nova_sala.posicoes_perto_portas[dest] #define a posicao do player com base de onde ele vem
         self.sala_atual = nova_sala.posicao_na_matriz
 
@@ -281,7 +295,7 @@ class Sala(pygame.sprite.Sprite):
         #self.draw_portas(desvio) #já é dado draw pelo ALLSprites
 
     
-    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group, projectile_group, playerrect):
+    def setup(self, scale, colision_gourp, portas_group, camera_group, inimigos_group, projectile_group, player, cleared_all):
         colision_gourp.empty()
        
         #depois ajeitar essa bagunca embaixo #TODO
@@ -324,8 +338,16 @@ class Sala(pygame.sprite.Sprite):
             imagem = pygame.transform.scale(obj.image, (obj.width*scale, obj.height*scale))
             atual = Objects((obj.x*scale, obj.y*scale), imagem, (camera_group))
             #por enquanto vai ser sem colisao direto no obj
-
         
+        if cleared_all:
+            for obj in self.tmx_data.get_layer_by_name('portal'):
+                portal = Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
+                player.quem_portal[0] = portal
+            #poe a imagem do portal na sala
+            for obj in self.tmx_data.get_layer_by_name('portal_img'):
+                imagem = pygame.transform.scale(obj.image, (obj.width*scale, obj.height*scale))
+                Objects((obj.x*scale, obj.y*scale), imagem, (camera_group))
+
         spawn_area_list = []
         for obj in self.tmx_data.get_layer_by_name('spawn_en'): #adciona a area em que os inimigos podem dar spawn a lista (tambem é usado pros itens da loja)
             if self.tipo ==1:

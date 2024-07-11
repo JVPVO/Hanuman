@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="dungeon_props" tilewidth="64" tileheight="96" tilecount="67" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="dungeon_props" tilewidth="64" tileheight="96" tilecount="68" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../dungeon_props/dungeon_props_02.png" width="16" height="23"/>
@@ -201,5 +201,8 @@
  </tile>
  <tile id="66">
   <image source="../dungeon_props/livros_27.png" width="6" height="7"/>
+ </tile>
+ <tile id="67">
+  <image source="../dungeon_props/portal_03.png" width="15" height="16"/>
  </tile>
 </tileset>
