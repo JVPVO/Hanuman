@@ -27,6 +27,8 @@ class Game:
         # Defina o fator de escala (por exemplo, 2 para dobrar o tamanho)
         self.scale = 3
         
+        self.portal = [None] #vai ser definido lá embaixo (isso que leva o player pra dungeon) (é uma lista pra poder ser alterado dentro de funções)
+        #talvez eu possa fazer uma classe pra ele depois
 
         self.ui = HealthBar()
 
@@ -46,7 +48,8 @@ class Game:
         #grupo de portas
         self.portas_grupo = pygame.sprite.Group()
 
-        self.player = Player(100, 100, self.collision_sprites, self.camera_group, self.ui, self.scale)
+        self.spawn = ((self.map_width//2)*self.scale, (self.map_height//2)*self.scale) #centro do mapa
+        self.player = Player(self.spawn[0], self.spawn[1], self.collision_sprites, self.camera_group, self.ui, self.scale)
 
 
         #Grupo de números indicadores de dano, só usados quando o inimigo vai ser removido do grupo de iteração
@@ -71,6 +74,10 @@ class Game:
         for obj in self.tmx_data.get_layer_by_name('colisao_objs'):
             Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites)) #, self.all_sprites pra debug
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
+
+        for obj in self.tmx_data.get_layer_by_name('portal'):
+            self.portal = [Barrier((obj.x*self.scale, obj.y*self.scale), pygame.Surface((obj.width*self.scale, obj.height*self.scale)), (self.collision_sprites))] #, self.all_sprites pra debug
+            self.player.quem_portal = self.portal
 
  
 
@@ -113,19 +120,8 @@ class Game:
                 self.player.health = 100
             
 
-            if key_pressed[pygame.K_m]: #inicia a dungeon
-                for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]:
-
-                    grupo.empty()
-
-            
-
-                grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
-                grupo_de_salas.tempo_antes = pygame.time.get_ticks() #pra começar a contar o tempo do gameloop da sala agora só (é bom fazer isso por causa do delta time)
-                grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala
-
-                self.setup_base() #quando voltar pra base tem que resetar tudo
-                self.player.rect.x, self.player.rect.y = 100, 100 #volta pra posicao inicial
+            if key_pressed[pygame.K_m] or self.portal[0]==True: #inicia a dungeon
+                self.start_dungeon()
 
             
 
@@ -159,6 +155,18 @@ class Game:
             self.tempo_antes = agora
 
         pygame.quit()
+    
+    def start_dungeon(self):
+        for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]:
+            grupo.empty()
+
+        grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
+        grupo_de_salas.tempo_antes = pygame.time.get_ticks() #pra começar a contar o tempo do gameloop da sala agora só (é bom fazer isso por causa do delta time)
+        grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala
+        del grupo_de_salas
+
+        self.setup_base() #quando voltar pra base tem que resetar tudo
+        self.player.rect.x, self.player.rect.y = self.spawn[0], self.spawn[1] #volta pra posicao inicial
 
 if __name__ == '__main__':
     jogo = Game()

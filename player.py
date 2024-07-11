@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.sprite = Animation(image_file='assets/Idle-Sheet.png', total_frames=4, frame_width=19, frame_height=30)
         self.sprite.x, self.sprite.y = x, y
         
+        self.quem_portal = None #vai receber isso quando estiver na base, é pra saber se tá entrando no portal
+
         self.rect = pygame.Rect(x, y, 19, 30)  # Tamanho do jogador, ajuste conforme necessário
         
         self.speed = 750 # Velocidade de movimento do jogador (pixels por segundo) CUIDADO QUE ESSE valor é sobrescrito no handle_keys 
@@ -205,6 +207,9 @@ class Player(pygame.sprite.Sprite):
                     elif sentido[1] < 0:
                         self.hitbox_C.top = objeto.rect.bottom 
                     self.rect.bottom = self.hitbox_C.bottom
+                
+                if objeto == self.quem_portal[0]:
+                    self.quem_portal[0]=True
         
     def interacao_com_dropavel(self, funcao, intensidade): #talvez adcionar um icone de interação
         if funcao == "vida":
