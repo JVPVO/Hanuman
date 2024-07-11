@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.y_sort = self.rect.y + self.rect.height
         self.hitbox_C =self.rect.inflate(-self.rect.width/3,-self.rect.height/2) #hitbox de colisao do player
         self.hitbox_C.bottom = self.rect.bottom
+        self.stop = False
 
         self.rect_where_draw = self.rect.copy() #depois do primeiro draw já muda (preciso disso quando to lidando com referencial da tela)
         
@@ -107,7 +108,7 @@ class Player(pygame.sprite.Sprite):
                 self.dash(mouse_pos, desvio)
             self.speed = self.default_speed
 
-        if self.dashing:
+        if self.dashing and not self.stop:
             if pygame.time.get_ticks() - self.dash_start_time <= self.dash_duration:
                 dash_speed = self.dash_speed
                 self.rect.x += self.dash_direction.x * dash_speed * deltatime
@@ -120,7 +121,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.dashing = False
 
-        if not self.dashing:
+        if not self.dashing and not self.stop:
             if key_pressed[pygame.K_w]:
                 self.rect.y -= self.speed * deltatime
     
@@ -186,6 +187,12 @@ class Player(pygame.sprite.Sprite):
         self.hitbox_C.bottom = self.rect.bottom
         for objeto in self.collision_sprites:
             if self.hitbox_C.colliderect(objeto.rect):
+                if objeto == self.quem_portal[0]:
+                    self.quem_portal[0].kill()
+                    self.quem_portal[0]=True
+                    return
+                
+                
                 if isinstance(objeto, Dropaveis):
                     self.interacao_com_dropavel(objeto.funcao, objeto.intensidade)
 
@@ -208,9 +215,7 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox_C.top = objeto.rect.bottom 
                     self.rect.bottom = self.hitbox_C.bottom
                 
-                if objeto == self.quem_portal[0]:
-                    self.quem_portal[0].kill()
-                    self.quem_portal[0]=True
+                
         
     def interacao_com_dropavel(self, funcao, intensidade): #talvez adcionar um icone de interação
         if funcao == "vida":

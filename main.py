@@ -122,6 +122,9 @@ class Game:
 
             if key_pressed[pygame.K_m] or self.portal[0]==True: #inicia a dungeon
                 self.start_dungeon()
+                self.player.stop = False
+                self.time_elapsed = self.tempo_antes = 0
+                continue
 
             
 

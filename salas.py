@@ -120,10 +120,10 @@ class ConjuntoDeSalas:
             
             if key_pressed[pygame.K_h]:
                 self.sala.portas = (self.sala.portas+1)%2
-            
+ 
             if key_pressed[pygame.K_e] or self.portal[0]==True:
                 self.saiu = True #acaba com a brincadeira
-
+                break
 
 
             #tudo relacionado a inimigo
@@ -132,15 +132,18 @@ class ConjuntoDeSalas:
             for drop in self.sala_atual_obj.dropados:
                 drop.animate()
             
-            
+
             pygame.display.flip()
             agora = pygame.time.get_ticks()
             self.time_elapsed = agora - self.tempo_antes
             self.tempo_antes = agora
 
+            
+                
 
         for grupo in [self.camera_group, self.collision_sprites, self.inimigos_grupo, self.portas_grupo, self.drawables_alone]: #limpa tudo
             grupo.empty()
+        self.player.stop = True
 
         return
 
@@ -327,7 +330,6 @@ class Sala(pygame.sprite.Sprite):
         
         for obj in self.tmx_data.get_layer_by_name('colisao_b'):
             Barrier((obj.x*scale, obj.y*scale), pygame.Surface((obj.width*scale, obj.height*scale)), (colision_gourp)) #, self.all_sprites pra debug
-            print('a')
             #só no colision pra n ficar visivel (TODO n tem uma colisão não retangular)
 
         for obj in self.tmx_data.get_layer_by_name('colisao_objs'):
