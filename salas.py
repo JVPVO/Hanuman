@@ -363,7 +363,7 @@ class Sala(pygame.sprite.Sprite):
                     Loja((x,y), asset_path,(camera_group, self.dropados, colision_gourp), func,intens, self.dropados, scale) #cria um item do tipo loja
             
             elif self.tipo == 3:
-                Boss(meio_x, meio_y, scale, (camera_group, inimigos_group), ((self.tmx_data.width * self.tmx_data.tilewidth * scale), (self.tmx_data.height * self.tmx_data.tileheight * scale)))
+                Boss(meio_x, meio_y, scale, (camera_group, inimigos_group), ((self.tmx_data.width * self.tmx_data.tilewidth * scale), (self.tmx_data.height * self.tmx_data.tileheight * scale)), projectile_group, colision_gourp)
 
                          
 

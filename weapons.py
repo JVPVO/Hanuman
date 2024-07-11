@@ -111,6 +111,10 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
         super().__init__(img_file, x, y, initial_scale)
 
         self.time_control = self.creation_time = pygame.time.get_ticks()
+
+        self.firstmove = False #já se moveu uma vez
+        self.boss=True #se é um projétil do boss
+        self.stop = False #se parou de se mover
         
         self.lifespan = duration_time*1000
 
@@ -144,14 +148,15 @@ class Projectile(RotatableObjects):     #ta repetido dá pra otimizar #NOTE
 
     def move(self, vel):
         agora = pygame.time.get_ticks()
-        delta_time = agora - self.time_control #é uma especie de delta time
-        self.time_control = agora
+        if not self.stop:
+            delta_time = agora - self.time_control #é uma especie de delta time
+            self.time_control = agora
 
-        
-        direcao = self.result.normalize()
-        
-        self.rot_image_rect.centerx += (direcao.x * vel) * delta_time
-        self.rot_image_rect.centery += (direcao.y * vel) * delta_time 
+            
+            direcao = self.result.normalize()
+            
+            self.rot_image_rect.centerx += (direcao.x * vel) * delta_time
+            self.rot_image_rect.centery += (direcao.y * vel) * delta_time 
 
         if agora - self.creation_time >= self.lifespan:
             return True

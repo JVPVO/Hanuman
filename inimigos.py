@@ -225,11 +225,11 @@ class Banshee(Enemy):
 
 class Boss(Enemy):
     #TODO: trocar sprite boss
-    def __init__(self, x, y, initial_scale, groups, map_size):
+    def __init__(self, x, y, initial_scale, groups, map_size, projectile_group, colidable_group):
         super().__init__(x, y, initial_scale+1, groups, 'assets\\Knight-Idle-Sheet.png', 4, 32, 32)
         self.speed = 50  # bem devagar
         self.health = 300
-        self.ataque = 20
+        self.ataque = 35
 
         
         self.cooldown_pulo = 5000  # 5 segundos entre os pulos
@@ -237,24 +237,27 @@ class Boss(Enemy):
         self.duracao_pulo = 800  # pulo dura 0.7
         self.jump_start_time = 0
         self.alvo_pulo = None
+        self.able_move = True #se ja pode se mover
+        
+        self.colidable_group = colidable_group
         
         self.acao_atual = 'andando'  # pulando ou andando
         self.animations = {'idle': 'Knight-Idle-Sheet.png', 'run': 'Knight-Run-Sheet.png'}
         self.map_width, self.map_height = map_size
 
-        self.projectile_group = pygame.sprite.Group() 
-        self.projectile_spawn_delay = 200  # delay entre cada projétil spawnando
-        self.projectile_move_delay = 1000  # delay em ms para projeteis se moverem
+        self.projectile_group = projectile_group 
+        self.projectile_spawn_delay = 100  # delay entre cada projétil spawnando
+        self.projectile_move_delay = 800  # delay em ms para projeteis se moverem
         self.projectile_start_time = 0
         self.projectiles_to_spawn = []
-        self.ja_foi_projeteis = False
+        self.ja_foi_projeteis = True
         self.last_projectile_spawn_time = 0
 
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.rect.x, self.rect.y)
         agora = pygame.time.get_ticks()
 
-        if self.acao_atual == 'andando':
+        if self.acao_atual == 'andando' and self.able_move:
             #anda em direçao ao player
             dx = playerX-self.rect.centerx
             dy = playerY-self.rect.centery
@@ -282,6 +285,7 @@ class Boss(Enemy):
 
         self.update_animation(firstPos)
         self.att_projeteis(agora)
+        
 
         
 
@@ -313,6 +317,7 @@ class Boss(Enemy):
             self.acao_atual = 'andando'
             
             self.gerar_projeteis_start() #terminou o pulo
+            self.able_move = False
             
             
         #ajuste de hitbox
@@ -329,28 +334,33 @@ class Boss(Enemy):
 
     def att_projeteis(self, tempo):
         '''Gerencia projeteis e move eles'''
+        projeteis_boss = []
+        for proj in self.projectile_group:
+            if proj.boss: projeteis_boss.append(proj)
+        
+        
         if self.ja_foi_projeteis:
             if tempo - self.last_projectile_spawn_time > self.projectile_spawn_delay:
                 if self.projectiles_to_spawn:
-                    angulo = self.projectiles_to_spawn.pop(0)
+                    angulo = self.projectiles_to_spawn.pop(0) #tira o angulo que ja foi pra usar la embaixo e n repetir
                     projectile = Projectile(
                         'assets\\espada_knight.png',
                         self.rect.centerx,
                         self.rect.centery,
                         
                         #nao sei se seria mais rapido usar o vector do python
-                        self.rect.centerx + math.cos(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
+                        self.rect.centerx + math.cos(math.radians(angulo)) * 70,  # Esse 70 é a distancia do centro do bos até a espada
                         #valor positivo é pra esquerda
 
-                        self.rect.centery - math.sin(math.radians(angulo)) * 80,  # Esse 80 é a distancia do centro do bos até a espada
+                        self.rect.centery - math.sin(math.radians(angulo)) * 70,  # Esse 70 é a distancia do centro do bos até a espada
                         #valor negativo é pra direita
                         
                         5,  # Duracao do projétil (ainda fazer direito #TODO)
                         self.rect,
                         pygame.math.Vector2(0, 0),  #n preciso disso
                         self.scale_factor-1,  # Scale
-                        20,  # Dano
-                        -85 #tirar o angulo que a espada tá (projetil considera ela deitada)
+                        30,  # Dano
+                        -70 #tirar o angulo que a espada tá (projetil considera ela deitada)
                     )
                     
                     self.projectile_group.add(projectile)
@@ -358,21 +368,32 @@ class Boss(Enemy):
                 else:
                     self.ja_foi_projeteis = False
                     self.projectile_start_time = tempo
-
-        elif len(self.projectile_group) > 0: #depois que já tem vai sendo lancado
+        
+        elif len(projeteis_boss) > 0: #depois que já tem vai sendo lancado
             if tempo - self.projectile_start_time > self.projectile_move_delay:
-                for projectile in self.projectile_group:
-                    projectile.move(0.4)
+                for projectile in projeteis_boss:
+                    if not projectile.firstmove:
+                        projectile.time_control = projectile.creation_time = pygame.time.get_ticks()
+                        projectile.firstmove = True
 
-        # TODO remover projectiles que ja morreram do tempo
-        self.projectile_group.update()
+                    for colidivel in self.colidable_group:
+                        if not colidivel.rect.colliderect(projectile.rot_image_rect):
+                            if projectile.move(0.7):
+                                projectile.kill()
+                        else:
+                            projectile.stop = True
+                    
+                self.able_move = True
+
+        # TODO remover projectiles que ja morreram do tempo (é automatico n?)
+        #self.projectile_group.update()
 
 
 
     def draw(self, tela, desvio): #só para os projeteis
         for elem in self.projectile_group:
             elem.draw(tela, desvio)
-            pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
+            #pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
 
     def ajuste_ease(self, start, end, coeficiente):
         return start + (end - start) * coeficiente
