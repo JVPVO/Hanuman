@@ -393,7 +393,7 @@ class Boss(Enemy):
     def draw(self, tela, desvio): #só para os projeteis
         for elem in self.projectile_group:
             elem.draw(tela, desvio)
-            #pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
+            pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
 
     def ajuste_ease(self, start, end, coeficiente):
         return start + (end - start) * coeficiente

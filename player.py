@@ -81,13 +81,13 @@ class Player(pygame.sprite.Sprite):
             self.processed[mode] = True
         self.sprite = self.spritesheets[mode]
 
-    def dash(self, mouse_pos):
+    def dash(self, mouse_pos, desvio):
         now = pygame.time.get_ticks()
         if now - self.last_dash_time >= self.dash_cooldown:
             self.dashing = True
             self.dash_start_time = now
             self.last_dash_time = now
-            dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center)
+            dash_vector = pygame.Vector2(mouse_pos) - pygame.Vector2(self.rect.center) - desvio
             self.dash_direction = dash_vector.normalize() if dash_vector.length() > 0 else pygame.Vector2(0, 0)
 
     def handle_keys(self, key_pressed, grupos, desvio, scaleoffset, deltatime):
@@ -102,14 +102,19 @@ class Player(pygame.sprite.Sprite):
             self.speed = self.seped_pre_dash
         else:
             if self.speed == self.seped_pre_dash:
-                self.dash(mouse_pos)
+                self.dash(mouse_pos, desvio)
             self.speed = self.default_speed
 
         if self.dashing:
             if pygame.time.get_ticks() - self.dash_start_time <= self.dash_duration:
                 dash_speed = self.dash_speed
                 self.rect.x += self.dash_direction.x * dash_speed * deltatime
+                self.check_collision(0)
+
                 self.rect.y += self.dash_direction.y * dash_speed * deltatime
+                self.check_collision(1)
+
+                
             else:
                 self.dashing = False
 
