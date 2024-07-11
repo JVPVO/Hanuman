@@ -19,7 +19,7 @@ class ConjuntoDeSalas:
 
         self.saiu = False
 
-        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(4)] # só tem 4 salas por enquanto...
+        self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(5)] # só tem 5 salas por enquanto...
         self.salas_lojas = [f'assets\\dungeon_room_2_0.tmx'] #só tem 1 loja por enquanto
         self.salas_boss = [f'assets\\dungeon_room_3_0.tmx'] #só tem 1 sala de chefe por enquanto
         
