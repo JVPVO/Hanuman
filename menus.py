@@ -84,24 +84,25 @@ class DamageNumber:
 class Minimap:
     def __init__(self, mapa):
         self.pos = [-1,-1]
-        self.tile_size = 16
+        self.tile_size = 32
         self.offset = (10,10)
         matriz = mapa
         self.room_img = pygame.image.load("assets/ui/map/room.png").convert_alpha()
         self.path_img = pygame.image.load("assets/ui/map/room.png").convert_alpha()
-        self.room_img = pygame.transform.scale(self.room_img, (16, 16))
-        self.path_img = pygame.transform.scale(self.path_img, (16,16))
+        self.room_img = pygame.transform.scale(self.room_img, (self.tile_size, self.tile_size))
+        self.path_img = pygame.transform.scale(self.path_img, (self.tile_size,self.tile_size))
         
         self.mapa = matriz
-        
+        self.posatual = [0,0]
     def updateMinimap(self, posicao):
         pos_atual = [posicao[0], posicao[1]]
+        self.posatual = pos_atual
         if self.pos != pos_atual:
             self.pos = pos_atual
             x, y = posicao[0], posicao[1]
             print("Changed rooms")
 
-    def render(self, screen):
+    def render(self, screen: pygame.surface.Surface):
         minimap_width = len(self.mapa[0]) * self.tile_size
         minimap_height = len(self.mapa) * self.tile_size
         start_x = screen.get_width() - minimap_width - self.offset[0]
@@ -111,5 +112,10 @@ class Minimap:
             for coluna in range(len(self.mapa[linha])):
                 tile_x = start_x + coluna * self.tile_size
                 tile_y = start_y + linha * self.tile_size
-                if self.mapa[linha][coluna] > 0:
+                if self.mapa[linha][coluna] > 0 and self.posatual[0] == linha and self.posatual[1] == coluna:
+                    # Alteração aqui
+                    red_room = self.room_img.copy()
+                    red_room.fill((255, 0, 0, 128), special_flags=pygame.BLEND_RGBA_MULT)
+                    screen.blit(red_room, (tile_x, tile_y))
+                elif self.mapa[linha][coluna] > 0:
                     screen.blit(self.room_img, (tile_x, tile_y))
