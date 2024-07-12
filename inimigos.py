@@ -233,6 +233,8 @@ class Boss(Enemy):
     def __init__(self, x, y, initial_scale, groups, map_size, projectile_group, colidable_group):
         super().__init__(x, y, initial_scale+1, groups, 'assets\\Knight-Idle-Sheet.png', 4, 32, 32)
         pygame.mixer.Sound('assets\\dungeon_props\\dramatic-piano-2.wav').play(fade_ms=1000)
+
+        self.soosh_som = pygame.mixer.Sound('assets\\dungeon_props\\fast-whoosh.mp3')
         self.speed = 50  # bem devagar
         self.health = 300
         self.ataque = 35
@@ -301,6 +303,7 @@ class Boss(Enemy):
 
     def inicio_pulo(self, map_width, map_height):
         '''Praticamente ajeita as variaveis e escolhe o destino do pulo'''
+        self.soosh_som.play()
         self.acao_atual = 'pulando'
         self.jump_start_time = pygame.time.get_ticks()
         self.last_jump_time = self.jump_start_time
