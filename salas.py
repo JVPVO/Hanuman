@@ -129,10 +129,7 @@ class ConjuntoDeSalas:
             
             if self.player.health <= 0:
                 self.saiu = True
-                self.player.stop = True
-                self.player.health = 100
-                self.player.max_health = 100
-                self.ui.max_health = 100
+                
                 self.game_over_sound.play(fade_ms=100)
                 break
 
@@ -195,6 +192,7 @@ class ConjuntoDeSalas:
 
         self.sala_atual_obj = self.matriz_salas[self.sala_atual[0]][self.sala_atual[1]]
         
+        self.tempo_antes = pygame.time.get_ticks() #acredito que ajude no deltatime
         return self.sala_atual_obj #retorna a sala
     
     def gerenciador_de_inimigos(self):

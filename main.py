@@ -34,6 +34,8 @@ class Game:
 
         # Main game loop
         self.running = True
+
+        self.acabou_de_voltar = False
         
         self.time_elapsed = 0
         self.tempo_antes = pygame.time.get_ticks()
@@ -82,6 +84,7 @@ class Game:
  
 
     def main(self):
+        cont = 0
         while self.running:
             key_pressed = pygame.key.get_pressed()
             
@@ -96,6 +99,7 @@ class Game:
                         self.camera_group.scale = 1
 
             self.player.handle_keys(key_pressed, (self.inimigos_grupo, self.camera_group), self.camera_group.desvio, self.camera_group.scale_offset, self.time_elapsed/1000)
+            cont += 1
             
 
             self.player.sprite.update()
@@ -123,7 +127,8 @@ class Game:
             if key_pressed[pygame.K_m] or self.portal[0]==True: #inicia a dungeon
                 self.start_dungeon()
                 self.player.stop = False
-                self.time_elapsed = self.tempo_antes = 0
+                self.time_elapsed = 0
+                cont = 0
                 continue
 
             
@@ -164,12 +169,20 @@ class Game:
             grupo.empty()
 
         grupo_de_salas = ConjuntoDeSalas(self.scale,self.ui, self.camera_group,self.collision_sprites, self.drawables_alone, self.player, self.camera_group.scale_offset)
-        grupo_de_salas.tempo_antes = pygame.time.get_ticks() #pra começar a contar o tempo do gameloop da sala agora só (é bom fazer isso por causa do delta time)
         grupo_de_salas.sala_game_loop() #agora vai pro gameloop da sala
-        del grupo_de_salas
+        grupo_de_salas.tempo_antes = pygame.time.get_ticks() #pra começar a contar o tempo do gameloop da sala agora só (é bom fazer isso por causa do delta time)
+    
+        self.acabou_de_voltar = True
+    
+        self.player.health = 100
+        self.ui.health = 100
+        self.player.max_health = 100
+        self.ui.max_health = 100
 
         self.setup_base() #quando voltar pra base tem que resetar tudo
+        self.tempo_antes = pygame.time.get_ticks() #pra corrigir o bug do delta time
         self.player.rect.x, self.player.rect.y = self.spawn[0], self.spawn[1] #volta pra posicao inicial
+
 
 if __name__ == '__main__':
     jogo = Game()
