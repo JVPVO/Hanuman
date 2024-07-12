@@ -51,6 +51,9 @@ class Player(pygame.sprite.Sprite):
         
         self.scaled = False
         
+        self.som_dano = pygame.mixer.Sound('assets\\dungeon_props\\palyer_damege.wav')
+        self.pegou_item_som = pygame.mixer.Sound('assets\\dungeon_props\\pick-up-item-2.wav')
+
         self.dashing = False
         self.dash_speed = 1860  # Velocidade durante o dash
         self.dash_duration = 300  # Duração do dash em milissegundos
@@ -195,7 +198,7 @@ class Player(pygame.sprite.Sprite):
                 
                 if isinstance(objeto, Dropaveis):
                     self.interacao_com_dropavel(objeto.funcao, objeto.intensidade)
-
+                    self.pegou_item_som.play()
                     if isinstance(objeto, Loja): objeto.delete_others()# se ta na loja quando pega um deleta o resto
 
                     objeto.kill()
@@ -260,6 +263,7 @@ class Player(pygame.sprite.Sprite):
     
     def take_damage(self, amount):
         if pygame.time.get_ticks() - self.last_hit > 200:
+            self.som_dano.play(fade_ms=80)
             self.health -= amount
             damage_number = DamageNumber(self.rect.centerx, self.rect.y, amount)
             self.damage_numbers.append(damage_number)

@@ -21,6 +21,8 @@ class Enemy(pygame.sprite.Sprite):
         self.last_scale_time = pygame.time.get_ticks()
         self.scale_cooldown = 500
         
+        self.som_hit=pygame.mixer.Sound('assets\\dungeon_props\\hit_enemy.wav')
+
         self.camada = 1
         self.y_sort = self.rect.y
         
@@ -119,6 +121,7 @@ class Enemy(pygame.sprite.Sprite):
         return False
 
     def apply_damage(self, dano):
+        self.som_hit.play(fade_ms=100)
         if self.health - dano > 0:
             self.take_damage(dano)
             return False
@@ -127,6 +130,7 @@ class Enemy(pygame.sprite.Sprite):
             return True
 
     def take_damage(self, dano):
+        
         damage_number = DamageNumber(self.rect.centerx, self.rect.y, dano, color=(255,255,255))
         self.damage_numbers.append(damage_number)
         self.health -= dano
@@ -179,6 +183,7 @@ class Rat(Enemy):
         self.weapon = [Bow('assets/Cursed-Bow.png', 70, 30, projectile_group, initial_scale)]
         self.projectile_group = pygame.sprite.Group()
 
+
         #posicao inicial da arma
         self.weapon[0].rect.x = self.rect.x - 10
         self.weapon[0].rect.y = self.rect.y - 10
@@ -227,6 +232,7 @@ class Boss(Enemy):
     #TODO: trocar sprite boss
     def __init__(self, x, y, initial_scale, groups, map_size, projectile_group, colidable_group):
         super().__init__(x, y, initial_scale+1, groups, 'assets\\Knight-Idle-Sheet.png', 4, 32, 32)
+        pygame.mixer.Sound('assets\\dungeon_props\\dramatic-piano-2.wav').play(fade_ms=1000)
         self.speed = 50  # bem devagar
         self.health = 300
         self.ataque = 35
@@ -252,6 +258,10 @@ class Boss(Enemy):
         self.projectiles_to_spawn = []
         self.ja_foi_projeteis = True
         self.last_projectile_spawn_time = 0
+
+        self.swords_som = pygame.mixer.Sound('assets\\dungeon_props\\sword_boss.wav')
+        self.swords_som.set_volume(0.5)
+    
 
     def movement(self, playerX, playerY, deltatime, collision_sprites):
         firstPos = (self.rect.x, self.rect.y)
@@ -364,10 +374,12 @@ class Boss(Enemy):
                     )
                     
                     self.projectile_group.add(projectile)
+                    self.swords_som.play(fade_ms=100)
                     self.last_projectile_spawn_time = tempo
                 else:
                     self.ja_foi_projeteis = False
                     self.projectile_start_time = tempo
+                
         
         elif len(projeteis_boss) > 0: #depois que já tem vai sendo lancado
             if tempo - self.projectile_start_time > self.projectile_move_delay:
@@ -393,7 +405,7 @@ class Boss(Enemy):
     def draw(self, tela, desvio): #só para os projeteis
         for elem in self.projectile_group:
             elem.draw(tela, desvio)
-            pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
+            # pygame.draw.rect(tela, (255,0,255), pygame.Rect(elem.rot_image_rect.x+desvio.x, elem.rot_image_rect.y+desvio.y, elem.rot_image_rect.width, elem.rot_image_rect.height), 2) #debug
 
     def ajuste_ease(self, start, end, coeficiente):
         return start + (end - start) * coeficiente

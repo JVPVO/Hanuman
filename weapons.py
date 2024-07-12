@@ -174,6 +174,8 @@ class Bow(Weapon):
         self.projectile_cooldown = 1 *1000
         self.projectile_sprite = 'assets\Cursed-Arrow.png'
         self.projectile_group = projectile_group
+        self.som_flecha = pygame.mixer.Sound('assets\\dungeon_props\\flecha.wav')
+
     
     def update_rot(self, mx, my):
         
@@ -193,6 +195,7 @@ class Bow(Weapon):
         if pygame.time.get_ticks() - self.last_shoot  >= self.projectile_cooldown: #tirei o keypressed[pygame.K_SPACE] pq o bow por enquanto é do inimigo
             self.shots -= 1
             p = Projectile(self.projectile_sprite, enemyrrect.centerx, enemyrrect.centery, mx+desvio.x, my+desvio.y, 1, self.rect, desvio, self.scale)
+            self.som_flecha.play()
             self.shoot.append(p)
             self.last_shoot = pygame.time.get_ticks()
             self.projectile_group.add(p)

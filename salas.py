@@ -23,7 +23,9 @@ class ConjuntoDeSalas:
         self.player.quem_portal = [False] #vai ser sobrescrito nos setups
         self.portal = self.player.quem_portal #linkou com player
 
-
+        self.game_over_sound = pygame.mixer.Sound('assets\\dungeon_props\\game_over.wav')
+        self.som_porta = pygame.mixer.Sound('assets\\dungeon_props\\door18.wav')
+        self.teminou_som = pygame.mixer.Sound('assets\\dungeon_props\\achievement_00.wav')
         self.saiu = False
 
         self.salas_comuns_sprites = [f'assets\\dungeon_room_1_{i}.tmx' for i in range(5)] # só tem 5 salas por enquanto...
@@ -124,7 +126,15 @@ class ConjuntoDeSalas:
             if key_pressed[pygame.K_e] or self.portal[0]==True:
                 self.saiu = True #acaba com a brincadeira
                 break
-
+            
+            if self.player.health <= 0:
+                self.saiu = True
+                self.player.stop = True
+                self.player.health = 100
+                self.player.max_health = 100
+                self.ui.max_health = 100
+                self.game_over_sound.play(fade_ms=100)
+                break
 
             #tudo relacionado a inimigo
             self.gerenciador_de_inimigos()
@@ -213,6 +223,10 @@ class ConjuntoDeSalas:
                     if len(self.inimigos_grupo) == 0:
                         self.sala.portas = 1
                         self.how_many_cleared += 1
+                        if self.how_many_cleared == self.clear_goal:
+                            self.teminou_som.play(fade_ms=100) #la em cima da update no estado finalizado
+                            
+                   
 
                     #se o inimigo morre pode dropar algo
                     if random.randrange(100) < 20: #chance de drop 20 porcento
@@ -235,6 +249,7 @@ class ConjuntoDeSalas:
 
 
     def mudanca_de_sala(self,player, dest, sala_de_agora, grupo_de_portas:pygame.sprite.Group, grupo_de_colisao:pygame.sprite.Group, camera_group, inimigos_grupo, drawble_alone):
+        self.som_porta.play(fade_ms=100)
         drawble_alone.remove(sala_de_agora)
         grupo_de_colisao.empty()
         camera_group.empty()
