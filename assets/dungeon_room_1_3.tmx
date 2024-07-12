@@ -163,13 +163,13 @@
   <object id="123" x="359" y="127" width="47" height="58"/>
   <object id="124" x="216.5" y="107.5" width="51" height="57"/>
   <object id="125" x="66.3333" y="154.667" width="51" height="57"/>
-  <object id="127" x="44.8333" y="271" width="45.6667" height="41"/>
+  <object id="127" x="52.1666" y="279.667" width="35" height="25.6667"/>
   <object id="126" x="495" y="69.5" width="51" height="57"/>
  </objectgroup>
  <objectgroup id="11" name="first_start_pos_player">
   <object id="128" x="208" y="79" width="20" height="21"/>
   <object id="129" x="70" y="240" width="19" height="16"/>
-  <object id="130" x="554" y="291" width="31" height="32"/>
+  <object id="130" x="548.667" y="262.333" width="31" height="32"/>
   <object id="131" x="570" y="104" width="21" height="23"/>
   <object id="132" x="368" y="80" width="33" height="34"/>
   <object id="133" x="228" y="202" width="34" height="26"/>

@@ -158,10 +158,10 @@
   <object id="240" x="176" y="214" width="64" height="23"/>
  </objectgroup>
  <objectgroup id="10" name="spawn_en">
-  <object id="241" x="252" y="254.667" width="132" height="54"/>
-  <object id="242" x="526" y="145.333" width="70.6667" height="102.667"/>
+  <object id="241" x="251" y="239.667" width="132" height="54"/>
+  <object id="242" x="516" y="140.333" width="62.6667" height="82.6667"/>
   <object id="243" x="79.3333" y="76" width="40.6667" height="40.6667"/>
-  <object id="244" x="73.3333" y="162.667" width="44" height="40.6667"/>
+  <object id="244" x="65.3333" y="155.667" width="36" height="31.6667"/>
   <object id="247" x="356" y="69.3333" width="46" height="34.6667"/>
   <object id="248" x="168.667" y="70.6667" width="42" height="38.6667"/>
  </objectgroup>

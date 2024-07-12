@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="161">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="162">
  <tileset firstgid="1" source="base/dungeon prisao - tiles.tsx"/>
  <tileset firstgid="626" source="base/dungeon_reaction_objects.tsx"/>
  <tileset firstgid="630" source="base/dungeon_props.tsx"/>
@@ -151,13 +151,13 @@
  <objectgroup id="10" name="spawn_en">
   <object id="46" x="485.333" y="196" width="112" height="28"/>
   <object id="47" x="427.333" y="54.667" width="112" height="30"/>
-  <object id="48" x="231.333" y="204" width="112" height="30"/>
-  <object id="50" x="235.333" y="291.334" width="96.6667" height="26"/>
-  <object id="49" x="45.333" y="200" width="112" height="36"/>
+  <object id="48" x="235.333" y="196" width="112" height="30"/>
+  <object id="50" x="248.333" y="271.834" width="96.6667" height="26"/>
+  <object id="49" x="48.833" y="203" width="112" height="36"/>
  </objectgroup>
  <objectgroup id="11" name="first_start_pos_player">
-  <object id="152" x="257.333" y="78" width="49.3333" height="49.3333"/>
-  <object id="153" x="168.667" y="234.667" width="54" height="32"/>
+  <object id="152" x="255.833" y="85" width="49.3333" height="49.3333"/>
+  <object id="153" x="171.167" y="239.167" width="54" height="32"/>
   <object id="154" x="398" y="210" width="47.3333" height="28.6667"/>
   <object id="155" x="554.667" y="83.3333" width="38" height="32"/>
  </objectgroup>

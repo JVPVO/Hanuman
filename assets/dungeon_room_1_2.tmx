@@ -151,10 +151,10 @@
   <object id="139" x="406" y="160.667" width="46.6667" height="31.3333"/>
  </objectgroup>
  <objectgroup id="10" name="spawn_en">
-  <object id="133" x="95.3332" y="133" width="112" height="72.6667"/>
+  <object id="133" x="98.6665" y="148.333" width="112" height="72.6667"/>
   <object id="134" x="284" y="70.9998" width="112" height="72.6667"/>
   <object id="135" x="502" y="167" width="99" height="72.6667"/>
-  <object id="136" x="234.666" y="164.333" width="112" height="72.6667"/>
+  <object id="136" x="249.333" y="163" width="112" height="72.6667"/>
  </objectgroup>
  <objectgroup id="12" name="portal_img">
   <object id="140" gid="697" x="135" y="61.3333" width="15" height="16"/>
@@ -164,6 +164,6 @@
  </objectgroup>
  <objectgroup id="11" name="first_start_pos_player">
   <object id="126" x="178" y="70.6667" width="62" height="61.3333"/>
-  <object id="127" x="443.333" y="198" width="66.6667" height="66"/>
+  <object id="127" x="475.333" y="164.667" width="66.6667" height="66"/>
  </objectgroup>
 </map>
